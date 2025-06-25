@@ -40,6 +40,7 @@
     cursor: pointer;
     padding: 6px 8px;
     border-radius: 5px;
+    transition: background-color 0.3s ease;
   }
   #file-list li:hover {
     background-color: #333;
@@ -167,7 +168,8 @@
 
   async function fetchFiles() {
     try {
-      const res = await fetch(`https://api.github.com/repos/${githubUser}/${repoName}/contents/`);
+      // শুধু codes ফোল্ডারের কনটেন্ট নিতে নিচের URL ব্যবহার করো
+      const res = await fetch(`https://api.github.com/repos/${githubUser}/${repoName}/contents/codes`);
       if (!res.ok) throw new Error('Failed to fetch repo content');
       const data = await res.json();
       const cFiles = data.filter(file => file.name.endsWith('.c'));
@@ -176,8 +178,9 @@
         const li = document.createElement('li');
         li.textContent = file.name;
         li.onclick = () => {
-          if(activeFileLi) activeFileLi.classList.remove('active');
+          if (activeFileLi) activeFileLi.classList.remove('active');
           li.classList.add('active');
+          activeFileLi = li;
           loadCode(file.download_url);
         };
         fileListEl.appendChild(li);
