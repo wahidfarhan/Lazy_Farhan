@@ -74,6 +74,8 @@
     margin: 0;
     padding: 15px;
     font-size: 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
   .line-numbers {
     padding-left: 50px !important;
@@ -174,6 +176,7 @@
   <div id="statusMsg"></div>
 </div>
 
+<!-- Prism scripts -->
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
@@ -233,9 +236,10 @@ async function selectFile(file, listItem) {
 
     currentFileName = file.name;
     currentCode = codeText;
+
     const codeEl = codeBlockEl.querySelector('code');
-    codeEl.textContent = currentCode;
-    Prism.highlightElement(codeEl);
+    codeEl.innerHTML = Prism.highlight(codeText, Prism.languages.c, 'c'); // ✅ color highlighting
+
     outputEl.value = "";
     inputEl.value = "";
     statusMsg.textContent = "";
