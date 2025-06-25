@@ -233,9 +233,19 @@ async function selectFile(file, listItem) {
 
     currentFileName = file.name;
     currentCode = codeText;
-    const codeEl = codeBlockEl.querySelector('code');
-    codeEl.textContent = currentCode;
-    Prism.highlightElement(codeEl);
+
+    const newCodeEl = document.createElement("code");
+    newCodeEl.className = "language-c";
+    newCodeEl.textContent = currentCode;
+
+    const pre = document.createElement("pre");
+    pre.className = "line-numbers language-c";
+    pre.appendChild(newCodeEl);
+
+    codeBlockEl.parentNode.replaceChild(pre, codeBlockEl);
+    codeBlockEl = pre;
+
+    Prism.highlightElement(newCodeEl);
     outputEl.value = "";
     inputEl.value = "";
     statusMsg.textContent = "";
