@@ -147,10 +147,11 @@
     #descriptionBox {
       border-bottom: 2px solid #238636;
       overflow-y: auto;
-      max-height: 150px;
-      padding: 10px;
+      max-height: 160px;
+      padding: 12px 15px;
       white-space: pre-wrap;
       font-size: 14px;
+      line-height: 1.5;
       background-color: #1e1e1e;
       color: #c9d1d9;
       border-radius: 5px;
@@ -177,6 +178,16 @@
       min-height: 20px;
       font-style: italic;
     }
+    #uploadedDate {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: 0.9em;
+      color: #56d364;
+      user-select: none;
+    }
+
+    /* Scrollbar styling */
     #sidebar::-webkit-scrollbar,
     #codeContainer::-webkit-scrollbar,
     #ioSide::-webkit-scrollbar,
@@ -225,13 +236,14 @@
       white-space: nowrap;
       overflow: hidden;
     }
-    #uploadedDate {
-      position: absolute;
-      bottom: 10px;
-      right: 20px;
-      font-size: 0.9em;
-      color: #56d364;
-      user-select: none;
+    /* Uploaded date mobile fix */
+    @media (max-width: 768px) {
+      #uploadedDate {
+        position: static;
+        margin-top: 8px;
+        text-align: center;
+        color: #56d364;
+      }
     }
 
     /* Responsive Styles for Mobile */
@@ -289,12 +301,6 @@
         font-size: 18px;
         height: 35px;
         padding-left: 10px;
-      }
-      #uploadedDate {
-        position: static;
-        margin-top: 8px;
-        text-align: center;
-        color: #56d364;
       }
     }
   </style>
@@ -388,6 +394,9 @@
   async function showFolder(path) {
     // Update back button visibility
     backBtn.style.display = folderStack.length > 0 ? "block" : "none";
+
+    // Update document title with folder name
+    document.title = path ? `Farhans Practice Problems - ${path}` : "Farhans Practice Problems";
 
     fileListEl.innerHTML = "<li>Loading...</li>";
     const data = await fetchFolderContent(path);
@@ -533,27 +542,89 @@
       const inputRes = await fetch(inputUrl);
       if (inputRes.ok) {
         const inputText = await inputRes.text();
-
         const parsed = await parseInputFile(inputText);
-
-        inputEl.value = parsed.input || "";
-        descriptionEl.textContent = parsed.description || "No description provided.";
-        expectedOutputEl.textContent = parsed.output || "Not available.";
+        inputEl.value = parsed.input;
+        expectedOutputEl.textContent = parsed.output || "Not loaded";
+        descriptionEl.textContent = parsed.description || "No description available.";
       } else {
         inputEl.value = "";
-        descriptionEl.textContent = "No description available.";
         expectedOutputEl.textContent = "Not loaded";
+        descriptionEl.textContent = "No description available.";
       }
     } catch {
       inputEl.value = "";
-      descriptionEl.textContent = "No description available.";
       expectedOutputEl.textContent = "Not loaded";
+      descriptionEl.textContent = "No description available.";
     }
 
     outputEl.value = "";
     statusMsg.textContent = "";
   }
 
+  async function runCode() {
+    if (!currentCode) {
+      statusMsg.textContent = "No code loaded.";
+      return;
+    }
+    statusMsg.textContent = "Running...";
+    outputEl.value = "";
+
+    const source_code = currentCode;
+    const stdin = inputEl.value;
+
+    try {
+      // Create submission
+      const submissionRes = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=false", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-RapidAPI-Host": rapidApiHost,
+          "X-RapidAPI-Key": rapidApiKey,
+        },
+        body: JSON.stringify({
+          language_id: 50, // C (gcc)
+          source_code,
+          stdin
+        }),
+      });
+      if (!submissionRes.ok) throw new Error("Failed to create submission");
+
+      const submissionData = await submissionRes.json();
+      const token = submissionData.token;
+      if (!token) throw new Error("No submission token received");
+
+      // Poll for result
+      let result = null;
+      while (true) {
+        await new Promise(r => setTimeout(r, 1500));
+        const resultRes = await fetch(`https://judge0-ce.p.rapidapi.com/submissions/${token}?base64_encoded=false`, {
+          headers: {
+            "X-RapidAPI-Host": rapidApiHost,
+            "X-RapidAPI-Key": rapidApiKey,
+          },
+        });
+        if (!resultRes.ok) throw new Error("Failed to get result");
+        result = await resultRes.json();
+        if (result.status && result.status.id >= 3) break;
+      }
+
+      if (result.stdout) {
+        outputEl.value = result.stdout;
+      } else if (result.compile_output) {
+        outputEl.value = "Compile error:\n" + result.compile_output;
+      } else if (result.stderr) {
+        outputEl.value = "Runtime error:\n" + result.stderr;
+      } else {
+        outputEl.value = "Unknown error or empty output.";
+      }
+      statusMsg.textContent = `Status: ${result.status.description}`;
+    } catch (err) {
+      statusMsg.textContent = "Error running code.";
+      console.error(err);
+    }
+  }
+
+  runBtn.addEventListener("click", runCode);
   backBtn.addEventListener("click", () => {
     if (folderStack.length > 0) {
       currentPath = folderStack.pop();
@@ -562,81 +633,35 @@
     }
   });
 
-  async function runCode() {
-    if (!currentCode.trim()) {
-      statusMsg.textContent = "No code loaded to run.";
-      return;
-    }
-    statusMsg.textContent = "Running code...";
-
-    const source_code = currentCode;
-    const stdin = inputEl.value;
-
-    const payload = {
-      language_id: 50, // C language (gcc)
-      source_code: source_code,
-      stdin: stdin,
-    };
-
-    try {
-      const response = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-RapidAPI-Host": rapidApiHost,
-          "X-RapidAPI-Key": rapidApiKey,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error("Error running code");
-
-      const result = await response.json();
-
-      if (result.stderr) {
-        outputEl.value = `Error:\n${result.stderr}`;
-      } else if (result.compile_output) {
-        outputEl.value = `Compile Error:\n${result.compile_output}`;
-      } else {
-        outputEl.value = result.stdout || "";
-      }
-      statusMsg.textContent = "Run completed.";
-    } catch (err) {
-      outputEl.value = "";
-      statusMsg.textContent = "Failed to run code.";
-      console.error(err);
-    }
-  }
-
-  runBtn.addEventListener("click", runCode);
-
-  // Initial load
-  showFolder(folderPathRoot);
-
-  // Highlight.js init (line numbers)
-  hljs.highlightAll();
-  hljs.lineNumbersBlock(document.getElementById("codeBlock"));
-
-  // Typing animation bottom
-  const typingTextEl = document.getElementById("typingText");
-  const typingMessage = "Farhan practice problems . . .";
+  // Typing animation
+  const typingTexts = [
+    "যেকোনো ফোল্ডার থেকে .c ফাইল সিলেক্ট করো",
+    "ইনপুট এ তোমার টেস্টকেস বসাও",
+    "Run বোতামে ক্লিক করো",
+    "Judge0 API তে কোড রান হবে",
+    "আউটপুট নিচের আউটপুট বক্সে দেখাবে",
+  ];
   let typingIndex = 0;
-
-  function typeWriter() {
-    if (typingIndex < typingMessage.length) {
-      typingTextEl.textContent += typingMessage.charAt(typingIndex);
-      typingIndex++;
-      setTimeout(typeWriter, 150);
+  let charIndex = 0;
+  const typingTextEl = document.getElementById("typingText");
+  function typingAnimation() {
+    if (charIndex < typingTexts[typingIndex].length) {
+      typingTextEl.textContent += typingTexts[typingIndex].charAt(charIndex);
+      charIndex++;
+      setTimeout(typingAnimation, 80);
     } else {
       setTimeout(() => {
+        charIndex = 0;
         typingTextEl.textContent = "";
-        typingIndex = 0;
-        typeWriter();
-      }, 3000);
+        typingIndex = (typingIndex + 1) % typingTexts.length;
+        setTimeout(typingAnimation, 600);
+      }, 2000);
     }
   }
-  typeWriter();
+  typingAnimation();
 
+  // Init
+  showFolder(folderPathRoot);
 </script>
 
 </body>
