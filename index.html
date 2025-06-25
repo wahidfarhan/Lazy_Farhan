@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>My C Practice Codes</title>
+<title>My C Practice Codes - Run Online</title>
 
 <style>
-  /* Dark theme styling */
   body {
-    margin: 0;
+    margin: 0; padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #121212;
     color: #eee;
@@ -91,17 +90,36 @@
     line-height: 1.4em;
   }
 
+  #input-label {
+    padding: 8px 16px;
+    background: #222;
+    border-top: 1px solid #333;
+  }
+
+  #stdin {
+    width: 100%;
+    height: 80px;
+    background: #222;
+    color: #eee;
+    font-family: monospace;
+    font-size: 14px;
+    border: none;
+    padding: 8px;
+    resize: vertical;
+  }
+
   #output-container {
     background-color: #222;
     color: #0f0;
     padding: 10px 16px;
     font-family: monospace;
-    height: 120px;
+    height: 150px;
     overflow-y: auto;
     border-top: 1px solid #333;
+    white-space: pre-wrap;
   }
 
-  /* Syntax highlighting (basic) */
+  /* Syntax highlighting */
   .keyword { color: #569cd6; }
   .type { color: #4ec9b0; }
   .string { color: #d69d85; }
@@ -114,7 +132,7 @@
 
 <div id="file-list">
   <ul id="files-ul">
-    <!-- File list populated here -->
+    <!-- File list here -->
   </ul>
 </div>
 
@@ -125,63 +143,54 @@
   </header>
 
   <pre id="code-container">// Select a file from the left to load code here.</pre>
+
+  <div id="input-label">Input (stdin):</div>
+  <textarea id="stdin" placeholder="Enter input here..."></textarea>
+
   <div id="output-container">Output will appear here...</div>
 </div>
 
 <script>
-// Your GitHub repo info here
 const githubUser = 'wahidfarhan';
-const repoName = 'Lazy_Farhan';  // তোমার রিপো নাম
-const folderPath = 'codes';      // কোডগুলো সেই ফোল্ডার
+const repoName = 'Lazy_Farhan';
+const folderPath = 'codes';
 
-// Elements
 const filesUl = document.getElementById('files-ul');
 const codeContainer = document.getElementById('code-container');
 const outputContainer = document.getElementById('output-container');
 const runBtn = document.getElementById('run-btn');
+const stdinArea = document.getElementById('stdin');
 
 let filesList = [];
 let currentSelectedIndex = -1;
 let currentCode = '';
 
-// Basic syntax highlight for C code (simple regex based)
 function syntaxHighlight(code) {
-  // Escape HTML special chars
   code = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-  // Comments
   code = code.replace(/(\/\/.*?$)/gm, '<span class="comment">$1</span>');
-
-  // Strings
   code = code.replace(/(\".*?\")/g, '<span class="string">$1</span>');
 
-  // Keywords
   const keywords = ['int', 'void', 'char', 'float', 'double', 'if', 'else', 'while', 'for', 'return', 'break', 'continue', 'struct', 'switch', 'case', 'default', 'sizeof', 'do'];
   const keywordRegex = new RegExp('\\b(' + keywords.join('|') + ')\\b', 'g');
   code = code.replace(keywordRegex, '<span class="keyword">$1</span>');
 
-  // Types (basic)
   const types = ['int', 'char', 'float', 'double', 'void', 'long', 'short', 'unsigned', 'signed', 'const'];
   const typeRegex = new RegExp('\\b(' + types.join('|') + ')\\b', 'g');
   code = code.replace(typeRegex, '<span class="type">$1</span>');
 
-  // Numbers
   code = code.replace(/\b(\d+)\b/g, '<span class="number">$1</span>');
 
   return code;
 }
 
-// Fetch list of files in the folder
 async function fetchFileList() {
   try {
     const res = await fetch(`https://api.github.com/repos/${githubUser}/${repoName}/contents/${folderPath}`);
     if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
     const data = await res.json();
 
-    // Filter only .c files
     filesList = data.filter(item => item.type === 'file' && item.name.endsWith('.c'));
 
-    // Populate UI
     filesUl.innerHTML = '';
     filesList.forEach((file, idx) => {
       const li = document.createElement('li');
@@ -195,11 +204,9 @@ async function fetchFileList() {
   }
 }
 
-// Select file and load code
 async function selectFile(idx) {
   if (currentSelectedIndex === idx) return;
 
-  // Remove active from old
   if (currentSelectedIndex !== -1) {
     filesUl.children[currentSelectedIndex].classList.remove('active');
   }
@@ -207,8 +214,8 @@ async function selectFile(idx) {
   currentSelectedIndex = idx;
   filesUl.children[idx].classList.add('active');
 
-  // Clear previous output
   outputContainer.textContent = 'Output will appear here...';
+  stdinArea.value = '';
 
   try {
     const file = filesList[idx];
@@ -222,16 +229,54 @@ async function selectFile(idx) {
   }
 }
 
-// Run button click (simulate running code)
-runBtn.addEventListener('click', () => {
+async function runCode() {
   if (!currentCode) {
     outputContainer.textContent = 'Please select a code file first.';
     return;
   }
-  outputContainer.textContent = 'Running code...\n\n[Note] Real C code execution not supported in browser.';
-});
 
-// Init
+  outputContainer.textContent = 'Running code...';
+
+  // Prepare data for Judge0 API
+  // https://judge0.com/
+  const payload = {
+    language_id: 50,  // C (gcc)
+    source_code: currentCode,
+    stdin: stdinArea.value
+  };
+
+  try {
+    // Create submission
+    const response = await fetch('https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
+        'X-RapidAPI-Key': '2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02' // তোমার RapidAPI key
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error('Error from Judge0 API: ' + response.statusText);
+
+    const result = await response.json();
+
+    if (result.stdout) {
+      outputContainer.textContent = result.stdout;
+    } else if (result.compile_output) {
+      outputContainer.textContent = "Compile error:\n" + result.compile_output;
+    } else if (result.stderr) {
+      outputContainer.textContent = "Runtime error:\n" + result.stderr;
+    } else {
+      outputContainer.textContent = "Unknown error occurred.";
+    }
+  } catch (err) {
+    outputContainer.textContent = "Error: " + err.message;
+  }
+}
+
+runBtn.addEventListener('click', runCode);
+
 fetchFileList();
 
 </script>
