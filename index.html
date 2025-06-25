@@ -114,7 +114,6 @@
       font-weight: bold;
       color: #238636;
       margin-bottom: 5px;
-      display: block;
     }
     textarea {
       width: 100%;
@@ -125,35 +124,28 @@
       padding: 10px;
       resize: vertical;
       min-height: 80px;
+      max-height: 180px;   /* max height for scrolling */
+      overflow-y: auto;    /* vertical scrollbar */
       font-family: monospace;
       font-size: 14px;
-      overflow-y: auto;
     }
     #output {
       color: #56d364;
     }
     .readonly-box {
-      background-color: #1e1e1e;
-      border: 2px solid #444;
+      user-select: none;
+      background-color: #21262d;
+      color: #c9d1d9;
+      border: 2px solid #238636;
       border-radius: 5px;
       padding: 10px;
-      white-space: pre-wrap;
+      font-family: monospace;
       font-size: 14px;
       min-height: 80px;
-      overflow-y: auto;
-      max-height: 150px;
-      color: #c9d1d9;
-    }
-    #descriptionBox {
-      border-bottom: 2px solid #238636;
-      overflow-y: auto;
-      max-height: 150px;
-      padding: 10px;
+      max-height: 180px;  /* max height for scrolling */
+      overflow-y: auto;   /* vertical scrollbar */
       white-space: pre-wrap;
-      font-size: 14px;
-      background-color: #1e1e1e;
-      color: #c9d1d9;
-      border-radius: 5px;
+      word-break: break-word;
     }
     #runBtn {
       margin-top: 10px;
@@ -180,29 +172,23 @@
     #sidebar::-webkit-scrollbar,
     #codeContainer::-webkit-scrollbar,
     #ioSide::-webkit-scrollbar,
-    .readonly-box::-webkit-scrollbar,
-    #descriptionBox::-webkit-scrollbar,
-    textarea::-webkit-scrollbar {
+    .readonly-box::-webkit-scrollbar {
       width: 8px;
     }
     #sidebar::-webkit-scrollbar-thumb,
     #codeContainer::-webkit-scrollbar-thumb,
     #ioSide::-webkit-scrollbar-thumb,
-    .readonly-box::-webkit-scrollbar-thumb,
-    #descriptionBox::-webkit-scrollbar-thumb,
-    textarea::-webkit-scrollbar-thumb {
+    .readonly-box::-webkit-scrollbar-thumb {
       background-color: #000000;
       border-radius: 4px;
     }
     #sidebar::-webkit-scrollbar-track,
     #codeContainer::-webkit-scrollbar-track,
     #ioSide::-webkit-scrollbar-track,
-    .readonly-box::-webkit-scrollbar-track,
-    #descriptionBox::-webkit-scrollbar-track,
-    textarea::-webkit-scrollbar-track {
+    .readonly-box::-webkit-scrollbar-track {
       background-color: #121212;
     }
-    #sidebar, #codeContainer, #ioSide, .readonly-box, #descriptionBox, textarea {
+    #sidebar, #codeContainer, #ioSide, .readonly-box {
       scrollbar-width: thin;
       scrollbar-color: #000000 #121212;
     }
@@ -275,6 +261,10 @@
       textarea {
         font-size: 13px;
         min-height: 60px;
+        max-height: 150px;
+      }
+      .readonly-box {
+        max-height: 150px;
       }
       #runBtn {
         width: 100%;
@@ -328,7 +318,7 @@
         </div>
         <div class="io-box">
           <label>📝 Description <span id="fileNameLabel" style="color:#56d364; font-weight: normal; font-size: 0.9em; margin-left: 8px;"></span></label>
-          <div id="descriptionBox">No description available.</div>
+          <div id="descriptionBox" class="readonly-box">No description available.</div>
         </div>
       </div>
     </div>
@@ -386,7 +376,6 @@
   }
 
   async function showFolder(path) {
-    // Update back button visibility
     backBtn.style.display = folderStack.length > 0 ? "block" : "none";
 
     fileListEl.innerHTML = "<li>Loading...</li>";
@@ -397,7 +386,6 @@
     const folders = data.filter(item => item.type === "dir");
     const cFiles = data.filter(item => item.type === "file" && item.name.endsWith(".c"));
 
-    // Clear current list
     fileListEl.innerHTML = "";
 
     if (folders.length === 0 && cFiles.length === 0) {
@@ -541,17 +529,68 @@
         expectedOutputEl.textContent = parsed.output || "Not available.";
       } else {
         inputEl.value = "";
-        descriptionEl.textContent = "No description available.";
-        expectedOutputEl.textContent = "Not loaded";
+        descriptionEl.textContent = "No input or description found.";
+        expectedOutputEl.textContent = "Not available.";
       }
     } catch {
       inputEl.value = "";
-      descriptionEl.textContent = "No description available.";
-      expectedOutputEl.textContent = "Not loaded";
+      descriptionEl.textContent = "No input or description found.";
+      expectedOutputEl.textContent = "Not available.";
     }
 
     outputEl.value = "";
     statusMsg.textContent = "";
+  }
+
+  async function runCode() {
+    if (!currentCode) {
+      alert("Please select a C file first.");
+      return;
+    }
+
+    runBtn.disabled = true;
+    statusMsg.textContent = "Running...";
+    outputEl.value = "";
+
+    try {
+      const response = await fetch(`https://${rapidApiHost}/submissions?base64_encoded=false&wait=true&fields=*`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-RapidAPI-Host": rapidApiHost,
+          "X-RapidAPI-Key": rapidApiKey
+        },
+        body: JSON.stringify({
+          language_id: 50, // C language id for Judge0
+          source_code: currentCode,
+          stdin: inputEl.value
+        })
+      });
+
+      if (!response.ok) throw new Error("Failed to run code");
+
+      const result = await response.json();
+
+      if (result.stdout) {
+        outputEl.value = result.stdout;
+        statusMsg.textContent = "Success";
+      } else if (result.stderr) {
+        outputEl.value = "Error:\n" + result.stderr;
+        statusMsg.textContent = "Runtime Error";
+      } else if (result.compile_output) {
+        outputEl.value = "Compile Error:\n" + result.compile_output;
+        statusMsg.textContent = "Compile Error";
+      } else {
+        outputEl.value = "Unknown Error";
+        statusMsg.textContent = "Error";
+      }
+    } catch (err) {
+      outputEl.value = "";
+      statusMsg.textContent = "Failed to run code";
+      console.error(err);
+    } finally {
+      runBtn.disabled = false;
+    }
   }
 
   backBtn.addEventListener("click", () => {
@@ -562,81 +601,41 @@
     }
   });
 
-  async function runCode() {
-    if (!currentCode.trim()) {
-      statusMsg.textContent = "No code loaded to run.";
-      return;
-    }
-    statusMsg.textContent = "Running code...";
+  runBtn.addEventListener("click", runCode);
 
-    const source_code = currentCode;
-    const stdin = inputEl.value;
+  // Typing animation at bottom
+  const typingTextEl = document.getElementById("typingText");
+  const typingStrings = ["Farhans Practice Problems", "Solving with C language", "Happy Coding!"];
+  let typingIndex = 0;
+  let charIndex = 0;
+  let typingForward = true;
 
-    const payload = {
-      language_id: 50, // C language (gcc)
-      source_code: source_code,
-      stdin: stdin,
-    };
-
-    try {
-      const response = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-RapidAPI-Host": rapidApiHost,
-          "X-RapidAPI-Key": rapidApiKey,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error("Error running code");
-
-      const result = await response.json();
-
-      if (result.stderr) {
-        outputEl.value = `Error:\n${result.stderr}`;
-      } else if (result.compile_output) {
-        outputEl.value = `Compile Error:\n${result.compile_output}`;
+  function type() {
+    if (typingForward) {
+      if (charIndex < typingStrings[typingIndex].length) {
+        typingTextEl.textContent += typingStrings[typingIndex].charAt(charIndex);
+        charIndex++;
+        setTimeout(type, 120);
       } else {
-        outputEl.value = result.stdout || "";
+        typingForward = false;
+        setTimeout(type, 800);
       }
-      statusMsg.textContent = "Run completed.";
-    } catch (err) {
-      outputEl.value = "";
-      statusMsg.textContent = "Failed to run code.";
-      console.error(err);
+    } else {
+      if (charIndex > 0) {
+        typingTextEl.textContent = typingStrings[typingIndex].substring(0, charIndex - 1);
+        charIndex--;
+        setTimeout(type, 80);
+      } else {
+        typingForward = true;
+        typingIndex = (typingIndex + 1) % typingStrings.length;
+        setTimeout(type, 500);
+      }
     }
   }
-
-  runBtn.addEventListener("click", runCode);
+  type();
 
   // Initial load
   showFolder(folderPathRoot);
-
-  // Highlight.js init (line numbers)
-  hljs.highlightAll();
-  hljs.lineNumbersBlock(document.getElementById("codeBlock"));
-
-  // Typing animation bottom
-  const typingTextEl = document.getElementById("typingText");
-  const typingMessage = "Farhan practice problems . . .";
-  let typingIndex = 0;
-
-  function typeWriter() {
-    if (typingIndex < typingMessage.length) {
-      typingTextEl.textContent += typingMessage.charAt(typingIndex);
-      typingIndex++;
-      setTimeout(typeWriter, 150);
-    } else {
-      setTimeout(() => {
-        typingTextEl.textContent = "";
-        typingIndex = 0;
-        typeWriter();
-      }, 3000);
-    }
-  }
-  typeWriter();
-
 </script>
 
 </body>
