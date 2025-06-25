@@ -5,42 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Practice C - Run Your Code</title>
 
-  <!-- highlight.js GitHub dark theme -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
 
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0d1117;
-      color: #c9d1d9;
       display: flex;
       height: 100vh;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
     }
+
     #sidebar {
       width: 280px;
       background: #161b22;
+      border-right: 3px solid #30363d;
       padding: 15px;
       overflow-y: auto;
-      border-right: 3px solid #30363d;
     }
+
     #sidebar h2 {
-      color: #238636;
+      margin: 0 0 15px;
       border-bottom: 2px solid #238636;
-      padding-bottom: 5px;
+      color: #238636;
     }
+
     #fileList {
       list-style: none;
       padding: 0;
+      margin: 0;
     }
+
     #fileList li {
-      padding: 8px 12px;
       background: #21262d;
+      padding: 8px;
       margin-bottom: 6px;
       border-radius: 5px;
       cursor: pointer;
     }
+
     #fileList li.active {
       background: #238636;
       color: white;
@@ -74,18 +79,21 @@
       padding: 15px;
     }
 
+    .hljs td.hljs-ln-code {
+      padding-left: 12px;
+    }
+
     #ioSide {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 12px;
     }
 
     .io-box label {
       font-weight: bold;
       color: #238636;
       margin-bottom: 5px;
-      display: block;
     }
 
     textarea {
@@ -96,7 +104,7 @@
       border-radius: 5px;
       padding: 10px;
       resize: vertical;
-      min-height: 100px;
+      min-height: 80px;
       font-family: monospace;
       font-size: 14px;
     }
@@ -105,8 +113,17 @@
       color: #56d364;
     }
 
+    .readonly-box {
+      background-color: #1e1e1e;
+      border: 2px solid #444;
+      border-radius: 5px;
+      padding: 10px;
+      white-space: pre-wrap;
+      font-size: 14px;
+    }
+
     #runBtn {
-      margin-top: 15px;
+      margin-top: 10px;
       background: #238636;
       border: none;
       padding: 10px 20px;
@@ -122,15 +139,10 @@
     }
 
     #statusMsg {
-      margin-top: 10px;
+      margin-top: 8px;
       color: #999;
       min-height: 20px;
       font-style: italic;
-    }
-
-    /* Line number spacing */
-    .hljs td.hljs-ln-code {
-      padding-left: 12px;
     }
   </style>
 </head>
@@ -148,12 +160,20 @@
     </div>
     <div id="ioSide">
       <div class="io-box">
-        <label for="input">📥 Sample Input</label>
-        <textarea id="input" placeholder="Auto loaded or write here..."></textarea>
+        <label for="input">📥 Input</label>
+        <textarea id="input"></textarea>
       </div>
       <div class="io-box">
         <label for="output">📤 Output</label>
         <textarea id="output" readonly></textarea>
+      </div>
+      <div class="io-box">
+        <label>✅ Expected Output</label>
+        <div id="expectedOutput" class="readonly-box">Not loaded</div>
+      </div>
+      <div class="io-box">
+        <label>📝 Description</label>
+        <div id="descriptionBox" class="readonly-box">No description available.</div>
       </div>
     </div>
   </div>
@@ -161,7 +181,6 @@
   <div id="statusMsg"></div>
 </div>
 
-<!-- highlight.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
@@ -179,33 +198,31 @@ const inputEl = document.getElementById("input");
 const outputEl = document.getElementById("output");
 const runBtn = document.getElementById("runBtn");
 const statusMsg = document.getElementById("statusMsg");
+const descriptionEl = document.getElementById("descriptionBox");
+const expectedOutputEl = document.getElementById("expectedOutput");
 
 let currentCode = "";
 
 async function fetchFileList() {
-  try {
-    const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}`;
-    const res = await fetch(apiUrl);
-    const data = await res.json();
+  const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}`;
+  const res = await fetch(apiUrl);
+  const data = await res.json();
+  const cFiles = data.filter(file => file.name.endsWith(".c"));
 
-    const cFiles = data.filter(file => file.name.endsWith(".c"));
-    fileListEl.innerHTML = "";
-
-    cFiles.forEach(file => {
-      const li = document.createElement("li");
-      li.textContent = file.name;
-      li.addEventListener("click", () => selectFile(file, li));
-      fileListEl.appendChild(li);
-    });
-  } catch (err) {
-    fileListEl.innerHTML = `<li style="color:red;">Error loading files</li>`;
-  }
+  fileListEl.innerHTML = "";
+  cFiles.forEach(file => {
+    const li = document.createElement("li");
+    li.textContent = file.name;
+    li.addEventListener("click", () => selectFile(file, li));
+    fileListEl.appendChild(li);
+  });
 }
 
 async function selectFile(file, li) {
   [...fileListEl.children].forEach(el => el.classList.remove("active"));
   li.classList.add("active");
 
+  // Load code
   const res = await fetch(file.download_url);
   const codeText = await res.text();
 
@@ -214,14 +231,27 @@ async function selectFile(file, li) {
   hljs.highlightElement(codeBlockEl);
   hljs.lineNumbersBlock(codeBlockEl);
 
-  // Load matching input
-  const inputFileName = file.name.replace(/\.c$/, ".in");
-  const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${inputFileName}`);
+  // Load input + description
+  const baseName = file.name.replace(/\.c$/, '');
+  const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.in`);
+  const outUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.out`);
+
   try {
     const inputRes = await fetch(inputUrl);
-    inputEl.value = inputRes.ok ? await inputRes.text() : "";
+    const inputText = await inputRes.text();
+    const parts = inputText.split(/description/i);
+    inputEl.value = parts[0].trim();
+    descriptionEl.textContent = (parts[1] || "No description.").trim();
   } catch {
     inputEl.value = "";
+    descriptionEl.textContent = "No input or description found.";
+  }
+
+  try {
+    const outRes = await fetch(outUrl);
+    expectedOutputEl.textContent = outRes.ok ? await outRes.text() : "Not available.";
+  } catch {
+    expectedOutputEl.textContent = "Not available.";
   }
 
   outputEl.value = "";
@@ -230,7 +260,7 @@ async function selectFile(file, li) {
 
 async function runCode() {
   if (!currentCode) {
-    alert("Please select a file first");
+    alert("Please select a C file.");
     return;
   }
 
@@ -258,10 +288,10 @@ async function runCode() {
     else if (result.compile_output) outputEl.value = `Compile Error:\n${result.compile_output}`;
     else outputEl.value = result.stdout || "";
   } catch (e) {
-    outputEl.value = "Error running code: " + e.message;
+    outputEl.value = "Error: " + e.message;
   } finally {
-    statusMsg.textContent = "";
     runBtn.disabled = false;
+    statusMsg.textContent = "";
   }
 }
 
