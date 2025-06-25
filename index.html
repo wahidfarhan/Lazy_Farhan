@@ -1,149 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Practice C - Run Your Code</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Practice C - Run Your Code</title>
 
-<!-- Prism.js for syntax highlighting -->
-<link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-vsc-dark-plus.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-vsc-dark-plus.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
 
-<style>
-  body {
-    background-color: #121212;
-    color: #eee;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0; padding: 0;
-    display: flex;
-    height: 100vh;
-  }
-  #sidebar {
-    width: 320px;
-    background-color: #1e1e1e;
-    border-right: 3px solid #333;
-    padding: 15px;
-    overflow-y: auto;
-  }
-  #sidebar h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #0f9d58;
-    padding-bottom: 5px;
-    color: #0f9d58;
-  }
-  #fileList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  #fileList li {
-    padding: 10px;
-    margin-bottom: 5px;
-    background-color: #222;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-    border: 2px solid transparent;
-  }
-  #fileList li:hover {
-    background-color: #333;
-  }
-  #fileList li.active {
-    background-color: #0f9d58;
-    color: #fff;
-    border: 2px solid #0f9d58;
-  }
+  <style>
+    body {
+      background-color: #121212;
+      color: #eee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0;
+      display: flex;
+      height: 100vh;
+    }
+    #sidebar {
+      width: 320px;
+      background-color: #1e1e1e;
+      border-right: 3px solid #333;
+      padding: 15px;
+      overflow-y: auto;
+    }
+    #sidebar h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #0f9d58;
+      padding-bottom: 5px;
+      color: #0f9d58;
+    }
+    #fileList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #fileList li {
+      padding: 10px;
+      margin-bottom: 5px;
+      background-color: #222;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+      border: 2px solid transparent;
+    }
+    #fileList li:hover {
+      background-color: #333;
+    }
+    #fileList li.active {
+      background-color: #0f9d58;
+      color: #fff;
+      border: 2px solid #0f9d58;
+    }
 
-  #main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    background-color: #181818;
-  }
-  #codeContainer {
-    flex: 1;
-    overflow: auto;
-    border: 3px solid #0f9d58;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    background: #1e1e1e;
-  }
-  pre {
-    margin: 0;
-    padding: 15px;
-    font-size: 14px;
-  }
-  .line-numbers {
-    padding-left: 50px !important;
-  }
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      background-color: #181818;
+    }
+    #codeContainer {
+      flex: 1;
+      overflow: auto;
+      border: 3px solid #0f9d58;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      background: #1e1e1e;
+    }
+    pre {
+      margin: 0;
+      padding: 15px;
+      font-size: 14px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .line-numbers {
+      padding-left: 50px !important;
+    }
 
-  .io-container {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 10px;
-  }
-  .io-box {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  .io-box label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #0f9d58;
-  }
-  textarea#input, textarea#output {
-    background-color: #222;
-    color: #eee;
-    border: 3px solid #0f9d58;
-    border-radius: 6px;
-    padding: 10px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
-    resize: vertical;
-    min-height: 80px;
-    max-height: 150px;
-    transition: border-color 0.3s ease;
-  }
-  textarea#input:focus, textarea#output:focus {
-    border-color: #34a853;
-    outline: none;
-    background-color: #2a2a2a;
-  }
-  #output {
-    color: #00ff00;
-  }
-  #runBtn {
-    background-color: #0f9d58;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-    align-self: flex-start;
-    transition: background-color 0.3s ease;
-  }
-  #runBtn:hover {
-    background-color: #34a853;
-  }
-  #statusMsg {
-    margin-top: 10px;
-    font-style: italic;
-    min-height: 20px;
-    color: #ccc;
-  }
-  #sidebar::-webkit-scrollbar, #codeContainer::-webkit-scrollbar {
-    width: 8px;
-  }
-  #sidebar::-webkit-scrollbar-thumb, #codeContainer::-webkit-scrollbar-thumb {
-    background-color: #0f9d58;
-    border-radius: 4px;
-  }
-</style>
+    .io-container {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    .io-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .io-box label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #0f9d58;
+    }
+    textarea#input, textarea#output {
+      background-color: #222;
+      color: #eee;
+      border: 3px solid #0f9d58;
+      border-radius: 6px;
+      padding: 10px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 80px;
+      max-height: 150px;
+      transition: border-color 0.3s ease;
+    }
+    textarea#input:focus, textarea#output:focus {
+      border-color: #34a853;
+      outline: none;
+      background-color: #2a2a2a;
+    }
+    #output {
+      color: #00ff00;
+    }
+    #runBtn {
+      background-color: #0f9d58;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      align-self: flex-start;
+      transition: background-color 0.3s ease;
+    }
+    #runBtn:hover {
+      background-color: #34a853;
+    }
+    #statusMsg {
+      margin-top: 10px;
+      font-style: italic;
+      min-height: 20px;
+      color: #ccc;
+    }
+    #sidebar::-webkit-scrollbar, #codeContainer::-webkit-scrollbar {
+      width: 8px;
+    }
+    #sidebar::-webkit-scrollbar-thumb, #codeContainer::-webkit-scrollbar-thumb {
+      background-color: #0f9d58;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
 
@@ -233,9 +235,10 @@ async function selectFile(file, listItem) {
 
     currentFileName = file.name;
     currentCode = codeText;
+
     const codeEl = codeBlockEl.querySelector('code');
-    codeEl.textContent = currentCode;
-    Prism.highlightElement(codeEl);
+    codeEl.innerHTML = Prism.highlight(codeText, Prism.languages.c, 'c'); // Highlight with color
+
     outputEl.value = "";
     inputEl.value = "";
     statusMsg.textContent = "";
