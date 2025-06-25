@@ -309,6 +309,11 @@ async function createTree(path = "", container) {
   ul.classList.add("file-tree");
 
   contents.forEach(item => {
+    if(item.type === "file" && !item.name.endsWith(".c")) {
+      // Skip non-.c files
+      return;
+    }
+
     const li = document.createElement("li");
     const span = document.createElement("span");
     span.textContent = item.name;
