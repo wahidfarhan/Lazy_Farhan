@@ -221,7 +221,7 @@
 
 <div id="main">
   <div id="codeContainer">
-    <pre class="line-numbers language-c"><code>Select a file to view code...</code></pre>
+    <pre class="line-numbers language-c"><code class="language-c">Select a file to view code...</code></pre>
   </div>
 
   <div id="ioDescriptionContainer">
@@ -269,7 +269,7 @@ let pathStack = [];
 let currentPath = "";
 let currentFile = "";
 
-// RapidAPI Judge0 credentials (replace with your own)
+// RapidAPI Judge0 credentials (update your own key)
 const rapidApiHost = "judge0-ce.p.rapidapi.com";
 const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02";
 
@@ -308,38 +308,39 @@ async function createTree(path = "", container) {
   ul.classList.add("file-tree");
 
   contents.forEach(item => {
+    if (item.type === "file" && !item.name.endsWith(".c") && !item.type === "dir") {
+      // Skip non-.c files and non-directories
+      return;
+    }
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.textContent = item.name;
+
     if (item.type === "dir") {
-      // Folder: show all folders
-      const li = document.createElement("li");
       li.classList.add("folder");
-      const span = document.createElement("span");
-      span.textContent = item.name;
       span.addEventListener("click", async (e) => {
         e.stopPropagation();
         pathStack.push(path);
         backButton.disabled = false;
         await loadPath(item.path);
       });
-      li.appendChild(span);
-      ul.appendChild(li);
     } else if (item.type === "file" && item.name.endsWith(".c")) {
-      // Show only .c files
-      const li = document.createElement("li");
       li.classList.add("file");
-      const span = document.createElement("span");
-      span.textContent = item.name;
       span.addEventListener("click", async (e) => {
         e.stopPropagation();
         statusMsg.textContent = "Loading file...";
         try {
+          // Fetch code content
           const res = await fetch(item.download_url);
           if (!res.ok) throw new Error("Failed to fetch file content");
           const code = await res.text();
 
-          // Prism highlight with language c
-          codeContainer.innerHTML = Prism.highlight(code, Prism.languages.c, 'c');
+          // Highlight code properly
+          codeContainer.className = "language-c";
+          codeContainer.textContent = code;
+          Prism.highlightElement(codeContainer);
 
-          // Reset input/output/desc
+          // Reset I/O and description
           inputEl.value = "";
           outputEl.value = "";
           descriptionBox.textContent = "";
@@ -348,10 +349,9 @@ async function createTree(path = "", container) {
           currentFile = item.name;
           currentPath = path;
 
-          // Try to load corresponding .in file
+          // Load matching .in file for input, description, output
           const inFileName = item.name.replace(/\.[^.]+$/, "") + ".in";
           const inFileObj = contents.find(f => f.name === inFileName);
-
           if (inFileObj) {
             const inRes = await fetch(inFileObj.download_url);
             if (inRes.ok) {
@@ -373,9 +373,10 @@ async function createTree(path = "", container) {
           console.error(error);
         }
       });
-      li.appendChild(span);
-      ul.appendChild(li);
     }
+
+    li.appendChild(span);
+    ul.appendChild(li);
   });
 
   container.appendChild(ul);
@@ -448,6 +449,7 @@ async function runCode() {
   statusMsg.textContent = "Running...";
   runBtn.disabled = true;
 
+  // Prepare code and input
   const source_code = codeContainer.textContent;
   const stdin = inputEl.value;
 
@@ -522,7 +524,7 @@ function hackerType() {
 }
 hackerType();
 
-// Initialize with root path
+// Initialize
 loadPath();
 
 </script>
