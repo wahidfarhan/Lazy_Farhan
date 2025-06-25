@@ -56,6 +56,23 @@
       background: #2ea043;
       color: white;
     }
+    #backBtn {
+      background: #238636;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 12px;
+      width: 100%;
+      user-select: none;
+      display: none;
+      text-align: center;
+    }
+    #backBtn:hover {
+      background: #2ea043;
+    }
     #main {
       flex: 1;
       display: flex;
@@ -134,6 +151,7 @@
       font-size: 16px;
       cursor: pointer;
       align-self: flex-start;
+      user-select: none;
     }
     #runBtn:hover {
       background: #2ea043;
@@ -194,21 +212,69 @@
       color: #56d364;
       user-select: none;
     }
-    #backBtn {
-      background: #238636;
-      border: none;
-      color: white;
-      padding: 6px 12px;
-      font-weight: bold;
-      font-size: 14px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-bottom: 12px;
-      width: fit-content;
-      display: none;
-    }
-    #backBtn:hover {
-      background: #2ea043;
+
+    /* Responsive Styles for Mobile */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      #container {
+        flex-direction: column;
+      }
+      #sidebar {
+        width: 100%;
+        height: 200px;
+        border-right: none;
+        border-bottom: 3px solid #30363d;
+        padding: 10px;
+      }
+      #main {
+        flex: 1;
+        padding: 10px;
+        overflow: visible;
+      }
+      #codeSection {
+        flex-direction: column;
+        gap: 10px;
+      }
+      #codeContainer {
+        flex: none;
+        height: 300px;
+        border-width: 2px;
+      }
+      #ioSide {
+        flex: none;
+        height: auto;
+        gap: 8px;
+      }
+      pre {
+        font-size: 12px;
+        padding: 10px;
+      }
+      textarea {
+        font-size: 13px;
+        min-height: 60px;
+      }
+      #runBtn {
+        width: 100%;
+        padding: 12px;
+        font-size: 18px;
+      }
+      #backBtn {
+        margin-bottom: 10px;
+        display: block;
+      }
+      #typingContainer {
+        font-size: 18px;
+        height: 35px;
+        padding-left: 10px;
+      }
+      #uploadedDate {
+        position: static;
+        margin-top: 8px;
+        text-align: center;
+        color: #56d364;
+      }
     }
   </style>
 </head>
@@ -217,8 +283,8 @@
 <div id="container">
   <div id="sidebar">
     <h2>My Practice C</h2>
-    <button id="backBtn">⬅️ Back</button>
-    <ul id="fileList"><li>Loading...</li></ul>
+    <button id="backBtn">← Back</button>
+    <ul id="fileList"><li>Loading folders...</li></ul>
   </div>
 
   <div id="main">
@@ -263,6 +329,8 @@
 <script>
   const repoOwner = "wahidfarhan";
   const repoName = "Lazy_Farhan";
+  const folderPathRoot = ""; // root folder to list initially
+
   const rapidApiHost = "judge0-ce.p.rapidapi.com";
   const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02";
 
@@ -278,72 +346,83 @@
   const uploadedDateEl = document.getElementById("uploadedDate");
   const backBtn = document.getElementById("backBtn");
 
-  let currentPath = ""; // current folder path inside repo ("" means root)
   let currentCode = "";
+  let currentPath = ""; // current folder path, empty string means root
+  let folderStack = [];
 
-  async function fetchContents(path) {
+  async function fetchFolderContent(path) {
     try {
       const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
       const res = await fetch(apiUrl);
-      if (!res.ok) throw new Error("Failed to fetch contents");
+      if (!res.ok) throw new Error("Failed to fetch folder contents");
       const data = await res.json();
       return data;
     } catch (err) {
-      fileListEl.innerHTML = `<li style="color:red;">Error loading contents</li>`;
+      fileListEl.innerHTML = `<li style="color:red;">Error loading folder contents</li>`;
       console.error(err);
       return null;
     }
   }
 
-  function clearFileList() {
-    fileListEl.innerHTML = "";
-  }
-
-  function createListItem(name, isDir) {
-    const li = document.createElement("li");
-    li.textContent = isDir ? "📁 " + name : name;
-    li.style.fontWeight = isDir ? "bold" : "normal";
-    li.style.userSelect = "none";
-    li.style.cursor = "pointer";
-    return li;
-  }
-
   async function showFolder(path) {
-    backBtn.style.display = path === "" ? "none" : "inline-block";
-    clearFileList();
-    statusMsg.textContent = "Loading folder contents...";
-    const contents = await fetchContents(path);
-    if (!contents) {
-      statusMsg.textContent = "Failed to load folder.";
-      return;
-    }
-    statusMsg.textContent = "";
-    if (contents.length === 0) {
-      fileListEl.innerHTML = "<li>No files or folders found.</li>";
+    // Update back button visibility
+    backBtn.style.display = folderStack.length > 0 ? "block" : "none";
+
+    fileListEl.innerHTML = "<li>Loading...</li>";
+    const data = await fetchFolderContent(path);
+    if (!data) return;
+
+    // Show only folders and .c files
+    const folders = data.filter(item => item.type === "dir");
+    const cFiles = data.filter(item => item.type === "file" && item.name.endsWith(".c"));
+
+    // Clear current list
+    fileListEl.innerHTML = "";
+
+    if (folders.length === 0 && cFiles.length === 0) {
+      fileListEl.innerHTML = "<li>No folders or C files found.</li>";
       return;
     }
 
-    contents.sort((a,b) => {
-      // Folders first then files, alphabetically
-      if (a.type === b.type) return a.name.localeCompare(b.name);
-      return a.type === "dir" ? -1 : 1;
+    // Show folders first
+    folders.forEach(folder => {
+      const li = document.createElement("li");
+      li.textContent = "📁 " + folder.name;
+      li.style.fontWeight = "bold";
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        folderStack.push(currentPath);
+        currentPath = folder.path;
+        showFolder(currentPath);
+        clearCodeDisplay();
+      });
+      fileListEl.appendChild(li);
     });
 
-    for (const item of contents) {
-      // শুধু ফোল্ডার এবং .c ফাইল দেখাবো
-      if (item.type === "dir" || (item.type === "file" && item.name.endsWith(".c"))) {
-        const li = createListItem(item.name, item.type === "dir");
-        li.addEventListener("click", () => {
-          if (item.type === "dir") {
-            currentPath = path ? path + "/" + item.name : item.name;
-            showFolder(currentPath);
-          } else if (item.type === "file" && item.name.endsWith(".c")) {
-            loadCodeFile(item);
-          }
-        });
-        fileListEl.appendChild(li);
-      }
-    }
+    // Show .c files next
+    cFiles.forEach(file => {
+      const li = document.createElement("li");
+      li.textContent = file.name;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        loadCodeFile(file);
+      });
+      fileListEl.appendChild(li);
+    });
+  }
+
+  function clearCodeDisplay() {
+    currentCode = "";
+    codeBlockEl.textContent = "";
+    hljs.highlightElement(codeBlockEl);
+    hljs.lineNumbersBlock(codeBlockEl);
+    inputEl.value = "";
+    outputEl.value = "";
+    expectedOutputEl.textContent = "Not loaded";
+    descriptionEl.textContent = "No description available.";
+    fileNameLabel.textContent = "";
+    uploadedDateEl.textContent = "";
+    statusMsg.textContent = "";
   }
 
   async function getFileLastCommitDate(filePath) {
@@ -361,7 +440,7 @@
     }
   }
 
-  function parseInputFile(text) {
+  async function parseInputFile(text) {
     const lines = text.split(/\r?\n/);
     let inputLines = [];
     let descriptionLines = [];
@@ -393,14 +472,7 @@
   }
 
   async function loadCodeFile(file) {
-    // Highlight active
-    [...fileListEl.children].forEach(el => el.classList.remove("active"));
-    for(let li of fileListEl.children) {
-      if(li.textContent === file.name || li.textContent === "📁 " + file.name) {
-        li.classList.add("active");
-        break;
-      }
-    }
+    clearCodeDisplay();
 
     try {
       const res = await fetch(file.download_url);
@@ -419,7 +491,7 @@
 
     fileNameLabel.textContent = `(${file.name})`;
 
-    const commitDate = await getFileLastCommitDate(currentPath ? currentPath + "/" + file.name : file.name);
+    const commitDate = await getFileLastCommitDate(file.path);
     if (commitDate) {
       const dateObj = new Date(commitDate);
       const formattedDate = dateObj.getFullYear() + "-" +
@@ -432,7 +504,7 @@
       uploadedDateEl.textContent = "";
     }
 
-    // Load input file (replace .c with .in)
+    // Input file URL (.in)
     const baseName = file.name.replace(/\.c$/, "");
     const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.in`);
 
@@ -441,7 +513,7 @@
       if (inputRes.ok) {
         const inputText = await inputRes.text();
 
-        const parsed = parseInputFile(inputText);
+        const parsed = await parseInputFile(inputText);
 
         inputEl.value = parsed.input || "";
         descriptionEl.textContent = parsed.description || "No description provided.";
@@ -480,69 +552,78 @@
           "X-RapidAPI-Key": rapidApiKey
         },
         body: JSON.stringify({
+          language_id: 50, // C language
           source_code: currentCode,
-          language_id: 50,
           stdin: inputEl.value
         })
       });
 
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
+      if (!response.ok) throw new Error("Execution failed");
 
       const result = await response.json();
 
-      if (result.compile_output) {
-        outputEl.value = `Compile Error:\n${result.compile_output}`;
-      } else if (result.stderr) {
-        outputEl.value = `Runtime Error:\n${result.stderr}`;
-      } else if (result.stdout) {
+      if (result.stdout) {
         outputEl.value = result.stdout;
-      } else if (result.message) {
-        outputEl.value = `Error:\n${result.message}`;
+        statusMsg.textContent = "Execution finished.";
+      } else if (result.stderr) {
+        outputEl.value = result.stderr;
+        statusMsg.textContent = "Execution finished with errors.";
       } else {
-        outputEl.value = "No output";
+        outputEl.value = "No output.";
+        statusMsg.textContent = "Execution finished.";
       }
-    } catch (error) {
-      outputEl.value = "Error running code: " + error.message;
-      console.error(error);
-    } finally {
+    } catch (err) {
+      outputEl.value = "Error during execution.";
       statusMsg.textContent = "";
+      console.error(err);
+    } finally {
       runBtn.disabled = false;
     }
   }
 
   backBtn.addEventListener("click", () => {
-    if (!currentPath) return;
-    // Go back to parent folder
-    const parts = currentPath.split("/");
-    parts.pop();
-    currentPath = parts.join("/");
-    showFolder(currentPath);
-    fileNameLabel.textContent = "";
-    codeBlockEl.textContent = "";
-    inputEl.value = "";
-    outputEl.value = "";
-    descriptionEl.textContent = "No description available.";
-    expectedOutputEl.textContent = "Not loaded";
-    uploadedDateEl.textContent = "";
-    currentCode = "";
+    if (folderStack.length > 0) {
+      currentPath = folderStack.pop();
+      showFolder(currentPath);
+      clearCodeDisplay();
+    }
   });
 
   runBtn.addEventListener("click", runCode);
 
-  // Initial load
-  showFolder("");
-
-  // Typing animation
+  // Typing animation example (optional)
   const typingTextEl = document.getElementById("typingText");
-  const typingString = "lazy_farhan";
-  let idx = 0;
-  function typingAnim() {
-    typingTextEl.textContent = typingString.slice(0, idx);
-    idx = (idx + 1) % (typingString.length + 1);
-    setTimeout(typingAnim, 200);
-  }
-  typingAnim();
-</script>
+  const typingStrings = [
+    "Welcome to Practice C",
+    "Select a folder",
+    "Open a .c file",
+    "Edit input and run",
+  ];
+  let typingIndex = 0;
+  let charIndex = 0;
+  let typingDelay = 150;
+  let eraseDelay = 1000;
+  let isErasing = false;
 
+  function type() {
+    if (!isErasing && charIndex <= typingStrings[typingIndex].length) {
+      typingTextEl.textContent = typingStrings[typingIndex].substring(0, charIndex++);
+      setTimeout(type, typingDelay);
+    } else if (isErasing && charIndex >= 0) {
+      typingTextEl.textContent = typingStrings[typingIndex].substring(0, charIndex--);
+      setTimeout(type, typingDelay / 2);
+    } else {
+      isErasing = !isErasing;
+      if (!isErasing) {
+        typingIndex = (typingIndex + 1) % typingStrings.length;
+      }
+      setTimeout(type, eraseDelay);
+    }
+  }
+  type();
+
+  // Initial load
+  showFolder(folderPathRoot);
+</script>
 </body>
 </html>
