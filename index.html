@@ -302,6 +302,21 @@ async function fetchFileList() {
   }
 }
 
+async function getFileLastCommitDate(filePath) {
+  try {
+    const commitsApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/commits?path=${filePath}&page=1&per_page=1`;
+    const res = await fetch(commitsApiUrl);
+    if (!res.ok) throw new Error("Failed to fetch commits");
+    const commits = await res.json();
+    if (commits.length > 0 && commits[0].commit && commits[0].commit.author) {
+      return commits[0].commit.author.date;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 async function selectFile(file, li) {
   [...fileListEl.children].forEach(el => el.classList.remove("active"));
   li.classList.add("active");
@@ -323,26 +338,18 @@ async function selectFile(file, li) {
 
   fileNameLabel.textContent = `(${file.name})`;
 
-  // Show uploaded date here:
-  if (file && file.git_url) {
-    // Use GitHub API to get commit date for the file (fallback to file.commit date not directly available here)
-    // But in the contents API, 'last modified date' is not directly available,
-    // we can show file.committer date via another API call if desired.
-    // For simplicity, we'll just show 'file' object date if available:
-    if(file.last_modified) {
-      uploadedDateEl.textContent = `uploaded in ${file.last_modified}`;
-    } else {
-      // fallback to file.commit.author.date with another API call
-      fetch(file.git_url)
-        .then(r => r.json())
-        .then(data => {
-          if(data && data.commit && data.commit.author && data.commit.author.date){
-            uploadedDateEl.textContent = `uploaded in ${data.commit.author.date}`;
-          } else {
-            uploadedDateEl.textContent = "";
-          }
-        }).catch(() => { uploadedDateEl.textContent = ""; });
-    }
+  // GitHub থেকে শেষ commit date নিয়ে আসা
+  const commitDate = await getFileLastCommitDate(`${folderPath}/${file.name}`);
+  if (commitDate) {
+    // date time কে সুন্দর format এ দেখানো (YYYY-MM-DD HH:mm)
+    const dateObj = new Date(commitDate);
+    const formattedDate = dateObj.getFullYear() + "-" +
+                          String(dateObj.getMonth() + 1).padStart(2, "0") + "-" +
+                          String(dateObj.getDate()).padStart(2, "0") + " " +
+                          String(dateObj.getHours()).padStart(2, "0") + ":" +
+                          String(dateObj.getMinutes()).padStart(2, "0");
+
+    uploadedDateEl.textContent = `uploaded in ${formattedDate}`;
   } else {
     uploadedDateEl.textContent = "";
   }
@@ -447,7 +454,7 @@ fetchFileList();
 // Hacker style typing animation for "lazy_farhan"
 const typingTextEl = document.getElementById("typingText");
 const textToType = "lazy_farhan";
-const typingSpeed = 150;  
+const typingSpeed = 150;
 const deletingSpeed = 80;
 const delayAfterTyping = 1200;
 
