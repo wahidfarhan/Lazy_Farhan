@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
 
 <style>
-  /* Basic layout */
   body {
     margin: 0;
     display: flex;
@@ -159,7 +158,7 @@
   #codeContainer::-webkit-scrollbar-thumb,
   #ioSide::-webkit-scrollbar-thumb,
   .readonly-box::-webkit-scrollbar-thumb {
-    background-color: #000000;  /* black */
+    background-color: #000000;
     border-radius: 4px;
   }
   #sidebar::-webkit-scrollbar-track,
@@ -226,7 +225,7 @@
           <div id="expectedOutput" class="readonly-box">Not loaded</div>
         </div>
         <div class="io-box">
-          <label>📝 Description</label>
+          <label>📝 Description <span id="fileNameLabel" style="color:#56d364; font-weight: normal; font-size: 0.9em; margin-left: 8px;"></span></label>
           <div id="descriptionBox" class="readonly-box">No description available.</div>
         </div>
       </div>
@@ -260,6 +259,7 @@ const runBtn = document.getElementById("runBtn");
 const statusMsg = document.getElementById("statusMsg");
 const descriptionEl = document.getElementById("descriptionBox");
 const expectedOutputEl = document.getElementById("expectedOutput");
+const fileNameLabel = document.getElementById("fileNameLabel");
 
 let currentCode = "";
 
@@ -307,6 +307,8 @@ async function selectFile(file, li) {
     console.error(err);
     return;
   }
+
+  fileNameLabel.textContent = `(${file.name})`;
 
   const baseName = file.name.replace(/\.c$/, "");
   const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.in`);
@@ -397,7 +399,7 @@ fetchFileList();
 // Hacker style typing animation for "lazy_farhan"
 const typingTextEl = document.getElementById("typingText");
 const textToType = "lazy_farhan";
-const typingSpeed = 150;  // ms per char
+const typingSpeed = 150;  
 const deletingSpeed = 80;
 const delayAfterTyping = 1200;
 
