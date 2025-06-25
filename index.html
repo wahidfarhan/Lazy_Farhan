@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Practice C - Run Your Code</title>
+  <title>Farhans Practice Problems</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
   <style>
+    /* --- Basic Reset & Layout --- */
     body {
       margin: 0;
       display: flex;
@@ -21,6 +22,7 @@
       flex: 1;
       display: flex;
       overflow: hidden;
+      min-height: 0; /* important for flex scroll */
     }
     #sidebar {
       width: 280px;
@@ -28,6 +30,7 @@
       border-right: 3px solid #30363d;
       padding: 15px;
       overflow-y: auto;
+      min-height: 0;
     }
     #sidebar h2 {
       margin: 0 0 15px;
@@ -73,6 +76,7 @@
     #backBtn:hover {
       background: #2ea043;
     }
+
     #main {
       flex: 1;
       display: flex;
@@ -80,12 +84,14 @@
       padding: 15px;
       overflow: hidden;
       position: relative;
+      min-height: 0;
     }
     #codeSection {
       display: flex;
       gap: 20px;
       flex: 1;
       overflow: hidden;
+      min-height: 0;
     }
     #codeContainer {
       flex: 2;
@@ -93,15 +99,23 @@
       border: 3px solid #238636;
       border-radius: 6px;
       overflow: auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
-    pre {
-      margin: 0;
+    #codeTextarea {
+      background: transparent;
+      color: #c9d1d9;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: monospace;
       font-size: 14px;
       padding: 15px;
+      flex: 1;
       min-height: 100%;
-    }
-    .hljs td.hljs-ln-code {
-      padding-left: 12px;
+      overflow: auto;
+      white-space: pre;
     }
     #ioSide {
       flex: 1;
@@ -109,13 +123,19 @@
       flex-direction: column;
       gap: 12px;
       overflow: hidden;
+      min-height: 0;
+    }
+    .io-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
     .io-box label {
       font-weight: bold;
       color: #238636;
-      margin-bottom: 5px;
+      margin-bottom: 0;
     }
-    textarea {
+    textarea, .readonly-box {
       width: 100%;
       background-color: #21262d;
       color: #c9d1d9;
@@ -123,22 +143,17 @@
       border-radius: 5px;
       padding: 10px;
       resize: vertical;
-      min-height: 80px;
       font-family: monospace;
-      font-size: 14px;
-    }
-    #output {
-      color: #56d364;
-    }
-    .readonly-box {
-      background-color: #1e1e1e;
-      border: 2px solid #444;
-      border-radius: 5px;
-      padding: 10px;
-      white-space: pre-wrap;
       font-size: 14px;
       min-height: 80px;
       overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    textarea {
+      resize: vertical;
+    }
+    .readonly-box {
+      user-select: none;
     }
     #runBtn {
       margin-top: 10px;
@@ -152,25 +167,33 @@
       cursor: pointer;
       align-self: flex-start;
       user-select: none;
+      transition: background-color 0.3s ease;
     }
-    #runBtn:hover {
+    #runBtn:hover:not(:disabled) {
       background: #2ea043;
+    }
+    #runBtn:disabled {
+      background: #4a8053;
+      cursor: not-allowed;
     }
     #statusMsg {
       margin-top: 8px;
       color: #999;
       min-height: 20px;
       font-style: italic;
+      user-select: none;
     }
     #sidebar::-webkit-scrollbar,
     #codeContainer::-webkit-scrollbar,
     #ioSide::-webkit-scrollbar,
+    textarea::-webkit-scrollbar,
     .readonly-box::-webkit-scrollbar {
       width: 8px;
     }
     #sidebar::-webkit-scrollbar-thumb,
     #codeContainer::-webkit-scrollbar-thumb,
     #ioSide::-webkit-scrollbar-thumb,
+    textarea::-webkit-scrollbar-thumb,
     .readonly-box::-webkit-scrollbar-thumb {
       background-color: #000000;
       border-radius: 4px;
@@ -178,10 +201,11 @@
     #sidebar::-webkit-scrollbar-track,
     #codeContainer::-webkit-scrollbar-track,
     #ioSide::-webkit-scrollbar-track,
+    textarea::-webkit-scrollbar-track,
     .readonly-box::-webkit-scrollbar-track {
       background-color: #121212;
     }
-    #sidebar, #codeContainer, #ioSide, .readonly-box {
+    #sidebar, #codeContainer, #ioSide, textarea, .readonly-box {
       scrollbar-width: thin;
       scrollbar-color: #000000 #121212;
     }
@@ -213,7 +237,7 @@
       user-select: none;
     }
 
-    /* Responsive Styles for Mobile */
+    /* --- Responsive Mobile --- */
     @media (max-width: 768px) {
       body {
         flex-direction: column;
@@ -223,7 +247,7 @@
       }
       #sidebar {
         width: 100%;
-        height: 200px;
+        height: 180px;
         border-right: none;
         border-bottom: 3px solid #30363d;
         padding: 10px;
@@ -235,7 +259,7 @@
       }
       #codeSection {
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
       }
       #codeContainer {
         flex: none;
@@ -245,11 +269,11 @@
       #ioSide {
         flex: none;
         height: auto;
-        gap: 8px;
+        gap: 10px;
       }
-      pre {
-        font-size: 12px;
-        padding: 10px;
+      #codeTextarea {
+        font-size: 13px;
+        padding: 12px;
       }
       textarea {
         font-size: 13px;
@@ -257,7 +281,7 @@
       }
       #runBtn {
         width: 100%;
-        padding: 12px;
+        padding: 14px;
         font-size: 18px;
       }
       #backBtn {
@@ -282,7 +306,7 @@
 
 <div id="container">
   <div id="sidebar">
-    <h2>Farhans Practice C</h2>
+    <h2>Farhans Practice Problems</h2>
     <button id="backBtn">← Back</button>
     <ul id="fileList"><li>Loading folders...</li></ul>
   </div>
@@ -290,7 +314,7 @@
   <div id="main">
     <div id="codeSection">
       <div id="codeContainer">
-        <pre><code id="codeBlock" class="c hljs"></code></pre>
+        <textarea id="codeTextarea" spellcheck="false" placeholder="Select a .c file to load and edit code here..."></textarea>
       </div>
       <div id="ioSide">
         <div class="io-box">
@@ -322,20 +346,16 @@
   <div id="typingText"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
-
 <script>
   const repoOwner = "wahidfarhan";
   const repoName = "Lazy_Farhan";
-  const folderPathRoot = ""; // root folder to list initially
+  const folderPathRoot = ""; // start at repo root
 
   const rapidApiHost = "judge0-ce.p.rapidapi.com";
   const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02";
 
   const fileListEl = document.getElementById("fileList");
-  const codeBlockEl = document.getElementById("codeBlock");
+  const codeTextarea = document.getElementById("codeTextarea");
   const inputEl = document.getElementById("input");
   const outputEl = document.getElementById("output");
   const runBtn = document.getElementById("runBtn");
@@ -347,7 +367,8 @@
   const backBtn = document.getElementById("backBtn");
 
   let currentCode = "";
-  let currentPath = ""; // current folder path, empty string means root
+  let currentFile = null;
+  let currentPath = ""; // current folder path, empty means root
   let folderStack = [];
 
   async function fetchFolderContent(path) {
@@ -365,18 +386,15 @@
   }
 
   async function showFolder(path) {
-    // Update back button visibility
     backBtn.style.display = folderStack.length > 0 ? "block" : "none";
-
     fileListEl.innerHTML = "<li>Loading...</li>";
     const data = await fetchFolderContent(path);
     if (!data) return;
 
-    // Show only folders and .c files
+    // Only folders and .c files
     const folders = data.filter(item => item.type === "dir");
     const cFiles = data.filter(item => item.type === "file" && item.name.endsWith(".c"));
 
-    // Clear current list
     fileListEl.innerHTML = "";
 
     if (folders.length === 0 && cFiles.length === 0) {
@@ -384,7 +402,6 @@
       return;
     }
 
-    // Show folders first
     folders.forEach(folder => {
       const li = document.createElement("li");
       li.textContent = "📁 " + folder.name;
@@ -399,7 +416,6 @@
       fileListEl.appendChild(li);
     });
 
-    // Show .c files next
     cFiles.forEach(file => {
       const li = document.createElement("li");
       li.textContent = file.name;
@@ -413,9 +429,8 @@
 
   function clearCodeDisplay() {
     currentCode = "";
-    codeBlockEl.textContent = "";
-    hljs.highlightElement(codeBlockEl);
-    hljs.lineNumbersBlock(codeBlockEl);
+    currentFile = null;
+    codeTextarea.value = "";
     inputEl.value = "";
     outputEl.value = "";
     expectedOutputEl.textContent = "Not loaded";
@@ -473,16 +488,13 @@
 
   async function loadCodeFile(file) {
     clearCodeDisplay();
-
     try {
       const res = await fetch(file.download_url);
       if (!res.ok) throw new Error("Failed to fetch code");
       const codeText = await res.text();
-
       currentCode = codeText;
-      codeBlockEl.textContent = currentCode;
-      hljs.highlightElement(codeBlockEl);
-      hljs.lineNumbersBlock(codeBlockEl);
+      currentFile = file;
+      codeTextarea.value = currentCode;
     } catch (err) {
       statusMsg.textContent = "Error loading code file.";
       console.error(err);
@@ -504,17 +516,14 @@
       uploadedDateEl.textContent = "";
     }
 
-    // Input file URL (.in)
+    // Try to load input file (.in)
     const baseName = file.name.replace(/\.c$/, "");
     const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.in`);
-
     try {
       const inputRes = await fetch(inputUrl);
       if (inputRes.ok) {
         const inputText = await inputRes.text();
-
         const parsed = await parseInputFile(inputText);
-
         inputEl.value = parsed.input || "";
         descriptionEl.textContent = parsed.description || "No description provided.";
         expectedOutputEl.textContent = parsed.output || "Not available.";
@@ -534,7 +543,7 @@
   }
 
   async function runCode() {
-    if (!currentCode) {
+    if (!currentFile) {
       alert("Please select a C file first.");
       return;
     }
@@ -552,8 +561,8 @@
           "X-RapidAPI-Key": rapidApiKey
         },
         body: JSON.stringify({
-          language_id: 50, // C language
-          source_code: currentCode,
+          language_id: 50, // C language ID in Judge0
+          source_code: codeTextarea.value,
           stdin: inputEl.value
         })
       });
@@ -591,10 +600,10 @@
 
   runBtn.addEventListener("click", runCode);
 
-  // Typing animation example (optional)
+  // Typing animation (optional)
   const typingTextEl = document.getElementById("typingText");
   const typingStrings = [
-    "Welcome to Practice C",
+    "Welcome to Farhans Practice Problems",
     "Select a folder",
     "Open a .c file",
     "Edit input and run",
@@ -625,5 +634,6 @@
   // Initial load
   showFolder(folderPathRoot);
 </script>
+
 </body>
 </html>
