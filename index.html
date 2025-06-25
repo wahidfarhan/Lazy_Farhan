@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Practice C - Run Your Code</title>
+  <title>Farhans Code - Practice & Run</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
   <style>
     body {
       margin: 0;
@@ -93,15 +92,24 @@
       border: 3px solid #238636;
       border-radius: 6px;
       overflow: auto;
+      display: flex;
+      flex-direction: column;
     }
-    pre {
-      margin: 0;
+    #codeEditor {
+      flex: 1;
+      width: 100%;
+      background: #0d1117;
+      border: none;
+      color: #c9d1d9;
+      font-family: monospace;
       font-size: 14px;
       padding: 15px;
+      resize: none;
+      outline: none;
+      border-radius: 6px;
+      overflow: auto;
       min-height: 100%;
-    }
-    .hljs td.hljs-ln-code {
-      padding-left: 12px;
+      box-sizing: border-box;
     }
     #ioSide {
       flex: 1;
@@ -247,8 +255,8 @@
         height: auto;
         gap: 8px;
       }
-      pre {
-        font-size: 12px;
+      #codeEditor {
+        font-size: 13px;
         padding: 10px;
       }
       textarea {
@@ -282,7 +290,7 @@
 
 <div id="container">
   <div id="sidebar">
-    <h2>My Practice C</h2>
+    <h2>Farhans Code</h2>
     <button id="backBtn">← Back</button>
     <ul id="fileList"><li>Loading folders...</li></ul>
   </div>
@@ -290,7 +298,7 @@
   <div id="main">
     <div id="codeSection">
       <div id="codeContainer">
-        <pre><code id="codeBlock" class="c hljs"></code></pre>
+        <textarea id="codeEditor" spellcheck="false" placeholder="Select a .c file from left to load and edit..."></textarea>
       </div>
       <div id="ioSide">
         <div class="io-box">
@@ -322,10 +330,6 @@
   <div id="typingText"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
-
 <script>
   const repoOwner = "wahidfarhan";
   const repoName = "Lazy_Farhan";
@@ -335,7 +339,7 @@
   const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02";
 
   const fileListEl = document.getElementById("fileList");
-  const codeBlockEl = document.getElementById("codeBlock");
+  const codeEditorEl = document.getElementById("codeEditor");
   const inputEl = document.getElementById("input");
   const outputEl = document.getElementById("output");
   const runBtn = document.getElementById("runBtn");
@@ -348,6 +352,7 @@
 
   let currentCode = "";
   let currentPath = ""; // current folder path, empty string means root
+  let currentFile = null;
   let folderStack = [];
 
   async function fetchFolderContent(path) {
@@ -365,18 +370,15 @@
   }
 
   async function showFolder(path) {
-    // Update back button visibility
     backBtn.style.display = folderStack.length > 0 ? "block" : "none";
 
     fileListEl.innerHTML = "<li>Loading...</li>";
     const data = await fetchFolderContent(path);
     if (!data) return;
 
-    // Show only folders and .c files
     const folders = data.filter(item => item.type === "dir");
     const cFiles = data.filter(item => item.type === "file" && item.name.endsWith(".c"));
 
-    // Clear current list
     fileListEl.innerHTML = "";
 
     if (folders.length === 0 && cFiles.length === 0) {
@@ -384,7 +386,6 @@
       return;
     }
 
-    // Show folders first
     folders.forEach(folder => {
       const li = document.createElement("li");
       li.textContent = "📁 " + folder.name;
@@ -399,7 +400,6 @@
       fileListEl.appendChild(li);
     });
 
-    // Show .c files next
     cFiles.forEach(file => {
       const li = document.createElement("li");
       li.textContent = file.name;
@@ -413,9 +413,8 @@
 
   function clearCodeDisplay() {
     currentCode = "";
-    codeBlockEl.textContent = "";
-    hljs.highlightElement(codeBlockEl);
-    hljs.lineNumbersBlock(codeBlockEl);
+    currentFile = null;
+    codeEditorEl.value = "";
     inputEl.value = "";
     outputEl.value = "";
     expectedOutputEl.textContent = "Not loaded";
@@ -480,9 +479,8 @@
       const codeText = await res.text();
 
       currentCode = codeText;
-      codeBlockEl.textContent = currentCode;
-      hljs.highlightElement(codeBlockEl);
-      hljs.lineNumbersBlock(codeBlockEl);
+      currentFile = file;
+      codeEditorEl.value = currentCode;
     } catch (err) {
       statusMsg.textContent = "Error loading code file.";
       console.error(err);
@@ -534,8 +532,8 @@
   }
 
   async function runCode() {
-    if (!currentCode) {
-      alert("Please select a C file first.");
+    if (!codeEditorEl.value.trim()) {
+      alert("Please select or enter some C code to run.");
       return;
     }
 
@@ -553,7 +551,7 @@
         },
         body: JSON.stringify({
           language_id: 50, // C language
-          source_code: currentCode,
+          source_code: codeEditorEl.value,
           stdin: inputEl.value
         })
       });
@@ -594,7 +592,7 @@
   // Typing animation example (optional)
   const typingTextEl = document.getElementById("typingText");
   const typingStrings = [
-    "Welcome to Practice C",
+    "Welcome to Farhans Code",
     "Select a folder",
     "Open a .c file",
     "Edit input and run",
@@ -625,5 +623,6 @@
   // Initial load
   showFolder(folderPathRoot);
 </script>
+
 </body>
 </html>
