@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Practice C - Run Your Code</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
@@ -330,16 +330,19 @@
     });
 
     for (const item of contents) {
-      const li = createListItem(item.name, item.type === "dir");
-      li.addEventListener("click", () => {
-        if (item.type === "dir") {
-          currentPath = path ? path + "/" + item.name : item.name;
-          showFolder(currentPath);
-        } else if (item.type === "file" && item.name.endsWith(".c")) {
-          loadCodeFile(item);
-        }
-      });
-      fileListEl.appendChild(li);
+      // শুধু ফোল্ডার এবং .c ফাইল দেখাবো
+      if (item.type === "dir" || (item.type === "file" && item.name.endsWith(".c"))) {
+        const li = createListItem(item.name, item.type === "dir");
+        li.addEventListener("click", () => {
+          if (item.type === "dir") {
+            currentPath = path ? path + "/" + item.name : item.name;
+            showFolder(currentPath);
+          } else if (item.type === "file" && item.name.endsWith(".c")) {
+            loadCodeFile(item);
+          }
+        });
+        fileListEl.appendChild(li);
+      }
     }
   }
 
@@ -512,7 +515,7 @@
     // Go back to parent folder
     const parts = currentPath.split("/");
     parts.pop();
-    currentPath = parts.join("");
+    currentPath = parts.join("/");
     showFolder(currentPath);
     fileNameLabel.textContent = "";
     codeBlockEl.textContent = "";
@@ -526,10 +529,10 @@
 
   runBtn.addEventListener("click", runCode);
 
-  // On load, show root folder
+  // Initial load
   showFolder("");
 
-  // Hacker style typing animation for "lazy_farhan"
+  // Typing animation
   const typingTextEl = document.getElementById("typingText");
   const typingString = "lazy_farhan";
   let idx = 0;
