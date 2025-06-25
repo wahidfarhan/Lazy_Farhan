@@ -65,6 +65,7 @@
     flex-direction: column;
     padding: 15px;
     overflow: hidden;
+    position: relative;
   }
   #codeSection {
     display: flex;
@@ -196,6 +197,16 @@
     white-space: nowrap;
     overflow: hidden;
   }
+
+  /* Uploaded date style */
+  #uploadedDate {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    font-size: 0.9em;
+    color: #56d364;
+    user-select: none;
+  }
 </style>
 </head>
 <body>
@@ -232,6 +243,7 @@
     </div>
     <button id="runBtn">Run Code</button>
     <div id="statusMsg"></div>
+    <div id="uploadedDate"></div>
   </div>
 </div>
 
@@ -260,6 +272,7 @@ const statusMsg = document.getElementById("statusMsg");
 const descriptionEl = document.getElementById("descriptionBox");
 const expectedOutputEl = document.getElementById("expectedOutput");
 const fileNameLabel = document.getElementById("fileNameLabel");
+const uploadedDateEl = document.getElementById("uploadedDate");
 
 let currentCode = "";
 
@@ -310,36 +323,72 @@ async function selectFile(file, li) {
 
   fileNameLabel.textContent = `(${file.name})`;
 
+  // Show uploaded date here:
+  if (file && file.git_url) {
+    // Use GitHub API to get commit date for the file (fallback to file.commit date not directly available here)
+    // But in the contents API, 'last modified date' is not directly available,
+    // we can show file.committer date via another API call if desired.
+    // For simplicity, we'll just show 'file' object date if available:
+    if(file.last_modified) {
+      uploadedDateEl.textContent = `uploaded in ${file.last_modified}`;
+    } else {
+      // fallback to file.commit.author.date with another API call
+      fetch(file.git_url)
+        .then(r => r.json())
+        .then(data => {
+          if(data && data.commit && data.commit.author && data.commit.author.date){
+            uploadedDateEl.textContent = `uploaded in ${data.commit.author.date}`;
+          } else {
+            uploadedDateEl.textContent = "";
+          }
+        }).catch(() => { uploadedDateEl.textContent = ""; });
+    }
+  } else {
+    uploadedDateEl.textContent = "";
+  }
+
   const baseName = file.name.replace(/\.c$/, "");
   const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.in`);
-  const outUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.out`);
 
   try {
     const inputRes = await fetch(inputUrl);
     if (inputRes.ok) {
       const inputText = await inputRes.text();
       const inputTextLower = inputText.toLowerCase();
+
       const descIndex = inputTextLower.indexOf("description");
-      if (descIndex !== -1) {
-        inputEl.value = inputText.substring(0, descIndex).trim();
-        descriptionEl.textContent = inputText.substring(descIndex + "description".length).trim();
+      const outputIndex = inputTextLower.indexOf("output");
+
+      let inputData = "";
+      let descriptionData = "";
+      let expectedOutputData = "";
+
+      if(descIndex !== -1 && outputIndex !== -1 && descIndex < outputIndex) {
+        inputData = inputText.substring(0, descIndex).trim();
+        descriptionData = inputText.substring(descIndex + "description".length, outputIndex).trim();
+        expectedOutputData = inputText.substring(outputIndex + "output".length).trim();
+      } else if(descIndex !== -1) {
+        inputData = inputText.substring(0, descIndex).trim();
+        descriptionData = inputText.substring(descIndex + "description".length).trim();
+        expectedOutputData = "Not available.";
       } else {
-        inputEl.value = inputText.trim();
-        descriptionEl.textContent = "No description provided.";
+        inputData = inputText.trim();
+        descriptionData = "No description provided.";
+        expectedOutputData = "Not available.";
       }
+
+      inputEl.value = inputData;
+      descriptionEl.textContent = descriptionData;
+      expectedOutputEl.textContent = expectedOutputData;
+
     } else {
       inputEl.value = "";
       descriptionEl.textContent = "No input or description found.";
+      expectedOutputEl.textContent = "Not available.";
     }
   } catch {
     inputEl.value = "";
     descriptionEl.textContent = "No input or description found.";
-  }
-
-  try {
-    const outRes = await fetch(outUrl);
-    expectedOutputEl.textContent = outRes.ok ? await outRes.text() : "Not available.";
-  } catch {
     expectedOutputEl.textContent = "Not available.";
   }
 
@@ -394,7 +443,6 @@ async function runCode() {
 
 runBtn.addEventListener("click", runCode);
 fetchFileList();
-
 
 // Hacker style typing animation for "lazy_farhan"
 const typingTextEl = document.getElementById("typingText");
