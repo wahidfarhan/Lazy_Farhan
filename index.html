@@ -3,17 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Practice C - Run Your Code</title>
+<title>Practice C - Run Your Code (highlight.js + GitHub style)</title>
 
-<!-- GitHub style Prism theme -->
-<link href="https://cdn.jsdelivr.net/gh/primer/prism-themes@1.9.0/themes/prism-github.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+<!-- highlight.js GitHub style CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
 
 <style>
-  /* Page background black to keep contrast */
   body {
-    background-color: #0d1117; /* GitHub dark bg */
-    color: #c9d1d9; /* GitHub light text */
+    background-color: #0d1117; /* GitHub dark */
+    color: #c9d1d9;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0; padding: 0;
     display: flex;
@@ -75,8 +73,8 @@
   pre {
     margin: 0 !important;
     font-size: 14px;
-    /* padding-left for line numbers */
-    padding-left: 3.8em !important;
+    padding: 15px;
+    overflow-x: auto;
   }
 
   .io-container {
@@ -156,7 +154,7 @@
 
 <div id="main">
   <div id="codeContainer">
-    <pre id="codeBlock" class="line-numbers language-c"><code class="language-c">// Select a file to see code here...</code></pre>
+    <pre><code id="codeBlock" class="c">// Select a file to see code here...</code></pre>
   </div>
 
   <div class="io-container">
@@ -174,10 +172,10 @@
   <div id="statusMsg"></div>
 </div>
 
-<!-- Prism.js scripts -->
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<!-- highlight.js core -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<!-- C language support -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
 
 <script>
 const repoOwner = "wahidfarhan";
@@ -234,11 +232,12 @@ async function selectFile(file, listItem) {
 
     currentFileName = file.name;
     currentCode = codeText;
-    const codeEl = codeBlockEl.querySelector('code');
 
-    // Set code and highlight with Prism
-    codeEl.textContent = currentCode;
-    Prism.highlightElement(codeEl);
+    // set code
+    codeBlockEl.textContent = currentCode;
+
+    // highlight code using highlight.js
+    hljs.highlightElement(codeBlockEl);
 
     outputEl.value = "";
     inputEl.value = "";
