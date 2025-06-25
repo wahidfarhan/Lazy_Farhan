@@ -183,7 +183,7 @@ const rapidApiHost = "judge0-ce.p.rapidapi.com";
 const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02"; // তোমার RapidAPI key এখানে বসাও
 
 const fileListEl = document.getElementById("fileList");
-const codeBlockEl = document.getElementById("codeBlock").querySelector("code");
+const codeBlockEl = document.getElementById("codeBlock");
 const inputEl = document.getElementById("input");
 const outputEl = document.getElementById("output");
 const runBtn = document.getElementById("runBtn");
@@ -220,12 +220,14 @@ async function fetchFileList() {
   }
 }
 
-// Load code content from GitHub and show with Prism syntax highlight
+// Load code content from GitHub and show
 async function selectFile(file) {
   try {
+    // Remove active class from all
     [...fileListEl.children].forEach(li => li.classList.remove("active"));
 
     currentFileName = file.name;
+    // Add active class on selected
     const selectedLi = [...fileListEl.children].find(li => li.textContent === file.name);
     if (selectedLi) selectedLi.classList.add("active");
 
@@ -234,9 +236,8 @@ async function selectFile(file) {
     const codeText = await res.text();
 
     currentCode = codeText;
-    // Prism.js syntax highlighting here:
-    codeBlockEl.innerHTML = Prism.highlight(currentCode, Prism.languages.c, 'c');
-
+    codeBlockEl.textContent = currentCode;
+    Prism.highlightElement(codeBlockEl);
     outputEl.value = "";
     inputEl.value = "";
     statusMsg.textContent = "";
