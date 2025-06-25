@@ -7,6 +7,7 @@
 
 <!-- Prism.js for syntax highlighting -->
 <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-vsc-dark-plus.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
 
 <style>
   body {
@@ -232,7 +233,9 @@ async function selectFile(file, listItem) {
 
     currentFileName = file.name;
     currentCode = codeText;
-    codeBlockEl.innerHTML = Prism.highlight(currentCode, Prism.languages.c, 'c');
+    const codeEl = codeBlockEl.querySelector('code');
+    codeEl.textContent = currentCode;
+    Prism.highlightElement(codeEl);
     outputEl.value = "";
     inputEl.value = "";
     statusMsg.textContent = "";
