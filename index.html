@@ -37,19 +37,16 @@
   }
   #file-list li {
     margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-  }
-  #file-list button {
-    background-color: #3a3a3a;
-    border: none;
-    color: #e0e0e0;
-    padding: 4px 10px;
     cursor: pointer;
-    border-radius: 4px;
+    padding: 6px 8px;
+    border-radius: 5px;
   }
-  #file-list button:hover {
-    background-color: #5a5a5a;
+  #file-list li:hover {
+    background-color: #333;
+  }
+  #file-list li.active {
+    background-color: #0f9d58;
+    color: #fff;
   }
 
   #main {
@@ -132,7 +129,7 @@
 <div id="sidebar">
   <h2>My Practice (C Files)</h2>
   <ul id="file-list">
-    <!-- Dynamically filled by JS -->
+    <!-- ফাইলের নামগুলো JS দিয়ে এখানে যোগ হবে -->
   </ul>
 </div>
 
@@ -156,7 +153,6 @@
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
 
 <script>
-  // তোমার GitHub repository info
   const githubUser = 'wahidfarhan';
   const repoName = 'Practice_C';
 
@@ -167,8 +163,8 @@
   const outputBox = document.getElementById('output-box');
 
   let currentCode = '';
-  
-  // Get all .c files from GitHub repo via API
+  let activeFileLi = null;
+
   async function fetchFiles() {
     try {
       const res = await fetch(`https://api.github.com/repos/${githubUser}/${repoName}/contents/`);
@@ -179,12 +175,11 @@
       cFiles.forEach(file => {
         const li = document.createElement('li');
         li.textContent = file.name;
-
-        const showBtn = document.createElement('button');
-        showBtn.textContent = 'Show';
-        showBtn.onclick = () => loadCode(file.download_url);
-        li.appendChild(showBtn);
-
+        li.onclick = () => {
+          if(activeFileLi) activeFileLi.classList.remove('active');
+          li.classList.add('active');
+          loadCode(file.download_url);
+        };
         fileListEl.appendChild(li);
       });
     } catch (err) {
@@ -219,7 +214,7 @@
           'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
         },
         body: JSON.stringify({
-          language_id: 50, // C (gcc)
+          language_id: 50,
           source_code: currentCode,
           stdin: inputArea.value
         })
@@ -237,7 +232,6 @@
     }
   };
 
-  // On page load fetch file list
   fetchFiles();
 </script>
 
