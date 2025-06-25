@@ -144,16 +144,20 @@
       max-height: 150px;
       color: #c9d1d9;
     }
+    /* Updated description box */
     #descriptionBox {
       border-bottom: 2px solid #238636;
       overflow-y: auto;
-      max-height: 150px;
+      max-height: 300px;       /* বাড়ানো উচ্চতা ডেক্সটপে */
+      min-height: 150px;
       padding: 10px;
       white-space: pre-wrap;
       font-size: 14px;
       background-color: #1e1e1e;
       color: #c9d1d9;
       border-radius: 5px;
+      scrollbar-width: thin;
+      scrollbar-color: #000000 #121212;
     }
     #runBtn {
       margin-top: 10px;
@@ -295,6 +299,12 @@
         margin-top: 8px;
         text-align: center;
         color: #56d364;
+      }
+      /* Mobile description box smaller height */
+      #descriptionBox {
+        max-height: 200px;
+        min-height: 120px;
+        font-size: 13px;
       }
     }
   </style>
@@ -534,12 +544,15 @@
       if (inputRes.ok) {
         const inputText = await inputRes.text();
 
+        // parse input, description, output sections if present
         const parsed = await parseInputFile(inputText);
 
         inputEl.value = parsed.input || "";
-        descriptionEl.textContent = parsed.description || "No description provided.";
-        expectedOutputEl.textContent = parsed.output || "Not available.";
+
+        descriptionEl.textContent = parsed.description || "No description available.";
+        expectedOutputEl.textContent = parsed.output || "Not loaded";
       } else {
+        // No input file found
         inputEl.value = "";
         descriptionEl.textContent = "No description available.";
         expectedOutputEl.textContent = "Not loaded";
@@ -549,9 +562,6 @@
       descriptionEl.textContent = "No description available.";
       expectedOutputEl.textContent = "Not loaded";
     }
-
-    outputEl.value = "";
-    statusMsg.textContent = "";
   }
 
   backBtn.addEventListener("click", () => {
@@ -562,81 +572,114 @@
     }
   });
 
+  runBtn.addEventListener("click", () => {
+    runCode();
+  });
+
   async function runCode() {
     if (!currentCode.trim()) {
-      statusMsg.textContent = "No code loaded to run.";
+      statusMsg.textContent = "No code loaded.";
       return;
     }
     statusMsg.textContent = "Running code...";
 
-    const source_code = currentCode;
-    const stdin = inputEl.value;
+    const sourceCode = currentCode;
+    const input = inputEl.value;
 
-    const payload = {
-      language_id: 50, // C language (gcc)
-      source_code: source_code,
-      stdin: stdin,
+    // Judge0 API expects base64 encoded source_code and stdin
+    const encodedSourceCode = btoa(unescape(encodeURIComponent(sourceCode)));
+    const encodedInput = btoa(unescape(encodeURIComponent(input)));
+
+    const submissionBody = {
+      language_id: 50,  // C language ID on Judge0
+      source_code: encodedSourceCode,
+      stdin: encodedInput,
+      redirect_stderr_to_stdout: true,
     };
 
     try {
-      const response = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
+      // Submit code
+      let res = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=false", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "X-RapidAPI-Host": rapidApiHost,
+          "content-type": "application/json",
           "X-RapidAPI-Key": rapidApiKey,
+          "X-RapidAPI-Host": rapidApiHost
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(submissionBody)
       });
 
-      if (!response.ok) throw new Error("Error running code");
+      if (!res.ok) throw new Error("Failed to submit code");
 
-      const result = await response.json();
+      const json = await res.json();
+      const token = json.token;
 
-      if (result.stderr) {
-        outputEl.value = `Error:\n${result.stderr}`;
-      } else if (result.compile_output) {
-        outputEl.value = `Compile Error:\n${result.compile_output}`;
-      } else {
-        outputEl.value = result.stdout || "";
+      // Polling for result
+      let result;
+      while (true) {
+        await new Promise(r => setTimeout(r, 1000));
+        res = await fetch(`https://judge0-ce.p.rapidapi.com/submissions/${token}?base64_encoded=true`, {
+          headers: {
+            "X-RapidAPI-Key": rapidApiKey,
+            "X-RapidAPI-Host": rapidApiHost
+          }
+        });
+        if (!res.ok) throw new Error("Failed to fetch submission result");
+        result = await res.json();
+
+        if (result.status && result.status.id > 2) break; // 1: in queue, 2: processing, >2 means finished
       }
-      statusMsg.textContent = "Run completed.";
-    } catch (err) {
+
+      // Decode output from base64
+      const output = result.stdout ? decodeURIComponent(escape(atob(result.stdout))) : "";
+      const error = result.stderr ? decodeURIComponent(escape(atob(result.stderr))) : "";
+      const compileError = result.compile_output ? decodeURIComponent(escape(atob(result.compile_output))) : "";
+
+      if (compileError) {
+        outputEl.value = "Compile Error:\n" + compileError;
+        statusMsg.textContent = "Compile error.";
+      } else if (error) {
+        outputEl.value = "Runtime Error:\n" + error;
+        statusMsg.textContent = "Runtime error.";
+      } else {
+        outputEl.value = output;
+        statusMsg.textContent = "Execution finished.";
+      }
+    } catch (e) {
       outputEl.value = "";
-      statusMsg.textContent = "Failed to run code.";
-      console.error(err);
+      statusMsg.textContent = "Error running code: " + e.message;
     }
   }
 
-  runBtn.addEventListener("click", runCode);
-
-  // Initial load
-  showFolder(folderPathRoot);
-
-  // Highlight.js init (line numbers)
-  hljs.highlightAll();
-  hljs.lineNumbersBlock(document.getElementById("codeBlock"));
-
-  // Typing animation bottom
+  // Typing animation at bottom
   const typingTextEl = document.getElementById("typingText");
-  const typingMessage = "Farhan practice problems . . .";
+  const typingMessage = "Farhan Code Practice";
   let typingIndex = 0;
+  let typingForward = true;
 
-  function typeWriter() {
-    if (typingIndex < typingMessage.length) {
-      typingTextEl.textContent += typingMessage.charAt(typingIndex);
+  function typingAnimation() {
+    if (typingForward) {
       typingIndex++;
-      setTimeout(typeWriter, 150);
+      if (typingIndex > typingMessage.length) {
+        typingForward = false;
+        setTimeout(typingAnimation, 1000);
+        return;
+      }
     } else {
-      setTimeout(() => {
-        typingTextEl.textContent = "";
-        typingIndex = 0;
-        typeWriter();
-      }, 3000);
+      typingIndex--;
+      if (typingIndex < 0) {
+        typingForward = true;
+        setTimeout(typingAnimation, 500);
+        return;
+      }
     }
+    typingTextEl.textContent = typingMessage.substring(0, typingIndex);
+    setTimeout(typingAnimation, 100);
   }
-  typeWriter();
+  typingAnimation();
 
+  // Init
+  showFolder(folderPathRoot);
 </script>
 
 </body>
