@@ -3,282 +3,303 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>My C Practice Codes - Run Online</title>
+<title>Practice C - Run Your Code</title>
+
+<!-- Prism.js for syntax highlighting -->
+<link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet" />
 
 <style>
   body {
-    margin: 0; padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #121212;
     color: #eee;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; padding: 0;
     display: flex;
     height: 100vh;
   }
-
-  #file-list {
-    width: 25%;
+  #sidebar {
+    width: 320px;
     background-color: #1e1e1e;
+    border-right: 3px solid #333;
+    padding: 15px;
     overflow-y: auto;
-    border-right: 1px solid #333;
   }
-
-  #file-list ul {
+  #sidebar h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #0f9d58;
+    padding-bottom: 5px;
+    color: #0f9d58;
+  }
+  #fileList {
     list-style: none;
     padding: 0;
     margin: 0;
   }
-
-  #file-list li {
-    padding: 12px 16px;
+  #fileList li {
+    padding: 10px;
+    margin-bottom: 5px;
+    background-color: #222;
     cursor: pointer;
-    border-bottom: 1px solid #333;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    border: 2px solid transparent;
   }
-
-  #file-list li:hover {
+  #fileList li:hover {
     background-color: #333;
   }
-
-  #file-list li.active {
-    background-color: #007acc;
-    color: white;
+  #fileList li.active {
+    background-color: #0f9d58;
+    color: #fff;
+    border: 2px solid #0f9d58;
   }
 
-  #main-content {
-    flex-grow: 1;
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background-color: #181818;
+  }
+  #codeContainer {
+    flex: 1;
+    overflow: auto;
+    border: 3px solid #0f9d58;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    background: #121212;
+  }
+  pre {
+    margin: 0;
+    padding: 15px;
+    font-size: 14px;
+  }
+  /* Prism line numbers */
+  .line-numbers {
+    padding-left: 50px !important;
+  }
+  /* Input and Output containers */
+  .io-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+  .io-box {
+    flex: 1;
     display: flex;
     flex-direction: column;
   }
-
-  header {
-    padding: 10px 16px;
-    background-color: #1e1e1e;
-    border-bottom: 1px solid #333;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .io-box label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #0f9d58;
   }
-
-  header h1 {
-    margin: 0;
-    font-weight: 600;
-    font-size: 1.5rem;
+  textarea#input, textarea#output {
+    background-color: #222;
+    color: #eee;
+    border: 3px solid #0f9d58;
+    border-radius: 6px;
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+    max-height: 150px;
+    transition: border-color 0.3s ease;
   }
-
-  #run-btn {
-    background-color: #007acc;
+  textarea#input:focus, textarea#output:focus {
+    border-color: #34a853;
+    outline: none;
+    background-color: #2a2a2a;
+  }
+  #runBtn {
+    background-color: #0f9d58;
     color: white;
     border: none;
-    padding: 8px 14px;
-    font-size: 1rem;
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 6px;
     cursor: pointer;
+    align-self: flex-start;
+    transition: background-color 0.3s ease;
+  }
+  #runBtn:hover {
+    background-color: #34a853;
+  }
+  #statusMsg {
+    margin-top: 10px;
+    font-style: italic;
+    min-height: 20px;
+    color: #ccc;
+  }
+  /* Scrollbar styles for sidebar and code */
+  #sidebar::-webkit-scrollbar, #codeContainer::-webkit-scrollbar {
+    width: 8px;
+  }
+  #sidebar::-webkit-scrollbar-thumb, #codeContainer::-webkit-scrollbar-thumb {
+    background-color: #0f9d58;
     border-radius: 4px;
   }
-
-  #run-btn:hover {
-    background-color: #005f99;
-  }
-
-  #code-container {
-    flex-grow: 1;
-    background: #1e1e1e;
-    color: #eee;
-    font-family: 'Fira Code', monospace, monospace;
-    font-size: 14px;
-    padding: 16px;
-    overflow-y: auto;
-    white-space: pre;
-    line-height: 1.4em;
-  }
-
-  #input-label {
-    padding: 8px 16px;
-    background: #222;
-    border-top: 1px solid #333;
-  }
-
-  #stdin {
-    width: 100%;
-    height: 80px;
-    background: #222;
-    color: #eee;
-    font-family: monospace;
-    font-size: 14px;
-    border: none;
-    padding: 8px;
-    resize: vertical;
-  }
-
-  #output-container {
-    background-color: #222;
-    color: #0f0;
-    padding: 10px 16px;
-    font-family: monospace;
-    height: 150px;
-    overflow-y: auto;
-    border-top: 1px solid #333;
-    white-space: pre-wrap;
-  }
-
-  /* Syntax highlighting */
-  .keyword { color: #569cd6; }
-  .type { color: #4ec9b0; }
-  .string { color: #d69d85; }
-  .comment { color: #6a9955; font-style: italic; }
-  .number { color: #b5cea8; }
-
 </style>
 </head>
 <body>
 
-<div id="file-list">
-  <ul id="files-ul">
-    <!-- File list here -->
+<div id="sidebar">
+  <h2>My Practice C</h2>
+  <ul id="fileList">
+    <li>Loading files...</li>
   </ul>
 </div>
 
-<div id="main-content">
-  <header>
-    <h1>My C Practice Codes</h1>
-    <button id="run-btn">Run</button>
-  </header>
+<div id="main">
+  <div id="codeContainer">
+    <pre id="codeBlock" class="line-numbers language-c"><code>// Select a file to see code here...</code></pre>
+  </div>
 
-  <pre id="code-container">// Select a file from the left to load code here.</pre>
+  <div class="io-container">
+    <div class="io-box">
+      <label for="input">Input</label>
+      <textarea id="input" placeholder="Type input here (if any)"></textarea>
+    </div>
+    <div class="io-box">
+      <label for="output">Output</label>
+      <textarea id="output" readonly placeholder="Output will appear here"></textarea>
+    </div>
+  </div>
 
-  <div id="input-label">Input (stdin):</div>
-  <textarea id="stdin" placeholder="Enter input here..."></textarea>
-
-  <div id="output-container">Output will appear here...</div>
+  <button id="runBtn">Run Code</button>
+  <div id="statusMsg"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
 <script>
-const githubUser = 'wahidfarhan';
-const repoName = 'Lazy_Farhan';
-const folderPath = 'codes';
+const repoOwner = "wahidfarhan";
+const repoName = "Lazy_Farhan";
+const folderPath = "codes";
+const rapidApiHost = "judge0-ce.p.rapidapi.com";
+const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02"; // তোমার RapidAPI key এখানে বসাও
 
-const filesUl = document.getElementById('files-ul');
-const codeContainer = document.getElementById('code-container');
-const outputContainer = document.getElementById('output-container');
-const runBtn = document.getElementById('run-btn');
-const stdinArea = document.getElementById('stdin');
+const fileListEl = document.getElementById("fileList");
+const codeBlockEl = document.getElementById("codeBlock");
+const inputEl = document.getElementById("input");
+const outputEl = document.getElementById("output");
+const runBtn = document.getElementById("runBtn");
+const statusMsg = document.getElementById("statusMsg");
 
-let filesList = [];
-let currentSelectedIndex = -1;
-let currentCode = '';
+let currentCode = "";
+let currentFileName = "";
 
-function syntaxHighlight(code) {
-  code = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  code = code.replace(/(\/\/.*?$)/gm, '<span class="comment">$1</span>');
-  code = code.replace(/(\".*?\")/g, '<span class="string">$1</span>');
-
-  const keywords = ['int', 'void', 'char', 'float', 'double', 'if', 'else', 'while', 'for', 'return', 'break', 'continue', 'struct', 'switch', 'case', 'default', 'sizeof', 'do'];
-  const keywordRegex = new RegExp('\\b(' + keywords.join('|') + ')\\b', 'g');
-  code = code.replace(keywordRegex, '<span class="keyword">$1</span>');
-
-  const types = ['int', 'char', 'float', 'double', 'void', 'long', 'short', 'unsigned', 'signed', 'const'];
-  const typeRegex = new RegExp('\\b(' + types.join('|') + ')\\b', 'g');
-  code = code.replace(typeRegex, '<span class="type">$1</span>');
-
-  code = code.replace(/\b(\d+)\b/g, '<span class="number">$1</span>');
-
-  return code;
-}
-
+// Fetch file list from GitHub API
 async function fetchFileList() {
   try {
-    const res = await fetch(`https://api.github.com/repos/${githubUser}/${repoName}/contents/${folderPath}`);
-    if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+    const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}`;
+    const res = await fetch(apiUrl);
+    if (!res.ok) throw new Error("Failed to fetch file list");
     const data = await res.json();
 
-    filesList = data.filter(item => item.type === 'file' && item.name.endsWith('.c'));
+    const cFiles = data.filter(file => file.name.endsWith(".c"));
+    if (cFiles.length === 0) {
+      fileListEl.innerHTML = "<li>No C files found in repo</li>";
+      return;
+    }
 
-    filesUl.innerHTML = '';
-    filesList.forEach((file, idx) => {
-      const li = document.createElement('li');
+    fileListEl.innerHTML = "";
+    cFiles.forEach(file => {
+      const li = document.createElement("li");
       li.textContent = file.name;
-      li.addEventListener('click', () => selectFile(idx));
-      filesUl.appendChild(li);
+      li.title = file.name;
+      li.addEventListener("click", () => selectFile(file));
+      fileListEl.appendChild(li);
     });
-
   } catch (err) {
-    codeContainer.textContent = 'Error loading files: ' + err.message;
+    fileListEl.innerHTML = `<li style="color:#f44336;">Error loading files</li>`;
+    console.error(err);
   }
 }
 
-async function selectFile(idx) {
-  if (currentSelectedIndex === idx) return;
-
-  if (currentSelectedIndex !== -1) {
-    filesUl.children[currentSelectedIndex].classList.remove('active');
-  }
-
-  currentSelectedIndex = idx;
-  filesUl.children[idx].classList.add('active');
-
-  outputContainer.textContent = 'Output will appear here...';
-  stdinArea.value = '';
-
+// Load code content from GitHub and show
+async function selectFile(file) {
   try {
-    const file = filesList[idx];
+    // Remove active class from all
+    [...fileListEl.children].forEach(li => li.classList.remove("active"));
+
+    currentFileName = file.name;
+    // Add active class on selected
+    const selectedLi = [...fileListEl.children].find(li => li.textContent === file.name);
+    if (selectedLi) selectedLi.classList.add("active");
+
     const res = await fetch(file.download_url);
-    if (!res.ok) throw new Error(`Failed to load code: ${res.status}`);
-    const code = await res.text();
-    currentCode = code;
-    codeContainer.innerHTML = syntaxHighlight(code);
+    if (!res.ok) throw new Error("Failed to fetch code");
+    const codeText = await res.text();
+
+    currentCode = codeText;
+    codeBlockEl.textContent = currentCode;
+    Prism.highlightElement(codeBlockEl);
+    outputEl.value = "";
+    inputEl.value = "";
+    statusMsg.textContent = "";
   } catch (err) {
-    codeContainer.textContent = 'Error loading code: ' + err.message;
+    statusMsg.textContent = "Error loading code file.";
+    console.error(err);
   }
 }
 
+// Run code using Judge0 API
 async function runCode() {
   if (!currentCode) {
-    outputContainer.textContent = 'Please select a code file first.';
+    alert("Please select a C file first.");
     return;
   }
-
-  outputContainer.textContent = 'Running code...';
-
-  // Prepare data for Judge0 API
-  // https://judge0.com/
-  const payload = {
-    language_id: 50,  // C (gcc)
-    source_code: currentCode,
-    stdin: stdinArea.value
-  };
+  outputEl.value = "";
+  statusMsg.textContent = "Running...";
+  runBtn.disabled = true;
 
   try {
-    // Create submission
-    const response = await fetch('https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true', {
-      method: 'POST',
+    const postData = {
+      source_code: currentCode,
+      language_id: 50, // C (gcc 9.2.0)
+      stdin: inputEl.value
+    };
+
+    const response = await fetch(`https://${rapidApiHost}/submissions?base64_encoded=false&wait=true`, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
-        'X-RapidAPI-Key': '2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02' // তোমার RapidAPI key
+        "content-type": "application/json",
+        "X-RapidAPI-Host": rapidApiHost,
+        "X-RapidAPI-Key": rapidApiKey
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(postData)
     });
 
-    if (!response.ok) throw new Error('Error from Judge0 API: ' + response.statusText);
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
 
     const result = await response.json();
 
-    if (result.stdout) {
-      outputContainer.textContent = result.stdout;
+    if (result.stderr) {
+      outputEl.value = `Error:\n${result.stderr}`;
     } else if (result.compile_output) {
-      outputContainer.textContent = "Compile error:\n" + result.compile_output;
-    } else if (result.stderr) {
-      outputContainer.textContent = "Runtime error:\n" + result.stderr;
+      outputEl.value = `Compile Error:\n${result.compile_output}`;
+    } else if (result.message) {
+      outputEl.value = `Error:\n${result.message}`;
     } else {
-      outputContainer.textContent = "Unknown error occurred.";
+      outputEl.value = result.stdout || "";
     }
-  } catch (err) {
-    outputContainer.textContent = "Error: " + err.message;
+  } catch (error) {
+    outputEl.value = "Error running code: " + error.message;
+    console.error(error);
+  } finally {
+    statusMsg.textContent = "";
+    runBtn.disabled = false;
   }
 }
 
-runBtn.addEventListener('click', runCode);
+runBtn.addEventListener("click", runCode);
 
 fetchFileList();
-
 </script>
+
 </body>
 </html>
