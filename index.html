@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Practice C - Run Your Code</title>
 
-<!-- Prism.js for syntax highlighting with VS Code-like theme -->
-<link href="https://cdn.jsdelivr.net/npm/prism-themes/themes/prism-vsc-dark-plus.css" rel="stylesheet" />
+<!-- Prism.js for syntax highlighting -->
+<link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-vsc-dark-plus.min.css" rel="stylesheet" />
 
 <style>
   body {
@@ -53,6 +53,7 @@
     color: #fff;
     border: 2px solid #0f9d58;
   }
+
   #main {
     flex: 1;
     display: flex;
@@ -76,6 +77,7 @@
   .line-numbers {
     padding-left: 50px !important;
   }
+
   .io-container {
     display: flex;
     gap: 15px;
@@ -93,7 +95,7 @@
   }
   textarea#input, textarea#output {
     background-color: #222;
-    color: #00ff00;
+    color: #eee;
     border: 3px solid #0f9d58;
     border-radius: 6px;
     padding: 10px;
@@ -108,6 +110,9 @@
     border-color: #34a853;
     outline: none;
     background-color: #2a2a2a;
+  }
+  #output {
+    color: #00ff00;
   }
   #runBtn {
     background-color: #0f9d58;
@@ -140,16 +145,19 @@
 </style>
 </head>
 <body>
+
 <div id="sidebar">
   <h2>My Practice C</h2>
   <ul id="fileList">
     <li>Loading files...</li>
   </ul>
 </div>
+
 <div id="main">
   <div id="codeContainer">
-    <pre id="codeBlock" class="line-numbers language-c"><code>// Select a file to see code here...</code></pre>
+    <pre id="codeBlock" class="line-numbers language-c"><code class="language-c">// Select a file to see code here...</code></pre>
   </div>
+
   <div class="io-container">
     <div class="io-box">
       <label for="input">Input</label>
@@ -160,11 +168,15 @@
       <textarea id="output" readonly placeholder="Output will appear here"></textarea>
     </div>
   </div>
+
   <button id="runBtn">Run Code</button>
   <div id="statusMsg"></div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
 <script>
 const repoOwner = "wahidfarhan";
 const repoName = "Lazy_Farhan";
@@ -186,8 +198,15 @@ async function fetchFileList() {
   try {
     const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}`;
     const res = await fetch(apiUrl);
+    if (!res.ok) throw new Error("Failed to fetch file list");
     const data = await res.json();
+
     const cFiles = data.filter(file => file.name.endsWith(".c"));
+    if (cFiles.length === 0) {
+      fileListEl.innerHTML = "<li>No C files found in repo</li>";
+      return;
+    }
+
     fileListEl.innerHTML = "";
     cFiles.forEach(file => {
       const li = document.createElement("li");
@@ -197,29 +216,37 @@ async function fetchFileList() {
       fileListEl.appendChild(li);
     });
   } catch (err) {
-    fileListEl.innerHTML = `<li style="color:red;">Failed to load files</li>`;
+    fileListEl.innerHTML = `<li style="color:#f44336;">Error loading files</li>`;
+    console.error(err);
   }
 }
 
-async function selectFile(file, liElement) {
-  [...fileListEl.children].forEach(li => li.classList.remove("active"));
-  liElement.classList.add("active");
+async function selectFile(file, listItem) {
   try {
+    [...fileListEl.children].forEach(li => li.classList.remove("active"));
+    listItem.classList.add("active");
+
     const res = await fetch(file.download_url);
-    const code = await res.text();
-    currentCode = code;
+    if (!res.ok) throw new Error("Failed to fetch code");
+    const codeText = await res.text();
+
     currentFileName = file.name;
-    codeBlockEl.textContent = code;
-    Prism.highlightElement(codeBlockEl);
-    inputEl.value = "";
+    currentCode = codeText;
+    codeBlockEl.innerHTML = Prism.highlight(currentCode, Prism.languages.c, 'c');
     outputEl.value = "";
+    inputEl.value = "";
+    statusMsg.textContent = "";
   } catch (err) {
-    codeBlockEl.textContent = "Error loading code.";
+    statusMsg.textContent = "Error loading code file.";
+    console.error(err);
   }
 }
 
 async function runCode() {
-  if (!currentCode) return alert("Select a file first");
+  if (!currentCode) {
+    alert("Please select a C file first.");
+    return;
+  }
   outputEl.value = "";
   statusMsg.textContent = "Running...";
   runBtn.disabled = true;
@@ -241,17 +268,32 @@ async function runCode() {
       body: JSON.stringify(postData)
     });
 
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+
     const result = await response.json();
-    outputEl.value = result.stdout || result.stderr || result.compile_output || "";
-  } catch (err) {
-    outputEl.value = "Execution error";
+
+    if (result.stderr) {
+      outputEl.value = `Error:\n${result.stderr}`;
+    } else if (result.compile_output) {
+      outputEl.value = `Compile Error:\n${result.compile_output}`;
+    } else if (result.message) {
+      outputEl.value = `Error:\n${result.message}`;
+    } else {
+      outputEl.value = result.stdout || "";
+    }
+  } catch (error) {
+    outputEl.value = "Error running code: " + error.message;
+    console.error(error);
   } finally {
-    runBtn.disabled = false;
     statusMsg.textContent = "";
+    runBtn.disabled = false;
   }
 }
+
 runBtn.addEventListener("click", runCode);
+
 fetchFileList();
 </script>
+
 </body>
 </html>
