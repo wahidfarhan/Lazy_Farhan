@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Farhan's C Practice</title>
 
   <!-- Prism for syntax highlighting -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
 
@@ -79,6 +79,17 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    #input-area {
+      width: 100%;
+      min-height: 80px;
+      margin: 20px 0 10px 0;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      resize: vertical;
+    }
     #output {
       background: #f5f5f5;
       padding: 15px;
@@ -86,6 +97,7 @@
       white-space: pre-wrap;
       border-radius: 5px;
       font-family: monospace;
+      min-height: 60px;
     }
     pre code {
       white-space: pre-wrap;
@@ -114,6 +126,10 @@
     <div id="code-display">
       <button id="run-button">Run</button>
       <pre><code id="code-content" class="language-c"></code></pre>
+
+      <label for="input-area"><strong>Input (stdin):</strong></label>
+      <textarea id="input-area" placeholder="Enter input here..."></textarea>
+
       <div id="output"></div>
     </div>
   </div>
@@ -130,6 +146,7 @@
     const codeContent = document.getElementById('code-content');
     const runButton = document.getElementById('run-button');
     const outputDiv = document.getElementById('output');
+    const inputArea = document.getElementById('input-area');
     let currentCode = "";
 
     files.forEach(file => {
@@ -150,8 +167,8 @@
           codeContent.textContent = text;
           currentCode = text;
           codeDisplay.style.display = 'block';
-          runButton.style.display = 'block';
           outputDiv.textContent = '';
+          inputArea.value = '';
           Prism.highlightElement(codeContent);
         } catch (e) {
           alert('Could not load file: ' + file);
@@ -176,7 +193,7 @@
           body: JSON.stringify({
             language_id: 50, // C (gcc)
             source_code: currentCode,
-            stdin: ""
+            stdin: inputArea.value
           })
         });
 
