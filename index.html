@@ -1,147 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Practice C - Run Your Code</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Practice C - Run Your Code</title>
 
-  <!-- Prism.js for syntax highlighting -->
-  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet" />
+<!-- Prism.js for syntax highlighting -->
+<link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet" />
 
-  <style>
-    body {
-      background-color: #121212;
-      color: #eee;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0; padding: 0;
-      display: flex;
-      height: 100vh;
-    }
-    #sidebar {
-      width: 320px;
-      background-color: #1e1e1e;
-      border-right: 3px solid #333;
-      padding: 15px;
-      overflow-y: auto;
-    }
-    #sidebar h2 {
-      margin-top: 0;
-      margin-bottom: 15px;
-      border-bottom: 2px solid #0f9d58;
-      padding-bottom: 5px;
-      color: #0f9d58;
-    }
-    #fileList {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    #fileList li {
-      padding: 10px;
-      margin-bottom: 5px;
-      background-color: #222;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: background-color 0.3s ease;
-      border: 2px solid transparent;
-    }
-    #fileList li:hover {
-      background-color: #333;
-    }
-    #fileList li.active {
-      background-color: #0f9d58;
-      color: #fff;
-      border: 2px solid #0f9d58;
-    }
-
-    #main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 15px;
-      background-color: #181818;
-    }
-    #codeContainer {
-      flex: 1;
-      overflow: auto;
-      border: 3px solid #0f9d58;
-      border-radius: 6px;
-      margin-bottom: 15px;
-      background: #121212;
-    }
-    pre {
-      margin: 0;
-      padding: 15px;
-      font-size: 14px;
-    }
-    .line-numbers {
-      padding-left: 50px !important;
-    }
-    .io-container {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 10px;
-    }
-    .io-box {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .io-box label {
-      font-weight: bold;
-      margin-bottom: 5px;
-      color: #0f9d58;
-    }
-    textarea#input, textarea#output {
-      background-color: #222;
-      color: #eee;
-      border: 3px solid #0f9d58;
-      border-radius: 6px;
-      padding: 10px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 14px;
-      resize: vertical;
-      min-height: 80px;
-      max-height: 150px;
-      transition: border-color 0.3s ease;
-    }
-    textarea#input:focus, textarea#output:focus {
-      border-color: #34a853;
-      outline: none;
-      background-color: #2a2a2a;
-    }
-    #runBtn {
-      background-color: #0f9d58;
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-      align-self: flex-start;
-      transition: background-color 0.3s ease;
-    }
-    #runBtn:hover {
-      background-color: #34a853;
-    }
-    #statusMsg {
-      margin-top: 10px;
-      font-style: italic;
-      min-height: 20px;
-      color: #ccc;
-    }
-    #sidebar::-webkit-scrollbar, #codeContainer::-webkit-scrollbar {
-      width: 8px;
-    }
-    #sidebar::-webkit-scrollbar-thumb, #codeContainer::-webkit-scrollbar-thumb {
-      background-color: #0f9d58;
-      border-radius: 4px;
-    }
-  </style>
+<style>
+  body {
+    background-color: #121212;
+    color: #eee;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; padding: 0;
+    display: flex;
+    height: 100vh;
+  }
+  #sidebar {
+    width: 320px;
+    background-color: #1e1e1e;
+    border-right: 4px solid #0f9d58;
+    padding: 15px;
+    overflow-y: auto;
+  }
+  #sidebar h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 3px solid #0f9d58;
+    padding-bottom: 5px;
+    color: #0f9d58;
+  }
+  #fileList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  #fileList li {
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: #222;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    border: 3px solid transparent;
+  }
+  #fileList li:hover {
+    background-color: #333;
+  }
+  #fileList li.active {
+    background-color: #0f9d58;
+    color: #fff;
+    border: 3px solid #0f9d58;
+  }
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background-color: #181818;
+  }
+  #codeContainer {
+    flex: 1;
+    overflow: auto;
+    border: 4px solid #0f9d58;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    background: #121212;
+  }
+  pre {
+    margin: 0;
+    padding: 15px;
+    font-size: 14px;
+  }
+  .line-numbers {
+    padding-left: 50px !important;
+  }
+  .io-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+  .io-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .io-box label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #0f9d58;
+  }
+  textarea {
+    background-color: #222;
+    color: #eee;
+    border: 3px solid #0f9d58;
+    border-radius: 6px;
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+    max-height: 150px;
+    transition: border-color 0.3s ease;
+  }
+  textarea:focus {
+    border-color: #34a853;
+    outline: none;
+    background-color: #2a2a2a;
+  }
+  #runBtn {
+    background-color: #0f9d58;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background-color 0.3s ease;
+  }
+  #runBtn:hover {
+    background-color: #34a853;
+  }
+  #statusMsg {
+    margin-top: 10px;
+    font-style: italic;
+    min-height: 20px;
+    color: #ccc;
+  }
+</style>
 </head>
 <body>
-
 <div id="sidebar">
   <h2>My Practice C</h2>
   <ul id="fileList">
@@ -151,7 +142,7 @@
 
 <div id="main">
   <div id="codeContainer">
-    <pre class="line-numbers language-c"><code id="codeEl">// Select a file to see code here...</code></pre>
+    <pre class="line-numbers language-c"><code id="codeBlock">// Select a file to see code here...</code></pre>
   </div>
 
   <div class="io-container">
@@ -160,3 +151,97 @@
       <textarea id="input" placeholder="Type input here (if any)"></textarea>
     </div>
     <div class="io-box">
+      <label for="output">Output</label>
+      <textarea id="output" readonly placeholder="Output will appear here"></textarea>
+    </div>
+  </div>
+
+  <button id="runBtn">Run Code</button>
+  <div id="statusMsg"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<script>
+const repoOwner = "wahidfarhan";
+const repoName = "Lazy_Farhan";
+const folderPath = "codes";
+const rapidApiHost = "judge0-ce.p.rapidapi.com";
+const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02";
+
+const fileListEl = document.getElementById("fileList");
+const codeBlockEl = document.getElementById("codeBlock");
+const inputEl = document.getElementById("input");
+const outputEl = document.getElementById("output");
+const runBtn = document.getElementById("runBtn");
+const statusMsg = document.getElementById("statusMsg");
+
+let currentCode = "";
+
+async function fetchFileList() {
+  const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}`;
+  const res = await fetch(apiUrl);
+  const data = await res.json();
+
+  fileListEl.innerHTML = "";
+  data.filter(f => f.name.endsWith(".c")).forEach(file => {
+    const li = document.createElement("li");
+    li.textContent = file.name;
+    li.addEventListener("click", () => selectFile(file, li));
+    fileListEl.appendChild(li);
+  });
+}
+
+async function selectFile(file, li) {
+  [...fileListEl.children].forEach(el => el.classList.remove("active"));
+  li.classList.add("active");
+  const res = await fetch(file.download_url);
+  const text = await res.text();
+  currentCode = text;
+  codeBlockEl.textContent = currentCode;
+  Prism.highlightElement(codeBlockEl);
+  inputEl.value = "";
+  outputEl.value = "";
+  statusMsg.textContent = "";
+}
+
+async function runCode() {
+  if (!currentCode) return alert("Please select a file");
+  statusMsg.textContent = "Running...";
+  runBtn.disabled = true;
+  outputEl.value = "";
+
+  const postData = {
+    source_code: currentCode,
+    language_id: 50,
+    stdin: inputEl.value
+  };
+
+  try {
+    const res = await fetch(`https://${rapidApiHost}/submissions?base64_encoded=false&wait=true`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "X-RapidAPI-Host": rapidApiHost,
+        "X-RapidAPI-Key": rapidApiKey
+      },
+      body: JSON.stringify(postData)
+    });
+
+    const result = await res.json();
+    if (result.stderr) outputEl.value = `Error:\n${result.stderr}`;
+    else if (result.compile_output) outputEl.value = `Compile Error:\n${result.compile_output}`;
+    else outputEl.value = result.stdout;
+  } catch (err) {
+    outputEl.value = "Run failed: " + err.message;
+  } finally {
+    statusMsg.textContent = "";
+    runBtn.disabled = false;
+  }
+}
+
+runBtn.addEventListener("click", runCode);
+fetchFileList();
+</script>
+</body>
+</html>
