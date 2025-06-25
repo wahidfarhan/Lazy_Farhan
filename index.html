@@ -75,7 +75,7 @@
     margin: 0;
     padding: 15px;
     font-size: 14px;
-    /* Important for Prism line numbers to reserve space */
+    /* For line numbers spacing */
     padding-left: 3.8em !important;
   }
 
@@ -236,7 +236,7 @@ async function selectFile(file, listItem) {
     currentCode = codeText;
     const codeEl = codeBlockEl.querySelector('code');
     
-    // Set the code text content, then highlight
+    // Set code text and highlight
     codeEl.textContent = currentCode;
     Prism.highlightElement(codeEl);
 
