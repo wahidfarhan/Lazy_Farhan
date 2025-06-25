@@ -179,7 +179,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
 
-<!-- highlight.js line number plugin -->
+<!-- line number plugin -->
 <script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
 
 <script>
@@ -231,6 +231,7 @@ async function selectFile(file, listItem) {
     [...fileListEl.children].forEach(li => li.classList.remove("active"));
     listItem.classList.add("active");
 
+    // Load .c file
     const res = await fetch(file.download_url);
     if (!res.ok) throw new Error("Failed to fetch code");
     const codeText = await res.text();
@@ -238,13 +239,27 @@ async function selectFile(file, listItem) {
     currentFileName = file.name;
     currentCode = codeText;
 
-    // Set and highlight code
+    // Set code content and highlight
     codeBlockEl.textContent = currentCode;
     hljs.highlightElement(codeBlockEl);
     hljs.lineNumbersBlock(codeBlockEl);
 
+    // Try to load matching input file
+    const inputFileName = file.name.replace(/\.c$/, ".in");
+    const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${inputFileName}`);
+    try {
+      const inputRes = await fetch(inputUrl);
+      if (inputRes.ok) {
+        const inputText = await inputRes.text();
+        inputEl.value = inputText;
+      } else {
+        inputEl.value = "";
+      }
+    } catch {
+      inputEl.value = "";
+    }
+
     outputEl.value = "";
-    inputEl.value = "";
     statusMsg.textContent = "";
   } catch (err) {
     statusMsg.textContent = "Error loading code file.";
