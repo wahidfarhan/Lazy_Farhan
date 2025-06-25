@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Practice C - Run Your Code</title>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
 
   <style>
@@ -17,7 +17,6 @@
       background: #0d1117;
       color: #c9d1d9;
     }
-
     #sidebar {
       width: 280px;
       background: #161b22;
@@ -25,19 +24,16 @@
       padding: 15px;
       overflow-y: auto;
     }
-
     #sidebar h2 {
       margin: 0 0 15px;
       border-bottom: 2px solid #238636;
       color: #238636;
     }
-
     #fileList {
       list-style: none;
       padding: 0;
       margin: 0;
     }
-
     #fileList li {
       background: #21262d;
       padding: 8px;
@@ -45,26 +41,22 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
     #fileList li.active {
       background: #238636;
       color: white;
     }
-
     #main {
       flex: 1;
       display: flex;
       flex-direction: column;
       padding: 15px;
     }
-
     #codeSection {
       display: flex;
       gap: 20px;
       flex: 1;
       overflow: hidden;
     }
-
     #codeContainer {
       flex: 2;
       background: #0d1117;
@@ -72,30 +64,25 @@
       border-radius: 6px;
       overflow: auto;
     }
-
     pre {
       margin: 0;
       font-size: 14px;
       padding: 15px;
     }
-
     .hljs td.hljs-ln-code {
       padding-left: 12px;
     }
-
     #ioSide {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-
     .io-box label {
       font-weight: bold;
       color: #238636;
       margin-bottom: 5px;
     }
-
     textarea {
       width: 100%;
       background-color: #21262d;
@@ -108,11 +95,9 @@
       font-family: monospace;
       font-size: 14px;
     }
-
     #output {
       color: #56d364;
     }
-
     .readonly-box {
       background-color: #1e1e1e;
       border: 2px solid #444;
@@ -120,8 +105,8 @@
       padding: 10px;
       white-space: pre-wrap;
       font-size: 14px;
+      min-height: 80px;
     }
-
     #runBtn {
       margin-top: 10px;
       background: #238636;
@@ -132,12 +117,11 @@
       font-weight: bold;
       font-size: 16px;
       cursor: pointer;
+      align-self: flex-start;
     }
-
     #runBtn:hover {
       background: #2ea043;
     }
-
     #statusMsg {
       margin-top: 8px;
       color: #999;
@@ -161,11 +145,11 @@
     <div id="ioSide">
       <div class="io-box">
         <label for="input">📥 Input</label>
-        <textarea id="input"></textarea>
+        <textarea id="input" placeholder="Input will be loaded here or you can type"></textarea>
       </div>
       <div class="io-box">
         <label for="output">📤 Output</label>
-        <textarea id="output" readonly></textarea>
+        <textarea id="output" readonly placeholder="Program output will appear here"></textarea>
       </div>
       <div class="io-box">
         <label>✅ Expected Output</label>
@@ -204,44 +188,71 @@ const expectedOutputEl = document.getElementById("expectedOutput");
 let currentCode = "";
 
 async function fetchFileList() {
-  const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}`;
-  const res = await fetch(apiUrl);
-  const data = await res.json();
-  const cFiles = data.filter(file => file.name.endsWith(".c"));
+  try {
+    const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}`;
+    const res = await fetch(apiUrl);
+    if (!res.ok) throw new Error("Failed to fetch file list");
+    const data = await res.json();
+    const cFiles = data.filter(file => file.name.endsWith(".c"));
 
-  fileListEl.innerHTML = "";
-  cFiles.forEach(file => {
-    const li = document.createElement("li");
-    li.textContent = file.name;
-    li.addEventListener("click", () => selectFile(file, li));
-    fileListEl.appendChild(li);
-  });
+    if (cFiles.length === 0) {
+      fileListEl.innerHTML = "<li>No C files found.</li>";
+      return;
+    }
+
+    fileListEl.innerHTML = "";
+    cFiles.forEach(file => {
+      const li = document.createElement("li");
+      li.textContent = file.name;
+      li.addEventListener("click", () => selectFile(file, li));
+      fileListEl.appendChild(li);
+    });
+  } catch (err) {
+    fileListEl.innerHTML = `<li style="color:red;">Error loading files</li>`;
+    console.error(err);
+  }
 }
 
 async function selectFile(file, li) {
   [...fileListEl.children].forEach(el => el.classList.remove("active"));
   li.classList.add("active");
 
-  // Load code
-  const res = await fetch(file.download_url);
-  const codeText = await res.text();
+  try {
+    const res = await fetch(file.download_url);
+    if (!res.ok) throw new Error("Failed to fetch code");
+    const codeText = await res.text();
 
-  currentCode = codeText;
-  codeBlockEl.textContent = currentCode;
-  hljs.highlightElement(codeBlockEl);
-  hljs.lineNumbersBlock(codeBlockEl);
+    currentCode = codeText;
+    codeBlockEl.textContent = currentCode;
+    hljs.highlightElement(codeBlockEl);
+    hljs.lineNumbersBlock(codeBlockEl);
+  } catch (err) {
+    statusMsg.textContent = "Error loading code file.";
+    console.error(err);
+    return;
+  }
 
-  // Load input + description
-  const baseName = file.name.replace(/\.c$/, '');
+  const baseName = file.name.replace(/\.c$/, "");
   const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.in`);
   const outUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.out`);
 
   try {
     const inputRes = await fetch(inputUrl);
-    const inputText = await inputRes.text();
-    const parts = inputText.split(/description/i);
-    inputEl.value = parts[0].trim();
-    descriptionEl.textContent = (parts[1] || "No description.").trim();
+    if (inputRes.ok) {
+      const inputText = await inputRes.text();
+      const inputTextLower = inputText.toLowerCase();
+      const descIndex = inputTextLower.indexOf("description");
+      if (descIndex !== -1) {
+        inputEl.value = inputText.substring(0, descIndex).trim();
+        descriptionEl.textContent = inputText.substring(descIndex + "description".length).trim();
+      } else {
+        inputEl.value = inputText.trim();
+        descriptionEl.textContent = "No description provided.";
+      }
+    } else {
+      inputEl.value = "";
+      descriptionEl.textContent = "No input or description found.";
+    }
   } catch {
     inputEl.value = "";
     descriptionEl.textContent = "No input or description found.";
@@ -260,7 +271,7 @@ async function selectFile(file, li) {
 
 async function runCode() {
   if (!currentCode) {
-    alert("Please select a C file.");
+    alert("Please select a C file first.");
     return;
   }
 
@@ -269,7 +280,7 @@ async function runCode() {
   outputEl.value = "";
 
   try {
-    const res = await fetch(`https://${rapidApiHost}/submissions?base64_encoded=false&wait=true`, {
+    const response = await fetch(`https://${rapidApiHost}/submissions?base64_encoded=false&wait=true`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -283,15 +294,23 @@ async function runCode() {
       })
     });
 
-    const result = await res.json();
-    if (result.stderr) outputEl.value = `Error:\n${result.stderr}`;
-    else if (result.compile_output) outputEl.value = `Compile Error:\n${result.compile_output}`;
-    else outputEl.value = result.stdout || "";
-  } catch (e) {
-    outputEl.value = "Error: " + e.message;
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+    const result = await response.json();
+
+    if (result.stderr) {
+      outputEl.value = `Error:\n${result.stderr}`;
+    } else if (result.compile_output) {
+      outputEl.value = `Compile Error:\n${result.compile_output}`;
+    } else {
+      outputEl.value = result.stdout || "";
+    }
+  } catch (error) {
+    outputEl.value = "Error running code: " + error.message;
+    console.error(error);
   } finally {
-    runBtn.disabled = false;
     statusMsg.textContent = "";
+    runBtn.disabled = false;
   }
 }
 
