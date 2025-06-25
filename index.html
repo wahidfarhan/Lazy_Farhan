@@ -1,147 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Practice C - Run Your Code (highlight.js + GitHub style)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Practice C - Run Your Code</title>
 
-<!-- highlight.js GitHub style CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+  <!-- highlight.js GitHub dark theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
 
-<style>
-  body {
-    background-color: #0d1117; /* GitHub dark */
-    color: #c9d1d9;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0; padding: 0;
-    display: flex;
-    height: 100vh;
-  }
-  #sidebar {
-    width: 320px;
-    background-color: #161b22;
-    border-right: 3px solid #30363d;
-    padding: 15px;
-    overflow-y: auto;
-  }
-  #sidebar h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #238636;
-    padding-bottom: 5px;
-    color: #238636;
-  }
-  #fileList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  #fileList li {
-    padding: 10px;
-    margin-bottom: 5px;
-    background-color: #21262d;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-    border: 2px solid transparent;
-    user-select: none;
-  }
-  #fileList li:hover {
-    background-color: #30363d;
-  }
-  #fileList li.active {
-    background-color: #238636;
-    color: white;
-    border: 2px solid #238636;
-  }
+  <!-- highlight.js line number plugin -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
 
-  #main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    background-color: #161b22;
-  }
-  #codeContainer {
-    flex: 1;
-    overflow: auto;
-    border: 3px solid #238636;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    background: #0d1117;
-  }
-  pre {
-    margin: 0 !important;
-    font-size: 14px;
-    padding: 15px;
-    overflow-x: auto;
-  }
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0;
+      display: flex;
+      height: 100vh;
+    }
+    #sidebar {
+      width: 320px;
+      background-color: #161b22;
+      border-right: 3px solid #30363d;
+      padding: 15px;
+      overflow-y: auto;
+    }
+    #sidebar h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #238636;
+      padding-bottom: 5px;
+      color: #238636;
+    }
+    #fileList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #fileList li {
+      padding: 10px;
+      margin-bottom: 5px;
+      background-color: #21262d;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+      border: 2px solid transparent;
+      user-select: none;
+    }
+    #fileList li:hover {
+      background-color: #30363d;
+    }
+    #fileList li.active {
+      background-color: #238636;
+      color: white;
+      border: 2px solid #238636;
+    }
 
-  .io-container {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 10px;
-  }
-  .io-box {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  .io-box label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #238636;
-  }
-  textarea#input, textarea#output {
-    background-color: #21262d;
-    color: #c9d1d9;
-    border: 3px solid #238636;
-    border-radius: 6px;
-    padding: 10px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
-    resize: vertical;
-    min-height: 80px;
-    max-height: 150px;
-    transition: border-color 0.3s ease;
-  }
-  textarea#input:focus, textarea#output:focus {
-    border-color: #2ea043;
-    outline: none;
-    background-color: #30363d;
-  }
-  #output {
-    color: #56d364;
-  }
-  #runBtn {
-    background-color: #238636;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-    align-self: flex-start;
-    transition: background-color 0.3s ease;
-  }
-  #runBtn:hover {
-    background-color: #2ea043;
-  }
-  #statusMsg {
-    margin-top: 10px;
-    font-style: italic;
-    min-height: 20px;
-    color: #8b949e;
-  }
-  #sidebar::-webkit-scrollbar, #codeContainer::-webkit-scrollbar {
-    width: 8px;
-  }
-  #sidebar::-webkit-scrollbar-thumb, #codeContainer::-webkit-scrollbar-thumb {
-    background-color: #238636;
-    border-radius: 4px;
-  }
-</style>
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      background-color: #161b22;
+    }
+    #codeContainer {
+      flex: 1;
+      overflow: auto;
+      border: 3px solid #238636;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      background: #0d1117;
+    }
+    pre {
+      margin: 0;
+      font-size: 14px;
+      padding: 15px;
+      overflow-x: auto;
+    }
+
+    .io-container {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    .io-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .io-box label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #238636;
+    }
+    textarea#input, textarea#output {
+      background-color: #21262d;
+      color: #c9d1d9;
+      border: 3px solid #238636;
+      border-radius: 6px;
+      padding: 10px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 80px;
+      max-height: 150px;
+      transition: border-color 0.3s ease;
+    }
+    textarea#input:focus, textarea#output:focus {
+      border-color: #2ea043;
+      outline: none;
+      background-color: #30363d;
+    }
+    #output {
+      color: #56d364;
+    }
+    #runBtn {
+      background-color: #238636;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      align-self: flex-start;
+      transition: background-color 0.3s ease;
+    }
+    #runBtn:hover {
+      background-color: #2ea043;
+    }
+    #statusMsg {
+      margin-top: 10px;
+      font-style: italic;
+      min-height: 20px;
+      color: #8b949e;
+    }
+    #sidebar::-webkit-scrollbar, #codeContainer::-webkit-scrollbar {
+      width: 8px;
+    }
+    #sidebar::-webkit-scrollbar-thumb, #codeContainer::-webkit-scrollbar-thumb {
+      background-color: #238636;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
 
@@ -154,7 +157,7 @@
 
 <div id="main">
   <div id="codeContainer">
-    <pre><code id="codeBlock" class="c">// Select a file to see code here...</code></pre>
+    <pre><code id="codeBlock" class="c hljs"></code></pre>
   </div>
 
   <div class="io-container">
@@ -172,10 +175,12 @@
   <div id="statusMsg"></div>
 </div>
 
-<!-- highlight.js core -->
+<!-- highlight.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-<!-- C language support -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
+
+<!-- highlight.js line number plugin -->
+<script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
 
 <script>
 const repoOwner = "wahidfarhan";
@@ -233,11 +238,10 @@ async function selectFile(file, listItem) {
     currentFileName = file.name;
     currentCode = codeText;
 
-    // set code
+    // Set and highlight code
     codeBlockEl.textContent = currentCode;
-
-    // highlight code using highlight.js
     hljs.highlightElement(codeBlockEl);
+    hljs.lineNumbersBlock(codeBlockEl);
 
     outputEl.value = "";
     inputEl.value = "";
