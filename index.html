@@ -1,168 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Practice C - Run Your Code</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Practice C - Run Your Code</title>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
 
-  <style>
-    body {
-      margin: 0;
-      display: flex;
-      height: 100vh;
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
-    }
-    #sidebar {
-      width: 280px;
-      background: #161b22;
-      border-right: 3px solid #30363d;
-      padding: 15px;
-      overflow-y: auto;
-    }
-    #sidebar h2 {
-      margin: 0 0 15px;
-      border-bottom: 2px solid #238636;
-      color: #238636;
-    }
-    #fileList {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    #fileList li {
-      background: #21262d;
-      padding: 8px;
-      margin-bottom: 6px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    #fileList li.active {
-      background: #238636;
-      color: white;
-    }
-    #main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 15px;
-    }
-    #codeSection {
-      display: flex;
-      gap: 20px;
-      flex: 1;
-      overflow: hidden;
-    }
-    #codeContainer {
-      flex: 2;
-      background: #0d1117;
-      border: 3px solid #238636;
-      border-radius: 6px;
-      overflow: auto;
-    }
-    pre {
-      margin: 0;
-      font-size: 14px;
-      padding: 15px;
-    }
-    .hljs td.hljs-ln-code {
-      padding-left: 12px;
-    }
-    #ioSide {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .io-box label {
-      font-weight: bold;
-      color: #238636;
-      margin-bottom: 5px;
-    }
-    textarea {
-      width: 100%;
-      background-color: #21262d;
-      color: #c9d1d9;
-      border: 2px solid #238636;
-      border-radius: 5px;
-      padding: 10px;
-      resize: vertical;
-      min-height: 80px;
-      font-family: monospace;
-      font-size: 14px;
-    }
-    #output {
-      color: #56d364;
-    }
-    .readonly-box {
-      background-color: #1e1e1e;
-      border: 2px solid #444;
-      border-radius: 5px;
-      padding: 10px;
-      white-space: pre-wrap;
-      font-size: 14px;
-      min-height: 80px;
-    }
-    #runBtn {
-      margin-top: 10px;
-      background: #238636;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      color: white;
-      font-weight: bold;
-      font-size: 16px;
-      cursor: pointer;
-      align-self: flex-start;
-    }
-    #runBtn:hover {
-      background: #2ea043;
-    }
-    #statusMsg {
-      margin-top: 8px;
-      color: #999;
-      min-height: 20px;
-      font-style: italic;
-    }
-  </style>
+<style>
+  /* Basic layout */
+  body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #0d1117;
+    color: #c9d1d9;
+    overflow: hidden;
+  }
+  #container {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+  #sidebar {
+    width: 280px;
+    background: #161b22;
+    border-right: 3px solid #30363d;
+    padding: 15px;
+    overflow-y: auto;
+  }
+  #sidebar h2 {
+    margin: 0 0 15px;
+    border-bottom: 2px solid #238636;
+    color: #238636;
+  }
+  #fileList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  #fileList li {
+    background: #21262d;
+    padding: 8px;
+    margin-bottom: 6px;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  #fileList li.active {
+    background: #238636;
+    color: white;
+  }
+  #fileList li:hover:not(.active) {
+    background: #2ea043;
+    color: white;
+  }
+
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    overflow: hidden;
+  }
+  #codeSection {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    overflow: hidden;
+  }
+  #codeContainer {
+    flex: 2;
+    background: #0d1117;
+    border: 3px solid #238636;
+    border-radius: 6px;
+    overflow: auto;
+  }
+  pre {
+    margin: 0;
+    font-size: 14px;
+    padding: 15px;
+    min-height: 100%;
+  }
+  .hljs td.hljs-ln-code {
+    padding-left: 12px;
+  }
+  #ioSide {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+  }
+  .io-box label {
+    font-weight: bold;
+    color: #238636;
+    margin-bottom: 5px;
+  }
+  textarea {
+    width: 100%;
+    background-color: #21262d;
+    color: #c9d1d9;
+    border: 2px solid #238636;
+    border-radius: 5px;
+    padding: 10px;
+    resize: vertical;
+    min-height: 80px;
+    font-family: monospace;
+    font-size: 14px;
+  }
+  #output {
+    color: #56d364;
+  }
+  .readonly-box {
+    background-color: #1e1e1e;
+    border: 2px solid #444;
+    border-radius: 5px;
+    padding: 10px;
+    white-space: pre-wrap;
+    font-size: 14px;
+    min-height: 80px;
+    overflow-y: auto;
+  }
+  #runBtn {
+    margin-top: 10px;
+    background: #238636;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    align-self: flex-start;
+  }
+  #runBtn:hover {
+    background: #2ea043;
+  }
+  #statusMsg {
+    margin-top: 8px;
+    color: #999;
+    min-height: 20px;
+    font-style: italic;
+  }
+
+  /* Scrollbar black */
+  #sidebar::-webkit-scrollbar,
+  #codeContainer::-webkit-scrollbar,
+  #ioSide::-webkit-scrollbar,
+  .readonly-box::-webkit-scrollbar {
+    width: 8px;
+  }
+  #sidebar::-webkit-scrollbar-thumb,
+  #codeContainer::-webkit-scrollbar-thumb,
+  #ioSide::-webkit-scrollbar-thumb,
+  .readonly-box::-webkit-scrollbar-thumb {
+    background-color: #000000;  /* black */
+    border-radius: 4px;
+  }
+  #sidebar::-webkit-scrollbar-track,
+  #codeContainer::-webkit-scrollbar-track,
+  #ioSide::-webkit-scrollbar-track,
+  .readonly-box::-webkit-scrollbar-track {
+    background-color: #121212;
+  }
+  /* Firefox */
+  #sidebar,
+  #codeContainer,
+  #ioSide,
+  .readonly-box {
+    scrollbar-width: thin;
+    scrollbar-color: #000000 #121212;
+  }
+
+  /* Bottom animated typing text container */
+  #typingContainer {
+    height: 40px;
+    background: #161b22;
+    border-top: 3px solid #238636;
+    color: #238636;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 20px;
+    padding-left: 15px;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    overflow: hidden;
+  }
+  #typingText {
+    border-right: 2px solid #238636;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+</style>
 </head>
 <body>
 
-<div id="sidebar">
-  <h2>My Practice C</h2>
-  <ul id="fileList"><li>Loading files...</li></ul>
+<div id="container">
+  <div id="sidebar">
+    <h2>My Practice C</h2>
+    <ul id="fileList"><li>Loading files...</li></ul>
+  </div>
+
+  <div id="main">
+    <div id="codeSection">
+      <div id="codeContainer">
+        <pre><code id="codeBlock" class="c hljs"></code></pre>
+      </div>
+      <div id="ioSide">
+        <div class="io-box">
+          <label for="input">📥 Input</label>
+          <textarea id="input" placeholder="Input will be loaded here or you can type"></textarea>
+        </div>
+        <div class="io-box">
+          <label for="output">📤 Output</label>
+          <textarea id="output" readonly placeholder="Program output will appear here"></textarea>
+        </div>
+        <div class="io-box">
+          <label>✅ Expected Output</label>
+          <div id="expectedOutput" class="readonly-box">Not loaded</div>
+        </div>
+        <div class="io-box">
+          <label>📝 Description</label>
+          <div id="descriptionBox" class="readonly-box">No description available.</div>
+        </div>
+      </div>
+    </div>
+    <button id="runBtn">Run Code</button>
+    <div id="statusMsg"></div>
+  </div>
 </div>
 
-<div id="main">
-  <div id="codeSection">
-    <div id="codeContainer">
-      <pre><code id="codeBlock" class="c hljs"></code></pre>
-    </div>
-    <div id="ioSide">
-      <div class="io-box">
-        <label for="input">📥 Input</label>
-        <textarea id="input" placeholder="Input will be loaded here or you can type"></textarea>
-      </div>
-      <div class="io-box">
-        <label for="output">📤 Output</label>
-        <textarea id="output" readonly placeholder="Program output will appear here"></textarea>
-      </div>
-      <div class="io-box">
-        <label>✅ Expected Output</label>
-        <div id="expectedOutput" class="readonly-box">Not loaded</div>
-      </div>
-      <div class="io-box">
-        <label>📝 Description</label>
-        <div id="descriptionBox" class="readonly-box">No description available.</div>
-      </div>
-    </div>
-  </div>
-  <button id="runBtn">Run Code</button>
-  <div id="statusMsg"></div>
+<!-- Bottom typing animation -->
+<div id="typingContainer">
+  <div id="typingText"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
@@ -316,6 +392,44 @@ async function runCode() {
 
 runBtn.addEventListener("click", runCode);
 fetchFileList();
+
+
+// Hacker style typing animation for "lazy_farhan"
+const typingTextEl = document.getElementById("typingText");
+const textToType = "lazy_farhan";
+const typingSpeed = 150;  // ms per char
+const deletingSpeed = 80;
+const delayAfterTyping = 1200;
+
+let charIndex = 0;
+let isDeleting = false;
+
+function type() {
+  if (!isDeleting) {
+    typingTextEl.textContent = textToType.substring(0, charIndex + 1);
+    charIndex++;
+    if (charIndex === textToType.length) {
+      setTimeout(() => {
+        isDeleting = true;
+        type();
+      }, delayAfterTyping);
+    } else {
+      setTimeout(type, typingSpeed);
+    }
+  } else {
+    typingTextEl.textContent = textToType.substring(0, charIndex - 1);
+    charIndex--;
+    if (charIndex === 0) {
+      isDeleting = false;
+      setTimeout(type, typingSpeed);
+    } else {
+      setTimeout(type, deletingSpeed);
+    }
+  }
+}
+
+type();
+
 </script>
 
 </body>
