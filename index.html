@@ -1,59 +1,39 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Farhans Practice Problems</title>
-
-  <!-- Highlight.js Stylesheet -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css"
-  />
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css"
-  />
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
   <style>
-    /* --- Reset & Basic Styles --- */
-    * {
-      box-sizing: border-box;
-    }
+    /* --- BASIC STYLES --- */
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
-      height: 100vh;
       display: flex;
       flex-direction: column;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
       overflow: hidden;
     }
-
     #container {
       flex: 1;
       display: flex;
       overflow: hidden;
-      min-height: 0;
     }
-
-    /* Sidebar */
     #sidebar {
       width: 280px;
       background: #161b22;
       border-right: 3px solid #30363d;
       padding: 15px;
       overflow-y: auto;
-      min-height: 0;
-      user-select: none;
     }
     #sidebar h2 {
       margin: 0 0 15px;
       border-bottom: 2px solid #238636;
       color: #238636;
-      font-weight: 700;
-      font-size: 1.2rem;
     }
     #fileList {
       list-style: none;
@@ -62,105 +42,83 @@
     }
     #fileList li {
       background: #21262d;
-      padding: 8px 12px;
+      padding: 8px;
       margin-bottom: 6px;
       border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease;
-      font-size: 0.95rem;
-      line-height: 1.3;
+      user-select: none;
+      transition: background-color 0.3s ease;
     }
     #fileList li.active {
       background: #238636;
       color: white;
-      font-weight: 600;
     }
     #fileList li:hover:not(.active) {
       background: #2ea043;
       color: white;
     }
-
     #backBtn {
       background: #238636;
       border: none;
       padding: 8px 12px;
       border-radius: 5px;
       color: white;
-      font-weight: 700;
+      font-weight: bold;
       cursor: pointer;
       margin-bottom: 12px;
       width: 100%;
       user-select: none;
       display: none;
       text-align: center;
-      font-size: 1rem;
-      transition: background-color 0.3s ease;
     }
     #backBtn:hover {
       background: #2ea043;
     }
-
-    /* Main area */
     #main {
       flex: 1;
       display: flex;
       flex-direction: column;
       padding: 15px;
       overflow: hidden;
-      min-height: 0;
       position: relative;
     }
-
     #codeSection {
       display: flex;
       gap: 20px;
       flex: 1;
       overflow: hidden;
-      min-height: 0;
     }
-
     #codeContainer {
       flex: 2;
       background: #0d1117;
       border: 3px solid #238636;
       border-radius: 6px;
       overflow: auto;
-      min-height: 0;
     }
-
     pre {
       margin: 0;
       font-size: 14px;
       padding: 15px;
       min-height: 100%;
-      font-family: 'Courier New', Courier, monospace;
-      white-space: pre-wrap;
-      word-break: break-word;
+      white-space: pre-wrap; /* important for responsive */
+      word-wrap: break-word;
     }
-
-    /* line number padding */
     .hljs td.hljs-ln-code {
       padding-left: 12px;
     }
-
     #ioSide {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 12px;
       overflow: hidden;
-      min-height: 0;
     }
-
     .io-box label {
-      font-weight: 700;
+      font-weight: bold;
       color: #238636;
       margin-bottom: 5px;
       display: block;
-      font-size: 0.95rem;
-      user-select: none;
     }
-
     textarea {
       width: 100%;
       background-color: #21262d;
@@ -173,23 +131,10 @@
       font-family: monospace;
       font-size: 14px;
       overflow-y: auto;
-      transition: border-color 0.3s ease;
     }
-    textarea:focus {
-      outline: none;
-      border-color: #2ea043;
-      background-color: #1b2228;
-    }
-    textarea[readonly] {
-      background-color: #1e1e1e;
-      border-color: #444;
-      color: #56d364;
-    }
-
     #output {
       color: #56d364;
     }
-
     .readonly-box {
       background-color: #1e1e1e;
       border: 2px solid #444;
@@ -201,9 +146,7 @@
       overflow-y: auto;
       max-height: 150px;
       color: #c9d1d9;
-      user-select: text;
     }
-
     #descriptionBox {
       border-bottom: 2px solid #238636;
       overflow-y: auto;
@@ -215,9 +158,7 @@
       background-color: #1e1e1e;
       color: #c9d1d9;
       border-radius: 5px;
-      user-select: text;
     }
-
     #runBtn {
       margin-top: 10px;
       background: #238636;
@@ -225,31 +166,26 @@
       padding: 10px 20px;
       border-radius: 5px;
       color: white;
-      font-weight: 700;
+      font-weight: bold;
       font-size: 16px;
       cursor: pointer;
       align-self: flex-start;
       user-select: none;
-      transition: background-color 0.3s ease;
     }
     #runBtn:hover {
       background: #2ea043;
     }
-
     #statusMsg {
       margin-top: 8px;
       color: #999;
       min-height: 20px;
       font-style: italic;
-      user-select: none;
-      font-size: 0.9rem;
     }
-
     #uploadedDate {
       position: absolute;
       bottom: 10px;
       right: 20px;
-      font-size: 0.9rem;
+      font-size: 0.9em;
       color: #56d364;
       user-select: none;
     }
@@ -284,30 +220,36 @@
       scrollbar-width: thin;
       scrollbar-color: #000000 #121212;
     }
-
-    /* Typing animation bar */
     #typingContainer {
       height: 40px;
       background: #161b22;
       border-top: 3px solid #238636;
       color: #238636;
       font-family: 'Courier New', Courier, monospace;
-      font-weight: 700;
+      font-weight: bold;
       font-size: 20px;
       padding-left: 15px;
       display: flex;
       align-items: center;
       user-select: none;
       overflow: hidden;
-      flex-shrink: 0;
     }
     #typingText {
       border-right: 2px solid #238636;
       white-space: nowrap;
       overflow: hidden;
     }
+    /* Uploaded date mobile fix */
+    @media (max-width: 768px) {
+      #uploadedDate {
+        position: static;
+        margin-top: 8px;
+        text-align: center;
+        color: #56d364;
+      }
+    }
 
-    /* Responsive Styles */
+    /* Responsive Styles for Mobile */
     @media (max-width: 768px) {
       body {
         flex-direction: column;
@@ -326,7 +268,6 @@
         flex: 1;
         padding: 10px;
         overflow: visible;
-        min-height: auto;
       }
       #codeSection {
         flex-direction: column;
@@ -363,12 +304,6 @@
         font-size: 18px;
         height: 35px;
         padding-left: 10px;
-      }
-      #uploadedDate {
-        position: static;
-        margin-top: 8px;
-        text-align: center;
-        color: #56d364;
       }
     }
   </style>
@@ -417,22 +352,18 @@
   <div id="typingText"></div>
 </div>
 
-<!-- JS Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
 
 <script>
-  // Your GitHub repo details
   const repoOwner = "wahidfarhan";
   const repoName = "Lazy_Farhan";
-  const folderPathRoot = ""; // start from root folder
+  const folderPathRoot = ""; // root folder to list initially
 
-  // Judge0 API details (replace with your own API key if you want)
   const rapidApiHost = "judge0-ce.p.rapidapi.com";
   const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02";
 
-  // DOM elements
   const fileListEl = document.getElementById("fileList");
   const codeBlockEl = document.getElementById("codeBlock");
   const inputEl = document.getElementById("input");
@@ -445,12 +376,10 @@
   const uploadedDateEl = document.getElementById("uploadedDate");
   const backBtn = document.getElementById("backBtn");
 
-  // State variables
   let currentCode = "";
-  let currentPath = "";
+  let currentPath = ""; // current folder path, empty string means root
   let folderStack = [];
 
-  // Fetch folder content from GitHub API
   async function fetchFolderContent(path) {
     try {
       const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
@@ -465,7 +394,6 @@
     }
   }
 
-  // Show folder contents (folders and .c files)
   async function showFolder(path) {
     backBtn.style.display = folderStack.length > 0 ? "block" : "none";
     document.title = path ? `Farhans Practice Problems - ${path}` : "Farhans Practice Problems";
@@ -509,7 +437,6 @@
     });
   }
 
-  // Clear code, input, output, description, etc.
   function clearCodeDisplay() {
     currentCode = "";
     codeBlockEl.textContent = "";
@@ -524,7 +451,6 @@
     statusMsg.textContent = "";
   }
 
-  // Get last commit date for a file
   async function getFileLastCommitDate(filePath) {
     try {
       const commitsApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/commits?path=${filePath}&page=1&per_page=1`;
@@ -540,7 +466,6 @@
     }
   }
 
-  // Parse input file content into sections: input, description, output
   async function parseInputFile(text) {
     const lines = text.split(/\r?\n/);
     let inputLines = [];
@@ -568,204 +493,170 @@
     return {
       input: inputLines.join("\n").trim(),
       description: descriptionLines.join("\n").trim(),
-      output: outputLines.join("\n").trim(),
+      output: outputLines.join("\n").trim()
     };
   }
 
-  // Load .c file and related input file
   async function loadCodeFile(file) {
     clearCodeDisplay();
 
-    // Fetch code file content
     try {
       const res = await fetch(file.download_url);
-      if (!res.ok) throw new Error("Failed to load code file");
-      currentCode = await res.text();
+      if (!res.ok) throw new Error("Failed to fetch code");
+      const codeText = await res.text();
+
+      currentCode = codeText;
+      codeBlockEl.textContent = currentCode;
+      hljs.highlightElement(codeBlockEl);
+      hljs.lineNumbersBlock(codeBlockEl);
     } catch (err) {
-      alert("Failed to load code file.");
+      statusMsg.textContent = "Error loading code file.";
+      console.error(err);
       return;
     }
 
-    // Show code with highlight.js
-    codeBlockEl.textContent = currentCode;
-    hljs.highlightElement(codeBlockEl);
-    hljs.lineNumbersBlock(codeBlockEl);
+    fileNameLabel.textContent = `(${file.name})`;
 
-    fileNameLabel.textContent = file.name;
-
-    // Find related input file (same name but .txt)
-    const baseName = file.name.replace(/\.c$/i, "");
-    let inputFileName = baseName + ".txt";
-    const inputFilePath = currentPath ? currentPath + "/" + inputFileName : inputFileName;
-
-    // Fetch input file from GitHub
-    try {
-      const inputFileUrl = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${inputFilePath}`;
-      const res = await fetch(inputFileUrl);
-      if (!res.ok) throw new Error("No input file found");
-
-      const inputFileContent = await res.text();
-      const parsed = await parseInputFile(inputFileContent);
-
-      inputEl.value = parsed.input || "";
-      expectedOutputEl.textContent = parsed.output || "Not provided";
-      descriptionEl.textContent = parsed.description || "No description available.";
-    } catch {
-      // No input file or failed to load
-      inputEl.value = "";
-      expectedOutputEl.textContent = "Not loaded";
-      descriptionEl.textContent = "No description available.";
-    }
-
-    // Get last commit date and show it
-    const lastDate = await getFileLastCommitDate(file.path);
-    if (lastDate) {
-      const dateObj = new Date(lastDate);
+    const commitDate = await getFileLastCommitDate(file.path);
+    if (commitDate) {
+      const dateObj = new Date(commitDate);
       uploadedDateEl.textContent = `Last updated: ${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString()}`;
     } else {
       uploadedDateEl.textContent = "";
+    }
+
+    // Try to load corresponding input.txt file
+    const baseName = file.name.replace(/\.c$/, "");
+    const inputFilePath = currentPath ? currentPath + "/" + baseName + "_input.txt" : baseName + "_input.txt";
+    const outputFilePath = currentPath ? currentPath + "/" + baseName + "_output.txt" : baseName + "_output.txt";
+    const descFilePath = currentPath ? currentPath + "/" + baseName + "_description.txt" : baseName + "_description.txt";
+
+    // Helper function to fetch text files safely
+    async function fetchTextFile(path) {
+      try {
+        const url = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${path}`;
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        return await res.text();
+      } catch {
+        return null;
+      }
+    }
+
+    const inputText = await fetchTextFile(inputFilePath);
+    const outputText = await fetchTextFile(outputFilePath);
+    const descText = await fetchTextFile(descFilePath);
+
+    if (inputText) {
+      inputEl.value = inputText.trim();
+    } else {
+      inputEl.value = "";
+    }
+    if (outputText) {
+      expectedOutputEl.textContent = outputText.trim();
+    } else {
+      expectedOutputEl.textContent = "Not loaded";
+    }
+    if (descText) {
+      descriptionEl.textContent = descText.trim();
+    } else {
+      descriptionEl.textContent = "No description available.";
     }
 
     outputEl.value = "";
     statusMsg.textContent = "";
   }
 
-  // Run code using Judge0 API
   async function runCode() {
     if (!currentCode) {
-      alert("Please select a C code file first.");
+      alert("Please select a code file first.");
       return;
     }
 
     runBtn.disabled = true;
-    statusMsg.textContent = "Running code...";
+    statusMsg.textContent = "Running... Please wait.";
     outputEl.value = "";
 
-    try {
-      const encodedSource = btoa(currentCode);
-      const encodedInput = btoa(inputEl.value);
+    const encodedSource = btoa(unescape(encodeURIComponent(currentCode)));
+    const encodedInput = btoa(unescape(encodeURIComponent(inputEl.value)));
 
-      // Submit code to Judge0 API
-      const submitResponse = await fetch(`https://${rapidApiHost}/submissions?base64_encoded=true&wait=false`, {
+    const postData = {
+      language_id: 50, // C language ID in judge0
+      source_code: currentCode,
+      stdin: inputEl.value
+    };
+
+    try {
+      const response = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "content-type": "application/json",
           "X-RapidAPI-Host": rapidApiHost,
-          "X-RapidAPI-Key": rapidApiKey,
+          "X-RapidAPI-Key": rapidApiKey
         },
-        body: JSON.stringify({
-          language_id: 50, // C language in Judge0
-          source_code: encodedSource,
-          stdin: encodedInput,
-        }),
+        body: JSON.stringify(postData)
       });
 
-      if (!submitResponse.ok) throw new Error("Failed to submit code");
+      if (!response.ok) throw new Error("Failed to get response from Judge0");
 
-      const submitData = await submitResponse.json();
-      const token = submitData.token;
+      const result = await response.json();
 
-      // Poll for result
-      let status = "In Queue";
-      let result = null;
-      for (let i = 0; i < 20; i++) {
-        const resultRes = await fetch(`https://${rapidApiHost}/submissions/${token}?base64_encoded=true`, {
-          method: "GET",
-          headers: {
-            "X-RapidAPI-Host": rapidApiHost,
-            "X-RapidAPI-Key": rapidApiKey,
-          },
-        });
-        if (!resultRes.ok) throw new Error("Failed to get result");
-
-        result = await resultRes.json();
-        status = result.status.description;
-
-        if (status !== "In Queue" && status !== "Processing") break;
-        await new Promise((r) => setTimeout(r, 1000));
-      }
-
-      if (result) {
-        if (result.stdout) {
-          outputEl.value = atob(result.stdout);
-          statusMsg.textContent = `Status: ${status}`;
-        } else if (result.compile_output) {
-          outputEl.value = "Compilation Error:\n" + atob(result.compile_output);
-          statusMsg.textContent = `Status: ${status}`;
-        } else if (result.stderr) {
-          outputEl.value = "Runtime Error:\n" + atob(result.stderr);
-          statusMsg.textContent = `Status: ${status}`;
-        } else {
-          outputEl.value = `No output. Status: ${status}`;
-          statusMsg.textContent = `Status: ${status}`;
-        }
+      if (result.stdout) {
+        outputEl.value = result.stdout;
+      } else if (result.compile_output) {
+        outputEl.value = "Compile Error:\n" + result.compile_output;
+      } else if (result.stderr) {
+        outputEl.value = "Error:\n" + result.stderr;
       } else {
-        outputEl.value = "Failed to get result.";
-        statusMsg.textContent = "Error";
+        outputEl.value = "No output.";
       }
-    } catch (err) {
-      outputEl.value = "Error: " + err.message;
-      statusMsg.textContent = "Error";
+      statusMsg.textContent = "Execution finished.";
+    } catch (error) {
+      statusMsg.textContent = "Error running code.";
+      console.error(error);
     } finally {
       runBtn.disabled = false;
     }
   }
 
-  // Back button click
-  backBtn.addEventListener("click", () => {
-    if (folderStack.length > 0) {
-      currentPath = folderStack.pop();
-      showFolder(currentPath);
-      clearCodeDisplay();
-    }
-  });
-
-  // Run button click
-  runBtn.addEventListener("click", runCode);
-
-  // Typing animation setup
+  // Typing animation text
   const typingTextEl = document.getElementById("typingText");
-  const phrases = [
-    "gcc hello_world.c -o hello_world && ./hello_world",
-    "printf(\"Hello, World!\\n\");",
-    "Farhan Wahid - C Programming",
-    "Write your code, run & learn",
-    "Practice makes perfect!",
-    "Enjoy coding in C",
+  const typingStrings = [
+    "Welcome to Farhans Practice Problems!",
+    "Select a problem to load code and test it.",
+    "Made with ❤️ by Farhan Wahid"
   ];
-
-  let phraseIndex = 0;
+  let typingIndex = 0;
   let charIndex = 0;
-  let isDeleting = false;
 
   function typeAnimation() {
-    const currentPhrase = phrases[phraseIndex];
-    if (!isDeleting) {
-      typingTextEl.textContent = currentPhrase.substring(0, charIndex + 1);
+    if (charIndex < typingStrings[typingIndex].length) {
+      typingTextEl.textContent += typingStrings[typingIndex].charAt(charIndex);
       charIndex++;
-      if (charIndex === currentPhrase.length) {
-        isDeleting = true;
-        setTimeout(typeAnimation, 1200);
-      } else {
-        setTimeout(typeAnimation, 120);
-      }
+      setTimeout(typeAnimation, 80);
     } else {
-      typingTextEl.textContent = currentPhrase.substring(0, charIndex - 1);
-      charIndex--;
-      if (charIndex === 0) {
-        isDeleting = false;
-        phraseIndex = (phraseIndex + 1) % phrases.length;
-        setTimeout(typeAnimation, 400);
-      } else {
-        setTimeout(typeAnimation, 60);
-      }
+      setTimeout(() => {
+        typingTextEl.textContent = "";
+        charIndex = 0;
+        typingIndex = (typingIndex + 1) % typingStrings.length;
+        typeAnimation();
+      }, 2000);
     }
   }
-  typeAnimation();
 
-  // Initial load
-  showFolder("");
-  clearCodeDisplay();
+  // Initialization
+  document.addEventListener("DOMContentLoaded", () => {
+    showFolder(folderPathRoot);
+    runBtn.addEventListener("click", runCode);
+    backBtn.addEventListener("click", () => {
+      if (folderStack.length > 0) {
+        currentPath = folderStack.pop();
+        showFolder(currentPath);
+        clearCodeDisplay();
+      }
+    });
+    typeAnimation();
+  });
 </script>
 </body>
 </html>
