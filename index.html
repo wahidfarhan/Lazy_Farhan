@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Farhans Practice Problems</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
@@ -14,135 +14,89 @@
       --bg-alt: #161b22;
       --border: #30363d;
       --text: #c9d1d9;
-      --sidebar-width: 280px;
-      --transition-speed: 0.3s;
     }
-
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, sans-serif;
       background: var(--bg);
       color: var(--text);
       overflow-x: hidden;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
     }
     #container {
       display: flex;
-      flex: 1 1 auto;
-      height: 100%;
-      overflow: hidden;
-      background: var(--bg);
+      flex-direction: row;
+      height: 100vh;
     }
-
-    /* Sidebar */
     #sidebar {
-      width: var(--sidebar-width);
+      width: 280px;
       background: var(--bg-alt);
       border-right: 3px solid var(--border);
-      padding: 15px 10px 15px 15px;
+      padding: 15px;
       overflow-y: auto;
-      transition: width var(--transition-speed);
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
     }
     #sidebar h2 {
       color: var(--green);
       border-bottom: 2px solid var(--green);
       margin-bottom: 15px;
-      font-size: 1.25rem;
-      user-select: none;
     }
-    #fileList {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      flex-grow: 1;
-      overflow-y: auto;
-    }
+    #fileList { list-style: none; padding: 0; margin: 0; }
     #fileList li {
       background: #21262d;
-      padding: 8px 12px;
+      padding: 8px;
       margin-bottom: 6px;
       border-radius: 5px;
       cursor: pointer;
-      transition: background var(--transition-speed), color var(--transition-speed);
-      font-size: 0.9rem;
-      user-select: none;
+      transition: 0.3s;
     }
-    #fileList li.active {
-      background: var(--green);
-      color: white;
-      font-weight: 600;
-    }
-    #fileList li:hover:not(.active) {
-      background: var(--green-light);
-      color: white;
-    }
+    #fileList li.active { background: var(--green); color: white; }
+    #fileList li:hover:not(.active) { background: var(--green-light); color: white; }
 
-    /* Main content */
     #main {
-      flex: 1 1 auto;
+      flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 15px 20px;
+      padding: 15px;
       overflow-y: auto;
-      min-width: 0; /* Important for flex shrink */
     }
 
     #codeSection {
       display: flex;
-      flex-wrap: wrap;
       gap: 20px;
+      flex-wrap: nowrap;
       flex: 1 1 auto;
       min-height: 300px;
       overflow: hidden;
     }
-
     #codeContainer {
-      flex: 2 1 60%;
+      flex: 2;
       min-width: 300px;
       border: 3px solid var(--green);
       border-radius: 6px;
       overflow: auto;
       max-height: 500px;
-      background: #0d1117;
     }
-    pre {
-      margin: 0;
-      padding: 15px;
-      font-size: 14px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      min-height: 400px;
-      font-family: monospace;
+    pre { margin: 0; padding: 15px; font-size: 14px; }
+
+    #sideSection {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 35%;
+      min-width: 280px;
+      max-height: 500px;
+      overflow-y: auto;
+      gap: 15px;
     }
 
     #ioSide {
-      flex: 1 1 35%;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      min-width: 250px;
-      max-height: 500px;
       overflow-y: auto;
-    }
-
-    .io-box {
-      display: flex;
-      flex-direction: column;
     }
     .io-box label {
       font-weight: bold;
       color: var(--green);
-      margin-bottom: 5px;
-      font-size: 0.95rem;
-      user-select: none;
     }
     textarea, .readonly-box {
       width: 100%;
@@ -154,41 +108,41 @@
       resize: vertical;
       font-family: monospace;
       font-size: 14px;
-      min-height: 80px;
-      max-height: 150px;
-      overflow-y: auto;
-      transition: border-color var(--transition-speed);
-    }
-    textarea:focus {
-      outline: none;
-      border-color: var(--green-light);
-      background-color: #1c252b;
     }
     .readonly-box {
       background-color: #1e1e1e;
+      max-height: 150px;
+      overflow-y: auto;
       white-space: pre-wrap;
     }
 
-    /* Boro kora holo description box */
+    #descRunContainer {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
     #descriptionBox {
-      max-height: 250px; /* 140px theke boro kora holo */
+      max-height: 250px;
       min-height: 120px;
+      overflow-y: auto;
+      flex: 1;
     }
 
     #runBtn {
-      margin-top: 15px;
       background: var(--green);
       border: none;
-      padding: 14px 24px;
       border-radius: 5px;
       color: white;
       font-weight: bold;
-      font-size: 17px;
+      font-size: 16px;
       cursor: pointer;
-      align-self: flex-start;
-      transition: background var(--transition-speed);
+      transition: background 0.3s;
       user-select: none;
-      min-width: 120px;
+      height: 40px;
+      padding: 0 20px;
+      flex-shrink: 0;
+      align-self: flex-start;
     }
     #runBtn:hover, #runBtn:focus {
       background: var(--green-light);
@@ -199,32 +153,14 @@
       margin-top: 10px;
       font-style: italic;
       color: #999;
-      min-height: 22px;
-      user-select: none;
-    }
-    #expectedOutput {
-      font-size: 14px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      max-height: 140px;
-      overflow-y: auto;
     }
     #uploadedDate {
       margin-top: 10px;
       font-size: 0.9em;
       color: #56d364;
       text-align: right;
-      user-select: none;
-    }
-    #fileNameLabel {
-      color: #56d364;
-      font-weight: normal;
-      font-size: 0.9em;
-      margin-left: 8px;
-      user-select: none;
     }
 
-    /* Typing animation footer */
     #typingContainer {
       height: 40px;
       background: var(--bg-alt);
@@ -237,8 +173,6 @@
       display: flex;
       align-items: center;
       overflow: hidden;
-      user-select: none;
-      flex-shrink: 0;
     }
     #typingText {
       border-right: 2px solid var(--green);
@@ -246,172 +180,87 @@
       overflow: hidden;
     }
 
-    /* Scrollbar styling for webkit */
-    #sidebar::-webkit-scrollbar,
-    #fileList::-webkit-scrollbar,
-    #main::-webkit-scrollbar,
-    #ioSide::-webkit-scrollbar,
-    #descriptionBox::-webkit-scrollbar,
-    #expectedOutput::-webkit-scrollbar,
-    textarea::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    #sidebar::-webkit-scrollbar-thumb,
-    #fileList::-webkit-scrollbar-thumb,
-    #main::-webkit-scrollbar-thumb,
-    #ioSide::-webkit-scrollbar-thumb,
-    #descriptionBox::-webkit-scrollbar-thumb,
-    #expectedOutput::-webkit-scrollbar-thumb,
-    textarea::-webkit-scrollbar-thumb {
-      background-color: var(--green);
-      border-radius: 4px;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 1024px) {
-      #codeContainer {
-        max-height: 400px;
-      }
-      #ioSide {
-        max-height: 400px;
-      }
-    }
-
     @media (max-width: 768px) {
-      body {
-        height: auto;
-      }
-      #container {
-        flex-direction: column;
-        height: auto;
-      }
+      #container { flex-direction: column; }
       #sidebar {
         width: 100%;
         height: auto;
         border-right: none;
         border-bottom: 3px solid var(--border);
-        padding: 10px 10px 10px 10px;
-        max-height: 240px;
-        overflow-y: auto;
-      }
-      #sidebar h2 {
-        font-size: 1.1rem;
-      }
-      #fileList li {
-        font-size: 0.85rem;
-        padding: 8px 10px;
-      }
-      #main {
-        padding: 15px 10px 10px 10px;
       }
       #codeSection {
         flex-direction: column;
-        gap: 15px;
       }
-      #codeContainer {
-        flex: none;
-        min-width: 100%;
-        max-height: 350px;
-        min-height: 300px;
-        border-radius: 5px;
-      }
-      #ioSide {
-        flex: none;
-        min-width: 100%;
+      #codeContainer { max-height: 300px; }
+      #sideSection {
         max-height: none;
+        min-width: 100%;
+      }
+      #descRunContainer {
+        flex-direction: column;
+        gap: 8px;
       }
       #runBtn {
         width: 100%;
-        font-size: 16px;
-        padding: 14px 0;
-        min-width: unset;
+        height: 45px;
+        padding: 0;
+        align-self: stretch;
+      }
+      #descriptionBox {
+        max-height: 300px;
+        min-height: 150px;
       }
       #typingContainer {
         font-size: 16px;
         height: 35px;
         padding-left: 10px;
       }
-      #uploadedDate {
-        text-align: center;
-      }
-      /* Increase description box height on mobile too */
-      #descriptionBox {
-        max-height: 300px;
-        min-height: 150px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      #sidebar {
-        max-height: 200px;
-        padding: 8px 8px 8px 8px;
-      }
-      #sidebar h2 {
-        font-size: 1rem;
-      }
-      #fileList li {
-        font-size: 0.8rem;
-        padding: 6px 8px;
-      }
-      #codeContainer pre {
-        font-size: 13px;
-        padding: 12px;
-        min-height: 250px;
-      }
-      textarea, .readonly-box {
-        font-size: 13px;
-        min-height: 70px;
-        max-height: 120px;
-      }
-      #runBtn {
-        font-size: 15px;
-        padding: 12px 0;
-      }
-      #typingContainer {
-        font-size: 14px;
-        height: 30px;
-        padding-left: 8px;
-      }
+      #uploadedDate { text-align: center; }
     }
   </style>
 </head>
 <body>
   <div id="container">
-    <div id="sidebar" role="navigation" aria-label="File list">
+    <div id="sidebar">
       <h2>Farhans Practice Problems</h2>
-      <ul id="fileList" tabindex="0"><li>Loading folders...</li></ul>
+      <ul id="fileList"><li>Loading folders...</li></ul>
     </div>
     <div id="main">
       <div id="codeSection">
         <div id="codeContainer" aria-label="Code display area">
           <pre><code id="codeBlock" class="c hljs" tabindex="0"></code></pre>
         </div>
-        <div id="ioSide">
-          <div class="io-box">
-            <label for="input">📥 Input</label>
-            <textarea id="input" placeholder="Input will be loaded here or you can type" spellcheck="false" autocomplete="off"></textarea>
+
+        <div id="sideSection">
+          <div id="ioSide">
+            <div class="io-box">
+              <label for="input">📥 Input</label>
+              <textarea id="input" placeholder="Input will be loaded here or you can type" spellcheck="false" autocomplete="off"></textarea>
+            </div>
+            <div class="io-box">
+              <label for="output">📤 Output</label>
+              <textarea id="output" readonly placeholder="Program output will appear here" spellcheck="false" autocomplete="off"></textarea>
+            </div>
+            <div class="io-box">
+              <label>✅ Expected Output</label>
+              <div id="expectedOutput" class="readonly-box" tabindex="0" aria-live="polite">Not loaded</div>
+            </div>
           </div>
-          <div class="io-box">
-            <label for="output">📤 Output</label>
-            <textarea id="output" readonly placeholder="Program output will appear here" spellcheck="false" autocomplete="off"></textarea>
-          </div>
-          <div class="io-box">
-            <label>✅ Expected Output</label>
-            <div id="expectedOutput" class="readonly-box" tabindex="0" aria-live="polite">Not loaded</div>
-          </div>
-          <div class="io-box">
-            <label>📝 Description <span id="fileNameLabel"></span></label>
-            <div id="descriptionBox" class="readonly-box" tabindex="0" aria-live="polite">No description available.</div>
+
+          <div id="descRunContainer">
+            <div class="io-box" style="flex: 1; margin-right: 10px;">
+              <label>📝 Description <span id="fileNameLabel" style="color:#56d364; font-weight: normal; font-size: 0.9em; margin-left: 8px;"></span></label>
+              <div id="descriptionBox" class="readonly-box" tabindex="0" aria-live="polite">No description available.</div>
+            </div>
+            <button id="runBtn" aria-label="Run code">Run Code</button>
           </div>
         </div>
       </div>
-      <button id="runBtn" aria-label="Run code">Run Code</button>
       <div id="statusMsg" role="status" aria-live="polite"></div>
       <div id="uploadedDate" aria-label="Last uploaded date"></div>
     </div>
   </div>
-  <div id="typingContainer" aria-live="polite" aria-atomic="true">
+  <div id="typingContainer">
     <div id="typingText"></div>
   </div>
 
@@ -542,20 +391,20 @@
           section = "output";
           continue;
         }
+
         if (section === "input") inputLines.push(line);
         else if (section === "description") descriptionLines.push(line);
         else if (section === "output") outputLines.push(line);
       }
 
       return {
-        input: inputLines.join("\n"),
-        description: descriptionLines.join("\n"),
-        output: outputLines.join("\n"),
+        input: inputLines.join("\n").trim(),
+        description: descriptionLines.join("\n").trim(),
+        output: outputLines.join("\n").trim()
       };
     }
 
     async function loadCodeFile(file) {
-      // Clear previous
       clearCodeDisplay();
 
       try {
@@ -675,37 +524,38 @@
       }
     }
 
-    runBtn.addEventListener("click", runCode);
-
     // Typing animation
-    const typingTexts = [
-      "যেকোনো ফোল্ডার থেকে .c ফাইল সিলেক্ট করো",
-      "ইনপুট এ তোমার টেস্টকেস বসাও",
-      "Run বোতামে ক্লিক করো",
-      "Judge0 API তে কোড রান হবে",
-      "আউটপুট নিচের আউটপুট বক্সে দেখাবে",
+    const typingPhrases = [
+      "Happy Coding!",
+      "Solve more problems!",
+      "Practice makes perfect.",
+      "Debug, run, repeat.",
+      "Keep pushing your limits."
     ];
     let typingIndex = 0;
     let charIndex = 0;
     const typingTextEl = document.getElementById("typingText");
-    function typingAnimation() {
-      if (charIndex < typingTexts[typingIndex].length) {
-        typingTextEl.textContent += typingTexts[typingIndex].charAt(charIndex);
+
+    function typingEffect() {
+      if (charIndex <= typingPhrases[typingIndex].length) {
+        typingTextEl.textContent = typingPhrases[typingIndex].substring(0, charIndex);
         charIndex++;
-        setTimeout(typingAnimation, 80);
+        setTimeout(typingEffect, 100);
       } else {
         setTimeout(() => {
           charIndex = 0;
-          typingTextEl.textContent = "";
-          typingIndex = (typingIndex + 1) % typingTexts.length;
-          setTimeout(typingAnimation, 600);
+          typingIndex = (typingIndex + 1) % typingPhrases.length;
+          typingEffect();
         }, 2000);
       }
     }
-    typingAnimation();
 
-    // Initialize file list from root
-    showFolder(folderPathRoot);
+    // Initialize
+    document.addEventListener("DOMContentLoaded", () => {
+      showFolder(folderPathRoot);
+      runBtn.addEventListener("click", runCode);
+      typingEffect();
+    });
   </script>
 </body>
 </html>
