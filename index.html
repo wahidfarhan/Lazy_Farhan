@@ -166,12 +166,26 @@
       max-height: 600px;
       background: #282c34;
       position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Added container for run button inside code container */
+    #codeTopBar {
+      padding: 10px 15px;
+      background: #21262d;
+      border-bottom: 2px solid var(--green);
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      flex-shrink: 0;
     }
 
     /* Monaco editor container */
     #monaco-editor {
       width: 100%;
-      height: 600px;
+      height: 100%;
+      flex-grow: 1;
     }
 
     #ioSide {
@@ -274,19 +288,17 @@
     }
 
     #runBtn {
-      margin-top: 15px;
       background: var(--green);
       border: none;
-      padding: 14px 24px;
+      padding: 10px 20px;
       border-radius: 5px;
       color: white;
       font-weight: bold;
-      font-size: 17px;
+      font-size: 15px;
       cursor: pointer;
-      align-self: flex-start;
-      transition: background var(--transition-speed);
       user-select: none;
-      min-width: 120px;
+      transition: background var(--transition-speed);
+      min-width: 100px;
     }
     #runBtn:hover, #runBtn:focus {
       background: var(--green-light);
@@ -481,6 +493,9 @@
     <div id="main">
       <div id="codeSection">
         <div id="codeContainer" aria-label="Code display area">
+          <div id="codeTopBar">
+            <button id="runBtn" aria-label="Run code">Run Code</button>
+          </div>
           <!-- Monaco editor container -->
           <div id="monaco-editor" tabindex="0"></div>
         </div>
@@ -503,7 +518,7 @@
           </div>
         </div>
       </div>
-      <button id="runBtn" aria-label="Run code">Run Code</button>
+      <!-- Removed original runBtn from here -->
       <div id="statusMsg" role="status" aria-live="polite"></div>
       <div id="uploadedDate" aria-label="Last uploaded date"></div>
     </div>
