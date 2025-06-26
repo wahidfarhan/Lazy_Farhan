@@ -169,6 +169,12 @@
       white-space: pre-wrap;
     }
 
+    /* Boro kora holo description box */
+    #descriptionBox {
+      max-height: 250px; /* 140px theke boro kora holo */
+      min-height: 120px;
+    }
+
     #runBtn {
       margin-top: 15px;
       background: var(--green);
@@ -196,7 +202,7 @@
       min-height: 22px;
       user-select: none;
     }
-    #descriptionBox, #expectedOutput {
+    #expectedOutput {
       font-size: 14px;
       line-height: 1.5;
       white-space: pre-wrap;
@@ -328,6 +334,11 @@
       }
       #uploadedDate {
         text-align: center;
+      }
+      /* Increase description box height on mobile too */
+      #descriptionBox {
+        max-height: 300px;
+        min-height: 150px;
       }
     }
 
@@ -531,20 +542,20 @@
           section = "output";
           continue;
         }
-
         if (section === "input") inputLines.push(line);
         else if (section === "description") descriptionLines.push(line);
         else if (section === "output") outputLines.push(line);
       }
 
       return {
-        input: inputLines.join("\n").trim(),
-        description: descriptionLines.join("\n").trim(),
-        output: outputLines.join("\n").trim()
+        input: inputLines.join("\n"),
+        description: descriptionLines.join("\n"),
+        output: outputLines.join("\n"),
       };
     }
 
     async function loadCodeFile(file) {
+      // Clear previous
       clearCodeDisplay();
 
       try {
