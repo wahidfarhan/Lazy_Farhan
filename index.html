@@ -16,8 +16,9 @@
       --text: #c9d1d9;
       --sidebar-width: 280px;
       --transition-speed: 0.3s;
-      --scrollbar-bg: #000000;
-      --scrollbar-thumb: #333333;
+      --scrollbar-bg: #111; /* scrollbar background */
+      --scrollbar-thumb: #000; /* scrollbar thumb (black) */
+      --scrollbar-thumb-hover: #333;
     }
 
     * {
@@ -47,11 +48,25 @@
       background: var(--bg-alt);
       border-right: 3px solid var(--border);
       padding: 15px 10px 15px 15px;
-      overflow-y: auto;
+      overflow-y: scroll; /* persistent scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
       transition: width var(--transition-speed);
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
+    }
+    #sidebar::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    #sidebar::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    #sidebar::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
     }
     #sidebar h2 {
       color: var(--green);
@@ -65,7 +80,21 @@
       padding: 0;
       margin: 0;
       flex-grow: 1;
-      overflow-y: auto;
+      overflow-y: scroll; /* persistent scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
+    }
+    #fileList::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    #fileList::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    #fileList::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
     }
     #fileList li {
       background: #21262d;
@@ -76,6 +105,8 @@
       transition: background var(--transition-speed), color var(--transition-speed);
       font-size: 0.9rem;
       user-select: none;
+      /* Always reserve scrollbar space */
+      overflow: hidden;
     }
     #fileList li.active {
       background: var(--green);
@@ -87,27 +118,22 @@
       color: white;
     }
 
-    /* Back button style */
-    #backBtn {
-      background: #21262d;
-      color: var(--green);
-      border: 2px solid var(--green);
-      border-radius: 5px;
-      padding: 8px 12px;
+    /* Back button styling */
+    #fileList li.back-button {
       font-weight: 700;
-      cursor: pointer;
-      margin-bottom: 15px;
-      user-select: none;
-      transition: background var(--transition-speed), color var(--transition-speed);
+      background-color: #0a4d1b;
+      color: #b2f2bb;
+      margin-bottom: 12px;
+      border-radius: 8px;
       text-align: center;
+      box-shadow: 0 0 6px 1px #238636aa;
+      user-select: none;
+      transition: background-color 0.3s ease;
     }
-    #backBtn:hover:not(:disabled) {
-      background: var(--green);
-      color: black;
-    }
-    #backBtn:disabled {
-      opacity: 0.3;
-      cursor: default;
+    #fileList li.back-button:hover {
+      background-color: #169a2c;
+      color: white;
+      box-shadow: 0 0 12px 2px #2ea043cc;
     }
 
     /* Main content */
@@ -116,8 +142,8 @@
       display: flex;
       flex-direction: column;
       padding: 15px 20px;
-      overflow-y: auto;
-      min-width: 0;
+      overflow: hidden; /* control overflow */
+      min-width: 0; /* Important for flex shrink */
     }
 
     #codeSection {
@@ -127,44 +153,39 @@
       flex: 1 1 auto;
       min-height: 300px;
       overflow: hidden;
-      max-height: 700px;
-    }
-
-    /* Code header with filename */
-    #codeHeader {
-      width: 100%;
-      color: var(--green);
-      font-weight: 700;
-      font-size: 1.2rem;
-      text-align: center;
-      padding: 8px 0;
-      border-bottom: 3px solid var(--green);
-      user-select: none;
-      background-color: var(--bg-alt);
-      border-top-left-radius: 6px;
-      border-top-right-radius: 6px;
-      flex-shrink: 0;
     }
 
     #codeContainer {
       flex: 2 1 60%;
       min-width: 300px;
-      max-height: 650px;
-      min-height: 500px;
       border: 3px solid var(--green);
       border-radius: 6px;
-      overflow: auto;
+      overflow: auto; /* persistent scrollbar */
+      max-height: 500px;
       background: #0d1117;
       scrollbar-width: thin;
       scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
     }
+    #codeContainer::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    #codeContainer::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    #codeContainer::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
+    }
+
     pre {
       margin: 0;
       padding: 15px;
       font-size: 14px;
       white-space: pre-wrap;
       word-break: break-word;
-      min-height: 500px;
+      min-height: 400px;
       font-family: monospace;
     }
 
@@ -174,22 +195,38 @@
       flex-direction: column;
       gap: 12px;
       min-width: 250px;
-      max-height: 650px;
-      overflow: hidden;
-      scrollbar-width: thin;
-      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
+      max-height: 500px;
+      overflow: hidden; /* control overflow */
     }
 
     .io-box {
       display: flex;
       flex-direction: column;
+      max-height: 33vh;
+      overflow-y: scroll; /* persistent scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
     }
+    .io-box::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    .io-box::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    .io-box::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
+    }
+
     .io-box label {
       font-weight: bold;
       color: var(--green);
       margin-bottom: 5px;
       font-size: 0.95rem;
       user-select: none;
+      flex-shrink: 0;
     }
     textarea, .readonly-box {
       width: 100%;
@@ -203,8 +240,23 @@
       font-size: 14px;
       min-height: 80px;
       max-height: 150px;
-      overflow-y: auto;
+      overflow-y: scroll; /* persistent scrollbar */
       transition: border-color var(--transition-speed);
+      flex-grow: 1;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
+    }
+    textarea::-webkit-scrollbar, .readonly-box::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    textarea::-webkit-scrollbar-thumb, .readonly-box::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    textarea::-webkit-scrollbar-thumb:hover, .readonly-box::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
     }
     textarea:focus {
       outline: none;
@@ -216,11 +268,26 @@
       white-space: pre-wrap;
     }
 
-    /* Description box bigger but no layout break */
+    /* Description box bigger but scrollable and flex-grow to not overflow */
     #descriptionBox {
-      max-height: 250px;
       min-height: 120px;
-      overflow-y: auto;
+      max-height: 250px;
+      overflow-y: scroll; /* persistent scrollbar */
+      flex-grow: 1;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
+    }
+    #descriptionBox::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    #descriptionBox::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    #descriptionBox::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
     }
 
     #runBtn {
@@ -255,14 +322,31 @@
       line-height: 1.5;
       white-space: pre-wrap;
       max-height: 140px;
-      overflow-y: auto;
+      overflow-y: scroll; /* persistent scrollbar */
+      flex-grow: 1;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
     }
+    #expectedOutput::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    #expectedOutput::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    #expectedOutput::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
+    }
+
     #uploadedDate {
       margin-top: 10px;
       font-size: 0.9em;
       color: #56d364;
       text-align: right;
       user-select: none;
+      flex-shrink: 0;
     }
     #fileNameLabel {
       color: #56d364;
@@ -294,39 +378,13 @@
       overflow: hidden;
     }
 
-    /* Scrollbar styling for webkit */
-    #sidebar::-webkit-scrollbar,
-    #fileList::-webkit-scrollbar,
-    #main::-webkit-scrollbar,
-    #ioSide::-webkit-scrollbar,
-    #descriptionBox::-webkit-scrollbar,
-    #expectedOutput::-webkit-scrollbar,
-    textarea::-webkit-scrollbar,
-    #codeContainer::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-      background: var(--scrollbar-bg);
-    }
-    #sidebar::-webkit-scrollbar-thumb,
-    #fileList::-webkit-scrollbar-thumb,
-    #main::-webkit-scrollbar-thumb,
-    #ioSide::-webkit-scrollbar-thumb,
-    #descriptionBox::-webkit-scrollbar-thumb,
-    #expectedOutput::-webkit-scrollbar-thumb,
-    textarea::-webkit-scrollbar-thumb,
-    #codeContainer::-webkit-scrollbar-thumb {
-      background-color: var(--scrollbar-thumb);
-      border-radius: 4px;
-    }
-
     /* Responsive adjustments */
     @media (max-width: 1024px) {
       #codeContainer {
-        max-height: 600px;
-        min-height: 450px;
+        max-height: 400px;
       }
       #ioSide {
-        max-height: 600px;
+        max-height: 400px;
       }
     }
 
@@ -345,7 +403,7 @@
         border-bottom: 3px solid var(--border);
         padding: 10px 10px 10px 10px;
         max-height: 240px;
-        overflow-y: auto;
+        overflow-y: scroll; /* persistent scrollbar */
       }
       #sidebar h2 {
         font-size: 1.1rem;
@@ -354,18 +412,12 @@
         font-size: 0.85rem;
         padding: 8px 10px;
       }
-      #backBtn {
-        margin-bottom: 10px;
-      }
       #main {
         padding: 15px 10px 10px 10px;
       }
       #codeSection {
         flex-direction: column;
         gap: 15px;
-      }
-      #codeHeader {
-        border-radius: 5px 5px 0 0;
       }
       #codeContainer {
         flex: none;
@@ -437,12 +489,10 @@
   <div id="container">
     <div id="sidebar" role="navigation" aria-label="File list">
       <h2>Farhans Practice Problems</h2>
-      <button id="backBtn" disabled aria-label="Go back to previous folder">⬅ Back</button>
       <ul id="fileList" tabindex="0"><li>Loading folders...</li></ul>
     </div>
     <div id="main">
       <div id="codeSection">
-        <div id="codeHeader" aria-live="polite" aria-atomic="true" tabindex="0"></div>
         <div id="codeContainer" aria-label="Code display area">
           <pre><code id="codeBlock" class="c hljs" tabindex="0"></code></pre>
         </div>
@@ -459,9 +509,9 @@
             <label>✅ Expected Output</label>
             <div id="expectedOutput" class="readonly-box" tabindex="0" aria-live="polite">Not loaded</div>
           </div>
-          <div class="io-box">
+          <div class="io-box" style="flex-grow:1; display:flex; flex-direction:column;">
             <label>📝 Description <span id="fileNameLabel"></span></label>
-            <div id="descriptionBox" class="readonly-box" tabindex="0" aria-live="polite">No description available.</div>
+            <div id="descriptionBox" class="readonly-box" tabindex="0" aria-live="polite" style="flex-grow:1; overflow-y: scroll;">No description available.</div>
           </div>
         </div>
       </div>
@@ -495,8 +545,6 @@
     const expectedOutputEl = document.getElementById("expectedOutput");
     const fileNameLabel = document.getElementById("fileNameLabel");
     const uploadedDateEl = document.getElementById("uploadedDate");
-    const backBtn = document.getElementById("backBtn");
-    const codeHeaderEl = document.getElementById("codeHeader");
 
     let currentCode = "";
     let currentPath = "";
@@ -526,33 +574,35 @@
 
       fileListEl.innerHTML = "";
 
-      // Back button enable/disable logic
-      if(folderStack.length === 0){
-        backBtn.disabled = true;
-      } else {
-        backBtn.disabled = false;
+      if (path !== folderPathRoot) {
+        const backLi = document.createElement("li");
+        backLi.textContent = "⬅️ Back";
+        backLi.classList.add("back-button");
+        backLi.addEventListener("click", () => {
+          if (folderStack.length > 0) {
+            currentPath = folderStack.pop();
+            showFolder(currentPath);
+            clearCodeDisplay();
+          }
+        });
+        fileListEl.appendChild(backLi);
       }
 
-      if(folderStack.length > 0){
-        const folderName = folderStack[folderStack.length -1];
-        const liFolder = document.createElement("li");
-        liFolder.style.fontWeight = "700";
-        liFolder.style.color = "var(--green)";
-        liFolder.style.userSelect = "none";
-        liFolder.textContent = `Folder: ${folderName}`;
-        fileListEl.appendChild(liFolder);
+      if (folders.length === 0 && cFiles.length === 0) {
+        fileListEl.innerHTML += "<li>No folders or C files found.</li>";
+        return;
       }
 
       folders.forEach(folder => {
         const li = document.createElement("li");
         li.textContent = "📁 " + folder.name;
-        li.style.fontWeight = "600";
-        li.style.color = "#58a6ff";
+        li.style.fontWeight = "bold";
         li.style.cursor = "pointer";
         li.addEventListener("click", () => {
-          folderStack.push(folder.name);
-          currentPath = folderStack.join("/");
+          folderStack.push(currentPath);
+          currentPath = folder.path;
           showFolder(currentPath);
+          clearCodeDisplay();
         });
         fileListEl.appendChild(li);
       });
@@ -563,31 +613,73 @@
         li.style.cursor = "pointer";
         li.addEventListener("click", () => {
           loadCodeFile(file);
-          highlightSelectedFile(li);
         });
         fileListEl.appendChild(li);
       });
     }
 
-    function highlightSelectedFile(selectedLi) {
-      const lis = fileListEl.querySelectorAll("li");
-      lis.forEach(li => {
-        li.classList.remove("active");
-      });
-      selectedLi.classList.add("active");
+    function clearCodeDisplay() {
+      currentCode = "";
+      codeBlockEl.textContent = "";
+      hljs.highlightElement(codeBlockEl);
+      hljs.lineNumbersBlock(codeBlockEl);
+      inputEl.value = "";
+      outputEl.value = "";
+      expectedOutputEl.textContent = "Not loaded";
+      descriptionEl.textContent = "No description available.";
+      fileNameLabel.textContent = "";
+      uploadedDateEl.textContent = "";
+      statusMsg.textContent = "";
     }
 
-    backBtn.addEventListener("click", () => {
-      if (folderStack.length > 0) {
-        folderStack.pop();
-        currentPath = folderStack.join("/");
-        showFolder(currentPath);
-        clearCodeDisplay();
+    async function getFileLastCommitDate(filePath) {
+      try {
+        const commitsApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/commits?path=${filePath}&page=1&per_page=1`;
+        const res = await fetch(commitsApiUrl);
+        if (!res.ok) throw new Error("Failed to fetch commits");
+        const commits = await res.json();
+        if (commits.length > 0 && commits[0].commit && commits[0].commit.author) {
+          return commits[0].commit.author.date;
+        }
+        return null;
+      } catch {
+        return null;
       }
-    });
+    }
+
+    async function parseInputFile(text) {
+      const lines = text.split(/\r?\n/);
+      let inputLines = [];
+      let descriptionLines = [];
+      let outputLines = [];
+
+      let section = "input";
+
+      for (let line of lines) {
+        const lower = line.trim().toLowerCase();
+        if (lower === "description") {
+          section = "description";
+          continue;
+        }
+        if (lower === "output") {
+          section = "output";
+          continue;
+        }
+        if (section === "input") inputLines.push(line);
+        else if (section === "description") descriptionLines.push(line);
+        else if (section === "output") outputLines.push(line);
+      }
+
+      return {
+        input: inputLines.join("\n"),
+        description: descriptionLines.join("\n"),
+        output: outputLines.join("\n"),
+      };
+    }
 
     async function loadCodeFile(file) {
       clearCodeDisplay();
+
       try {
         const res = await fetch(file.download_url);
         if (!res.ok) throw new Error("Failed to fetch code");
@@ -604,7 +696,6 @@
       }
 
       fileNameLabel.textContent = `(${file.name})`;
-      codeHeaderEl.textContent = file.name;
 
       const commitDate = await getFileLastCommitDate(file.path);
       if (commitDate) {
@@ -619,125 +710,124 @@
         uploadedDateEl.textContent = "";
       }
 
-      // Fetch input/output/description from repo, if exists
-      const inputPath = file.path.replace(/\.c$/i, ".input");
-      const outputPath = file.path.replace(/\.c$/i, ".output");
-      const descPath = file.path.replace(/\.c$/i, ".desc");
+      const baseName = file.name.replace(/\.c$/, "");
+      const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.in`);
 
-      inputEl.value = await fetchTextFile(inputPath) || "";
+      try {
+        const inputRes = await fetch(inputUrl);
+        if (inputRes.ok) {
+          const inputText = await inputRes.text();
+          const parsed = await parseInputFile(inputText);
+          inputEl.value = parsed.input;
+          expectedOutputEl.textContent = parsed.output || "Not loaded";
+          descriptionEl.textContent = parsed.description || "No description available.";
+        } else {
+          inputEl.value = "";
+          expectedOutputEl.textContent = "Not loaded";
+          descriptionEl.textContent = "No description available.";
+        }
+      } catch {
+        inputEl.value = "";
+        expectedOutputEl.textContent = "Not loaded";
+        descriptionEl.textContent = "No description available.";
+      }
+
       outputEl.value = "";
-      expectedOutputEl.textContent = await fetchTextFile(outputPath) || "Not loaded";
-      descriptionEl.textContent = await fetchTextFile(descPath) || "No description available.";
-
       statusMsg.textContent = "";
-    }
-
-    async function fetchTextFile(path) {
-      try {
-        const url = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${path}`;
-        const res = await fetch(url);
-        if (!res.ok) return null;
-        return await res.text();
-      } catch {
-        return null;
-      }
-    }
-
-    async function getFileLastCommitDate(path) {
-      try {
-        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/commits?path=${path}&per_page=1`;
-        const res = await fetch(apiUrl);
-        if (!res.ok) return null;
-        const data = await res.json();
-        if (data.length === 0) return null;
-        return data[0].commit.author.date;
-      } catch {
-        return null;
-      }
     }
 
     async function runCode() {
-      if (!currentCode.trim()) {
-        statusMsg.textContent = "Please select a code file first.";
+      if (!currentCode) {
+        statusMsg.textContent = "No code loaded.";
         return;
       }
-      runBtn.disabled = true;
-      statusMsg.textContent = "Running code...";
+      statusMsg.textContent = "Running...";
       outputEl.value = "";
 
-      const postData = {
-        language_id: 50, // C language
-        source_code: btoa(unescape(encodeURIComponent(currentCode))),
-        stdin: inputEl.value || "",
-      };
+      const source_code = currentCode;
+      const stdin = inputEl.value;
 
       try {
-        const res = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true", {
+        const submissionRes = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=false", {
           method: "POST",
           headers: {
+            "Content-Type": "application/json",
             "X-RapidAPI-Host": rapidApiHost,
             "X-RapidAPI-Key": rapidApiKey,
-            "Content-Type": "application/json"
           },
-          body: JSON.stringify(postData)
+          body: JSON.stringify({
+            language_id: 50,
+            source_code,
+            stdin
+          }),
         });
-        if (!res.ok) throw new Error("Code execution failed.");
-        const result = await res.json();
+        if (!submissionRes.ok) throw new Error("Failed to create submission");
+
+        const submissionData = await submissionRes.json();
+        const token = submissionData.token;
+        if (!token) throw new Error("No submission token received");
+
+        let result = null;
+        while (true) {
+          await new Promise(r => setTimeout(r, 1500));
+          const resultRes = await fetch(`https://judge0-ce.p.rapidapi.com/submissions/${token}?base64_encoded=false`, {
+            headers: {
+              "X-RapidAPI-Host": rapidApiHost,
+              "X-RapidAPI-Key": rapidApiKey,
+            },
+          });
+          if (!resultRes.ok) throw new Error("Failed to get result");
+          result = await resultRes.json();
+          if (result.status && result.status.id >= 3) break;
+        }
 
         if (result.stdout) {
-          outputEl.value = atob(result.stdout);
+          outputEl.value = result.stdout;
+        } else if (result.compile_output) {
+          outputEl.value = "Compile error:\n" + result.compile_output;
         } else if (result.stderr) {
-          outputEl.value = `Error:\n${atob(result.stderr)}`;
+          outputEl.value = "Runtime error:\n" + result.stderr;
         } else {
-          outputEl.value = "No output.";
+          outputEl.value = "Unknown error or empty output.";
         }
-        statusMsg.textContent = "Execution finished.";
+        statusMsg.textContent = `Status: ${result.status.description}`;
       } catch (err) {
         statusMsg.textContent = "Error running code.";
         console.error(err);
-      } finally {
-        runBtn.disabled = false;
       }
-    }
-
-    // Typing animation text for footer
-    const typingTextEl = document.getElementById("typingText");
-    const typingString = "Made by Farhan Wahid";
-    let typingIndex = 0;
-    function typeWriter() {
-      typingTextEl.textContent = typingString.substring(0, typingIndex);
-      typingIndex++;
-      if (typingIndex > typingString.length) {
-        typingIndex = 0;
-      }
-      setTimeout(typeWriter, 200);
-    }
-
-    // Clear code display & info
-    function clearCodeDisplay() {
-      codeBlockEl.textContent = "";
-      hljs.highlightElement(codeBlockEl);
-      hljs.lineNumbersBlock(codeBlockEl);
-      inputEl.value = "";
-      outputEl.value = "";
-      expectedOutputEl.textContent = "Not loaded";
-      descriptionEl.textContent = "No description available.";
-      fileNameLabel.textContent = "";
-      uploadedDateEl.textContent = "";
-      codeHeaderEl.textContent = "";
-      statusMsg.textContent = "";
-      const lis = fileListEl.querySelectorAll("li");
-      lis.forEach(li => li.classList.remove("active"));
     }
 
     runBtn.addEventListener("click", runCode);
 
-    // Initialize folder view
+    // Typing animation
+    const typingTexts = [
+      "যেকোনো ফোল্ডার থেকে .c ফাইল সিলেক্ট করো",
+      "ইনপুট এ তোমার টেস্টকেস বসাও",
+      "Run বোতামে ক্লিক করো",
+      "Judge0 API তে কোড রান হবে",
+      "আউটপুট নিচের আউটপুট বক্সে দেখাবে",
+    ];
+    let typingIndex = 0;
+    let charIndex = 0;
+    const typingTextEl = document.getElementById("typingText");
+    function typingAnimation() {
+      if (charIndex < typingTexts[typingIndex].length) {
+        typingTextEl.textContent += typingTexts[typingIndex].charAt(charIndex);
+        charIndex++;
+        setTimeout(typingAnimation, 80);
+      } else {
+        setTimeout(() => {
+          charIndex = 0;
+          typingTextEl.textContent = "";
+          typingIndex = (typingIndex + 1) % typingTexts.length;
+          setTimeout(typingAnimation, 600);
+        }, 2000);
+      }
+    }
+    typingAnimation();
+
+    // Initialize file list from root
     showFolder(folderPathRoot);
-
-    // Start typing animation
-    typeWriter();
-
   </script>
 </body>
 </html>
