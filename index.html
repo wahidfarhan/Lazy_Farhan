@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Farhans Practice Problems</title>
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark-reasonable.min.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
+  <title>Farhans Practice Problems with Monaco Editor</title>
+
+  <!-- Monaco Editor loader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.42.0/min/vs/loader.min.js"></script>
 
   <style>
     :root {
@@ -17,8 +18,8 @@
       --text: #c9d1d9;
       --sidebar-width: 280px;
       --transition-speed: 0.3s;
-      --scrollbar-bg: #1e1e1e; /* scrollbar background */
-      --scrollbar-thumb: #02ff00; /* scrollbar thumb (black) */
+      --scrollbar-bg: #1e1e1e;
+      --scrollbar-thumb: #02ff00;
       --scrollbar-thumb-hover: #333;
     }
 
@@ -49,7 +50,6 @@
       background: var(--bg-alt);
       border-right: 3px solid var(--border);
       padding: 15px 10px 15px 15px;
-      /*overflow-y: scroll; /* persistent scrollbar */
       scrollbar-width: thin;
       scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
       transition: width var(--transition-speed);
@@ -81,7 +81,7 @@
       padding: 0;
       margin: 0;
       flex-grow: 1;
-      overflow-y: scroll; /* persistent scrollbar */
+      overflow-y: scroll;
       scrollbar-width: thin;
       scrollbar-color: var(--scrollbar-thumb) #161b22;
     }
@@ -106,7 +106,6 @@
       transition: background var(--transition-speed), color var(--transition-speed);
       font-size: 0.9rem;
       user-select: none;
-      /* Always reserve scrollbar space */
       overflow: hidden;
     }
     #fileList li.active {
@@ -119,7 +118,7 @@
       color: white;
     }
 
-    /* Back button styling */
+    /* Back button */
     #fileList li.back-button {
       font-weight: 700;
       background-color: #0a4d1b;
@@ -143,8 +142,8 @@
       display: flex;
       flex-direction: column;
       padding: 15px 20px;
-      overflow: hidden; /* control overflow */
-      min-width: 0; /* Important for flex shrink */
+      overflow: hidden;
+      min-width: 0;
     }
 
     #codeSection {
@@ -156,38 +155,16 @@
       overflow: hidden;
     }
 
-    #codeContainer {
+    #editorContainer {
       flex: 2 1 60%;
       min-width: 300px;
       border: 3px solid var(--green);
       border-radius: 6px;
-      overflow: auto; /* persistent scrollbar */
       max-height: 600px;
       background: #282c34;
-      scrollbar-width: thin;
-      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
-    }
-    #codeContainer::-webkit-scrollbar {
-      width: 12px;
-      background-color: var(--scrollbar-bg);
-    }
-    #codeContainer::-webkit-scrollbar-thumb {
-      background-color: var(--scrollbar-thumb);
-      border-radius: 6px;
-      border: 3px solid var(--scrollbar-bg);
-    }
-    #codeContainer::-webkit-scrollbar-thumb:hover {
-      background-color: var(--scrollbar-thumb-hover);
-    }
-
-    pre {
-      margin: 0;
-      padding: 15px;
-      font-size: 14px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      min-height: 400px;
-      font-family: monospace;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     #ioSide {
@@ -197,14 +174,13 @@
       gap: 12px;
       min-width: 250px;
       max-height: 600px;
-      overflow: hidden; /* control overflow */
+      overflow: hidden;
     }
 
     .io-box {
       display: flex;
       flex-direction: column;
       max-height: 33vh;
-      /*overflow-y: scroll; /* persistent scrollbar */
       scrollbar-width: thin;
       scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
     }
@@ -241,7 +217,7 @@
       font-size: 14px;
       min-height: 80px;
       max-height: 150px;
-      overflow-y: scroll; /* persistent scrollbar */
+      overflow-y: scroll;
       transition: border-color var(--transition-speed);
       flex-grow: 1;
       scrollbar-width: thin;
@@ -269,11 +245,10 @@
       white-space: pre-wrap;
     }
 
-    /* Description box bigger but scrollable and flex-grow to not overflow */
     #descriptionBox {
       min-height: 190px;
       max-height: 250px;
-      overflow-y: scroll; /* persistent scrollbar */
+      overflow-y: scroll;
       flex-grow: 1;
       scrollbar-width: thin;
       scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
@@ -323,7 +298,7 @@
       line-height: 1.5;
       white-space: pre-wrap;
       max-height: 140px;
-      overflow-y: scroll; /* persistent scrollbar */
+      overflow-y: scroll;
       flex-grow: 1;
       scrollbar-width: thin;
       scrollbar-color: var(--scrollbar-thumb) #1e1e1e;
@@ -381,7 +356,7 @@
 
     /* Responsive adjustments */
     @media (max-width: 1024px) {
-      #codeContainer {
+      #editorContainer {
         max-height: 400px;
       }
       #ioSide {
@@ -404,7 +379,7 @@
         border-bottom: 3px solid var(--border);
         padding: 10px 10px 10px 10px;
         max-height: 240px;
-        overflow-y: scroll; /* persistent scrollbar */
+        overflow-y: scroll;
       }
       #sidebar h2 {
         font-size: 1.1rem;
@@ -420,7 +395,7 @@
         flex-direction: column;
         gap: 15px;
       }
-      #codeContainer {
+      #editorContainer {
         flex: none;
         min-width: 100%;
         max-height: 350px;
@@ -464,11 +439,6 @@
         font-size: 0.8rem;
         padding: 6px 8px;
       }
-      #codeContainer pre {
-        font-size: 13px;
-        padding: 12px;
-        min-height: 250px;
-      }
       textarea, .readonly-box {
         font-size: 13px;
         min-height: 70px;
@@ -484,17 +454,6 @@
         padding-left: 8px;
       }
     }
-  /* এটা একদম শেষে বসাও */
-  .hljs-ln td.hljs-ln-code {
-    padding-left: 12px;
-  }
-  .hljs-ln td.hljs-ln-numbers {
-    color: #8b949e;
-    padding-right: 10px;
-    text-align: right;
-    user-select: none;
-    border-right: 1px solid #2ea043;
-  }
   </style>
 </head>
 <body>
@@ -505,8 +464,8 @@
     </div>
     <div id="main">
       <div id="codeSection">
-        <div id="codeContainer" aria-label="Code display area">
-          <pre><code id="codeBlock" class="c hljs" tabindex="0"></code></pre>
+        <div id="editorContainer" aria-label="Code editor container">
+          <div id="editor" style="width: 100%; height: 600px;"></div>
         </div>
         <div id="ioSide">
           <div class="io-box">
@@ -536,10 +495,24 @@
     <div id="typingText"></div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
   <script>
+    // Monaco loader config
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.42.0/min/vs' }});
+
+    let editor;
+    require(["vs/editor/editor.main"], function () {
+      editor = monaco.editor.create(document.getElementById('editor'), {
+        value: '',
+        language: 'c',
+        theme: 'vs-dark',
+        automaticLayout: true,
+        fontSize: 14,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+      });
+    });
+
+    // Your repo and API config
     const repoOwner = "wahidfarhan";
     const repoName = "Lazy_Farhan";
     const folderPathRoot = "";
@@ -548,7 +521,6 @@
     const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02";
 
     const fileListEl = document.getElementById("fileList");
-    const codeBlockEl = document.getElementById("codeBlock");
     const inputEl = document.getElementById("input");
     const outputEl = document.getElementById("output");
     const runBtn = document.getElementById("runBtn");
@@ -632,9 +604,7 @@
 
     function clearCodeDisplay() {
       currentCode = "";
-      codeBlockEl.textContent = "";
-      hljs.highlightElement(codeBlockEl);
-      hljs.lineNumbersBlock(codeBlockEl);
+      if (editor) editor.setValue('');
       inputEl.value = "";
       outputEl.value = "";
       expectedOutputEl.textContent = "Not loaded";
@@ -698,9 +668,7 @@
         const codeText = await res.text();
 
         currentCode = codeText;
-        codeBlockEl.textContent = currentCode;
-        hljs.highlightElement(codeBlockEl);
-        hljs.lineNumbersBlock(codeBlockEl);
+        if (editor) editor.setValue(currentCode);
       } catch (err) {
         statusMsg.textContent = "Error loading code file.";
         console.error(err);
@@ -722,6 +690,7 @@
         uploadedDateEl.textContent = "";
       }
 
+      // Try to load input file with same basename + ".in"
       const baseName = file.name.replace(/\.c$/, "");
       const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.in`);
 
@@ -743,66 +712,51 @@
         expectedOutputEl.textContent = "Not loaded";
         descriptionEl.textContent = "No description available.";
       }
-
-      outputEl.value = "";
-      statusMsg.textContent = "";
     }
 
+    // Judge0 API integration
     async function runCode() {
-      if (!currentCode) {
-        statusMsg.textContent = "No code loaded.";
-        return;
-      }
-      statusMsg.textContent = "Running...";
+      if (!editor) return;
+      const sourceCode = editor.getValue();
+      const input = inputEl.value;
+
+      statusMsg.textContent = "Running code...";
       outputEl.value = "";
 
-      const source_code = currentCode;
-      const stdin = inputEl.value;
+      const postData = {
+        language_id: 50, // C (gcc 9.2.0) in Judge0
+        source_code: sourceCode,
+        stdin: input,
+      };
 
       try {
-        const submissionRes = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=false", {
+        const response = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-RapidAPI-Host": rapidApiHost,
             "X-RapidAPI-Key": rapidApiKey,
+            "X-RapidAPI-Host": rapidApiHost,
           },
-          body: JSON.stringify({
-            language_id: 50,
-            source_code,
-            stdin
-          }),
+          body: JSON.stringify(postData),
         });
-        if (!submissionRes.ok) throw new Error("Failed to create submission");
 
-        const submissionData = await submissionRes.json();
-        const token = submissionData.token;
-        if (!token) throw new Error("No submission token received");
+        if (!response.ok) throw new Error("Failed to run code");
 
-        let result = null;
-        while (true) {
-          await new Promise(r => setTimeout(r, 1500));
-          const resultRes = await fetch(`https://judge0-ce.p.rapidapi.com/submissions/${token}?base64_encoded=false`, {
-            headers: {
-              "X-RapidAPI-Host": rapidApiHost,
-              "X-RapidAPI-Key": rapidApiKey,
-            },
-          });
-          if (!resultRes.ok) throw new Error("Failed to get result");
-          result = await resultRes.json();
-          if (result.status && result.status.id >= 3) break;
-        }
+        const result = await response.json();
 
         if (result.stdout) {
           outputEl.value = result.stdout;
+          statusMsg.textContent = "Execution finished.";
         } else if (result.compile_output) {
-          outputEl.value = "Compile error:\n" + result.compile_output;
+          outputEl.value = result.compile_output;
+          statusMsg.textContent = "Compilation error.";
         } else if (result.stderr) {
-          outputEl.value = "Runtime error:\n" + result.stderr;
+          outputEl.value = result.stderr;
+          statusMsg.textContent = "Runtime error.";
         } else {
-          outputEl.value = "Unknown error or empty output.";
+          outputEl.value = "";
+          statusMsg.textContent = "Unknown error.";
         }
-        statusMsg.textContent = `Status: ${result.status.description}`;
       } catch (err) {
         statusMsg.textContent = "Error running code.";
         console.error(err);
@@ -811,64 +765,59 @@
 
     runBtn.addEventListener("click", runCode);
 
-    // Typing animation
-    const typingTexts = [
-      "যেকোনো ফোল্ডার থেকে .c ফাইল সিলেক্ট করো",
-      "ইনপুট এ তোমার টেস্টকেস বসাও",
-      "Run বোতামে ক্লিক করো",
-      "Judge0 API তে কোড রান হবে",
-      "আউটপুট নিচের আউটপুট বক্সে দেখাবে",
+    // Init: show root folder files
+    currentPath = folderPathRoot;
+    showFolder(currentPath);
+
+    // Typing animation (optional)
+    const typingTextEl = document.getElementById("typingText");
+    const typingPhrases = [
+      "Welcome to Farhan's C Code Practice!",
+      "Select a file from left to load code.",
+      "Edit code and run it with Judge0 API.",
+      "Responsive & Modern Monaco Editor integrated.",
+      "Enjoy coding!"
     ];
     let typingIndex = 0;
     let charIndex = 0;
-    const typingTextEl = document.getElementById("typingText");
-    function typingAnimation() {
-      if (charIndex < typingTexts[typingIndex].length) {
-        typingTextEl.textContent += typingTexts[typingIndex].charAt(charIndex);
+    let isDeleting = false;
+
+    function type() {
+      const current = typingPhrases[typingIndex];
+      if (!isDeleting) {
+        typingTextEl.textContent = current.slice(0, charIndex + 1);
         charIndex++;
-        setTimeout(typingAnimation, 80);
+        if (charIndex === current.length) {
+          isDeleting = true;
+          setTimeout(type, 2000);
+          return;
+        }
       } else {
-        setTimeout(() => {
-          charIndex = 0;
-          typingTextEl.textContent = "";
-          typingIndex = (typingIndex + 1) % typingTexts.length;
-          setTimeout(typingAnimation, 600);
-        }, 2000);
+        typingTextEl.textContent = current.slice(0, charIndex - 1);
+        charIndex--;
+        if (charIndex === 0) {
+          isDeleting = false;
+          typingIndex = (typingIndex + 1) % typingPhrases.length;
+        }
       }
+      setTimeout(type, isDeleting ? 80 : 120);
     }
-    typingAnimation();
+    type();
 
-    // Initialize file list from root
-    showFolder(folderPathRoot);
-     let zoomLevel = 1; // Default scale
-  const codeZoomTarget = document.getElementById("codeContainer");
-  const codeBlock = document.getElementById("codeBlock");
-
-  codeZoomTarget.addEventListener("wheel", (e) => {
-    if (e.ctrlKey) {
-      e.preventDefault(); // Prevent default browser zoom
-      const delta = e.deltaY;
-
-      if (delta < 0) {
-        zoomLevel += 0.1;
-      } else {
-        zoomLevel = Math.max(0.5, zoomLevel - 0.1); // Minimum zoom limit
+    // Optional: Zoom editor font size with Ctrl+wheel
+    window.addEventListener('wheel', e => {
+      if (e.ctrlKey) {
+        e.preventDefault();
+        if (!editor) return;
+        let currentFont = editor.getOption(monaco.editor.EditorOption.fontSize);
+        if (e.deltaY < 0) {
+          currentFont = Math.min(currentFont + 1, 30);
+        } else {
+          currentFont = Math.max(currentFont - 1, 8);
+        }
+        editor.updateOptions({ fontSize: currentFont });
       }
-
-      codeBlock.style.fontSize = `${14 * zoomLevel}px`;
-    }
-  }, { passive: false });
-
-  // Optional: Ctrl + 0 to reset zoom
-  window.addEventListener("keydown", (e) => {
-    if (e.ctrlKey && e.key === "0") {
-      zoomLevel = 1;
-      codeBlock.style.fontSize = `14px`;
-      e.preventDefault();
-    }
-  });
-
- 
+    }, { passive: false });
   </script>
 </body>
 </html>
