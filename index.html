@@ -59,6 +59,10 @@
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
+      resize: horizontal;
+      overflow: auto;
+      min-width: 180px;
+      max-width: 600px;
     }
     #sidebar::-webkit-scrollbar {
       width: 12px;
@@ -166,26 +170,35 @@
       max-height: 600px;
       background: #282c34;
       position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Added container for run button inside code container */
-    #codeTopBar {
-      padding: 10px 15px;
-      background: #21262d;
-      border-bottom: 2px solid var(--green);
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      flex-shrink: 0;
     }
 
     /* Monaco editor container */
     #monaco-editor {
       width: 100%;
-      height: 100%;
-      flex-grow: 1;
+      height: 600px;
+    }
+
+    /* Run button styled like VSCode's */
+    #runBtn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #0e639c;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 3px;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgb(0 0 0 / 0.2);
+      transition: background-color 0.3s ease;
+      user-select: none;
+      z-index: 10;
+    }
+    #runBtn:hover, #runBtn:focus {
+      background-color: #1177d1;
+      outline: none;
     }
 
     #ioSide {
@@ -287,24 +300,6 @@
       background-color: var(--scrollbar-thumb-hover);
     }
 
-    #runBtn {
-      background: var(--green);
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      color: white;
-      font-weight: bold;
-      font-size: 15px;
-      cursor: pointer;
-      user-select: none;
-      transition: background var(--transition-speed);
-      min-width: 100px;
-    }
-    #runBtn:hover, #runBtn:focus {
-      background: var(--green-light);
-      outline: none;
-    }
-
     #statusMsg {
       margin-top: 10px;
       font-style: italic;
@@ -399,6 +394,7 @@
         padding: 10px 10px 10px 10px;
         max-height: 240px;
         overflow-y: scroll;
+        resize: none;
       }
       #sidebar h2 {
         font-size: 1.1rem;
@@ -427,10 +423,12 @@
         max-height: none;
       }
       #runBtn {
+        position: static;
         width: 100%;
         font-size: 16px;
         padding: 14px 0;
         min-width: unset;
+        margin-bottom: 12px;
       }
       #typingContainer {
         font-size: 16px;
@@ -491,13 +489,11 @@
       <ul id="fileList" tabindex="0"><li>Loading folders...</li></ul>
     </div>
     <div id="main">
-      <div id="codeSection">
+      <div id="codeSection" style="position: relative;">
         <div id="codeContainer" aria-label="Code display area">
-          <div id="codeTopBar">
-            <button id="runBtn" aria-label="Run code">Run Code</button>
-          </div>
           <!-- Monaco editor container -->
           <div id="monaco-editor" tabindex="0"></div>
+          <button id="runBtn" aria-label="Run code">Run Code</button>
         </div>
         <div id="ioSide">
           <div class="io-box">
@@ -518,7 +514,6 @@
           </div>
         </div>
       </div>
-      <!-- Removed original runBtn from here -->
       <div id="statusMsg" role="status" aria-live="polite"></div>
       <div id="uploadedDate" aria-label="Last uploaded date"></div>
     </div>
@@ -653,15 +648,15 @@
           li.classList.add('active');
         }
 
-        li.onclick = () => {
+        li.onclick = async () => {
           if (file.type === 'dir') {
             folderStack.push(currentPath);
-            loadFolder(file.path);
+            await loadFolder(file.path);
           } else {
-            loadFile(i);
+            await loadFile(i);
           }
         };
-        li.onkeypress = (e) => { if (e.key === 'Enter') li.onclick(); };
+        li.onkeypress = async (e) => { if (e.key === 'Enter') await li.onclick(); };
 
         fileListEl.appendChild(li);
       });
