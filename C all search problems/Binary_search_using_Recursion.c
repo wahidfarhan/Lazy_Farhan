@@ -1,19 +1,17 @@
-#include<stdio.h>
+#include <stdio.h>
 
-int search(int arr[], int target, int size) {
-    int start = 0, end = size , mid;
-        size = size;
-        mid = (start + end) / 2;
-        if(target > arr[mid]) {
-            start = mid + 1;
-            search(arr,target,size);
-        } else if(target < arr[mid]) {
-            end = mid - 1;
-            search(arr,target,size);
-        } else {
-            return mid;
-        }
-    return -1;
+int search(int arr[], int target, int start, int end) {
+    if (start > end)
+        return -1;
+
+    int mid = (start + end) / 2;
+
+    if (arr[mid] == target)
+        return mid;
+    else if (arr[mid] < target)
+        return search(arr, target, mid + 1, end);
+    else
+        return search(arr, target, start, mid - 1);
 }
 
 int main() {
@@ -32,7 +30,7 @@ int main() {
     printf("Enter Target: ");
     scanf("%d", &target);
 
-    int index = search(Numbers, target, i);
+    int index = search(Numbers, target, 0, i - 1);
     if(index != -1)
         printf("Target found at index: %d\n", index);
     else
