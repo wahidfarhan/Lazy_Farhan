@@ -7,354 +7,209 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
   <style>
+    :root {
+      --green: #238636;
+      --green-light: #2ea043;
+      --bg: #0d1117;
+      --bg-alt: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+    }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
       font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
-      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
     }
     #container {
-      flex: 1;
       display: flex;
-      overflow: hidden;
+      flex-direction: row;
+      height: 100vh;
     }
     #sidebar {
       width: 280px;
-      background: #161b22;
-      border-right: 3px solid #30363d;
+      background: var(--bg-alt);
+      border-right: 3px solid var(--border);
       padding: 15px;
       overflow-y: auto;
     }
     #sidebar h2 {
-      margin: 0 0 15px;
-      border-bottom: 2px solid #238636;
-      color: #238636;
+      color: var(--green);
+      border-bottom: 2px solid var(--green);
+      margin-bottom: 15px;
     }
-    #fileList {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
+    #fileList { list-style: none; padding: 0; margin: 0; }
     #fileList li {
       background: #21262d;
       padding: 8px;
       margin-bottom: 6px;
       border-radius: 5px;
       cursor: pointer;
-      user-select: none;
-      transition: background-color 0.3s ease;
+      transition: 0.3s;
     }
-    #fileList li.active {
-      background: #238636;
-      color: white;
-    }
-    #fileList li:hover:not(.active) {
-      background: #2ea043;
-      color: white;
-    }
-    #backBtn {
-      background: #238636;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 5px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      margin-bottom: 12px;
-      width: 100%;
-      user-select: none;
-      display: none;
-      text-align: center;
-    }
-    #backBtn:hover {
-      background: #2ea043;
-    }
+    #fileList li.active { background: var(--green); color: white; }
+    #fileList li:hover:not(.active) { background: var(--green-light); color: white; }
     #main {
       flex: 1;
       display: flex;
       flex-direction: column;
       padding: 15px;
-      overflow: hidden;
-      position: relative;
+      overflow-y: auto;
     }
     #codeSection {
       display: flex;
+      flex-direction: row;
       gap: 20px;
       flex: 1;
-      overflow: hidden;
+      flex-wrap: wrap;
     }
     #codeContainer {
       flex: 2;
-      background: #0d1117;
-      border: 3px solid #238636;
+      min-width: 300px;
+      border: 3px solid var(--green);
       border-radius: 6px;
       overflow: auto;
+      max-height: 500px;
     }
-    pre {
-      margin: 0;
-      font-size: 14px;
-      padding: 15px;
-      min-height: 100%;
-    }
-    .hljs td.hljs-ln-code {
-      padding-left: 12px;
-    }
+    pre { margin: 0; padding: 15px; font-size: 14px; }
     #ioSide {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      overflow: hidden;
+      min-width: 250px;
     }
     .io-box label {
       font-weight: bold;
-      color: #238636;
-      margin-bottom: 5px;
-      display: block;
+      color: var(--green);
     }
-    textarea {
+    textarea, .readonly-box {
       width: 100%;
       background-color: #21262d;
-      color: #c9d1d9;
-      border: 2px solid #238636;
+      color: var(--text);
+      border: 2px solid var(--green);
       border-radius: 5px;
       padding: 10px;
       resize: vertical;
-      min-height: 80px;
       font-family: monospace;
       font-size: 14px;
-      overflow-y: auto;
-    }
-    #output {
-      color: #56d364;
     }
     .readonly-box {
       background-color: #1e1e1e;
-      border: 2px solid #444;
-      border-radius: 5px;
-      padding: 10px;
-      white-space: pre-wrap;
-      font-size: 14px;
-      min-height: 80px;
-      overflow-y: auto;
       max-height: 150px;
-      color: #c9d1d9;
-    }
-    #descriptionBox {
-      border-bottom: 2px solid #238636;
       overflow-y: auto;
-      max-height: 160px;
-      padding: 12px 15px;
       white-space: pre-wrap;
-      font-size: 14px;
-      line-height: 1.5;
-      background-color: #1e1e1e;
-      color: #c9d1d9;
-      border-radius: 5px;
     }
     #runBtn {
-      margin-top: 10px;
-      background: #238636;
+      margin-top: 15px;
+      background: var(--green);
       border: none;
-      padding: 10px 20px;
+      padding: 12px 20px;
       border-radius: 5px;
       color: white;
       font-weight: bold;
       font-size: 16px;
       cursor: pointer;
-      align-self: flex-start;
-      user-select: none;
     }
-    #runBtn:hover {
-      background: #2ea043;
-    }
+    #runBtn:hover { background: var(--green-light); }
     #statusMsg {
-      margin-top: 8px;
-      color: #999;
-      min-height: 20px;
+      margin-top: 10px;
       font-style: italic;
+      color: #999;
+    }
+    #descriptionBox, #expectedOutput {
+      font-size: 14px;
+      line-height: 1.5;
     }
     #uploadedDate {
-      position: absolute;
-      bottom: 10px;
-      right: 20px;
+      margin-top: 10px;
       font-size: 0.9em;
       color: #56d364;
-      user-select: none;
-    }
-
-    /* Scrollbar styling */
-    #sidebar::-webkit-scrollbar,
-    #codeContainer::-webkit-scrollbar,
-    #ioSide::-webkit-scrollbar,
-    .readonly-box::-webkit-scrollbar,
-    #descriptionBox::-webkit-scrollbar,
-    textarea::-webkit-scrollbar {
-      width: 8px;
-    }
-    #sidebar::-webkit-scrollbar-thumb,
-    #codeContainer::-webkit-scrollbar-thumb,
-    #ioSide::-webkit-scrollbar-thumb,
-    .readonly-box::-webkit-scrollbar-thumb,
-    #descriptionBox::-webkit-scrollbar-thumb,
-    textarea::-webkit-scrollbar-thumb {
-      background-color: #000000;
-      border-radius: 4px;
-    }
-    #sidebar::-webkit-scrollbar-track,
-    #codeContainer::-webkit-scrollbar-track,
-    #ioSide::-webkit-scrollbar-track,
-    .readonly-box::-webkit-scrollbar-track,
-    #descriptionBox::-webkit-scrollbar-track,
-    textarea::-webkit-scrollbar-track {
-      background-color: #121212;
-    }
-    #sidebar, #codeContainer, #ioSide, .readonly-box, #descriptionBox, textarea {
-      scrollbar-width: thin;
-      scrollbar-color: #000000 #121212;
+      text-align: right;
     }
     #typingContainer {
       height: 40px;
-      background: #161b22;
-      border-top: 3px solid #238636;
-      color: #238636;
+      background: var(--bg-alt);
+      border-top: 3px solid var(--green);
+      color: var(--green);
       font-family: 'Courier New', Courier, monospace;
       font-weight: bold;
-      font-size: 20px;
+      font-size: 18px;
       padding-left: 15px;
       display: flex;
       align-items: center;
-      user-select: none;
       overflow: hidden;
     }
     #typingText {
-      border-right: 2px solid #238636;
+      border-right: 2px solid var(--green);
       white-space: nowrap;
       overflow: hidden;
     }
-    /* Uploaded date mobile fix */
     @media (max-width: 768px) {
-      #uploadedDate {
-        position: static;
-        margin-top: 8px;
-        text-align: center;
-        color: #56d364;
-      }
-    }
-
-    /* Responsive Styles for Mobile */
-    @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-      }
-      #container {
-        flex-direction: column;
-      }
+      #container { flex-direction: column; }
       #sidebar {
         width: 100%;
-        height: 200px;
-        border-right: none;
-        border-bottom: 3px solid #30363d;
-        padding: 10px;
-      }
-      #main {
-        flex: 1;
-        padding: 10px;
-        overflow: visible;
-      }
-      #codeSection {
-        flex-direction: column;
-        gap: 10px;
-      }
-      #codeContainer {
-        flex: none;
-        height: 300px;
-        border-width: 2px;
-      }
-      #ioSide {
-        flex: none;
         height: auto;
-        gap: 8px;
+        border-right: none;
+        border-bottom: 3px solid var(--border);
       }
-      pre {
-        font-size: 12px;
-        padding: 10px;
-      }
-      textarea {
-        font-size: 13px;
-        min-height: 60px;
-      }
-      #runBtn {
-        width: 100%;
-        padding: 12px;
-        font-size: 18px;
-      }
-      #backBtn {
-        margin-bottom: 10px;
-        display: block;
-      }
+      #codeSection { flex-direction: column; }
+      #codeContainer { max-height: 300px; }
+      #runBtn { width: 100%; }
       #typingContainer {
-        font-size: 18px;
+        font-size: 16px;
         height: 35px;
         padding-left: 10px;
       }
+      #uploadedDate { text-align: center; }
     }
   </style>
 </head>
 <body>
-
-<div id="container">
-  <div id="sidebar">
-    <h2>Farhans Practice Problems</h2>
-    <button id="backBtn">← Back</button>
-    <ul id="fileList"><li>Loading folders...</li></ul>
-  </div>
-
-  <div id="main">
-    <div id="codeSection">
-      <div id="codeContainer">
-        <pre><code id="codeBlock" class="c hljs"></code></pre>
-      </div>
-      <div id="ioSide">
-        <div class="io-box">
-          <label for="input">📥 Input</label>
-          <textarea id="input" placeholder="Input will be loaded here or you can type"></textarea>
-        </div>
-        <div class="io-box">
-          <label for="output">📤 Output</label>
-          <textarea id="output" readonly placeholder="Program output will appear here"></textarea>
-        </div>
-        <div class="io-box">
-          <label>✅ Expected Output</label>
-          <div id="expectedOutput" class="readonly-box">Not loaded</div>
-        </div>
-        <div class="io-box">
-          <label>📝 Description <span id="fileNameLabel" style="color:#56d364; font-weight: normal; font-size: 0.9em; margin-left: 8px;"></span></label>
-          <div id="descriptionBox">No description available.</div>
-        </div>
-      </div>
+  <div id="container">
+    <div id="sidebar">
+      <h2>Farhans Practice Problems</h2>
+      <ul id="fileList"><li>Loading folders...</li></ul>
     </div>
-    <button id="runBtn">Run Code</button>
-    <div id="statusMsg"></div>
-    <div id="uploadedDate"></div>
+    <div id="main">
+      <div id="codeSection">
+        <div id="codeContainer">
+          <pre><code id="codeBlock" class="c hljs"></code></pre>
+        </div>
+        <div id="ioSide">
+          <div class="io-box">
+            <label for="input">📥 Input</label>
+            <textarea id="input" placeholder="Input will be loaded here or you can type"></textarea>
+          </div>
+          <div class="io-box">
+            <label for="output">📤 Output</label>
+            <textarea id="output" readonly placeholder="Program output will appear here"></textarea>
+          </div>
+          <div class="io-box">
+            <label>✅ Expected Output</label>
+            <div id="expectedOutput" class="readonly-box">Not loaded</div>
+          </div>
+          <div class="io-box">
+            <label>📝 Description <span id="fileNameLabel" style="color:#56d364; font-weight: normal; font-size: 0.9em; margin-left: 8px;"></span></label>
+            <div id="descriptionBox" class="readonly-box">No description available.</div>
+          </div>
+        </div>
+      </div>
+      <button id="runBtn">Run Code</button>
+      <div id="statusMsg"></div>
+      <div id="uploadedDate"></div>
+    </div>
   </div>
-</div>
-
-<!-- Bottom typing animation -->
-<div id="typingContainer">
-  <div id="typingText"></div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
-
-<script>
-  const repoOwner = "wahidfarhan";
+  <div id="typingContainer">
+    <div id="typingText"></div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
+  <script>
+      const repoOwner = "wahidfarhan";
   const repoName = "Lazy_Farhan";
   const folderPathRoot = ""; // root folder to list initially
 
@@ -662,7 +517,6 @@
 
   // Init
   showFolder(folderPathRoot);
-</script>
-
+  </script>
 </body>
 </html>
