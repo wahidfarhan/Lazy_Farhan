@@ -16,6 +16,9 @@
       --text: #c9d1d9;
       --sidebar-width: 280px;
       --transition-speed: 0.3s;
+      --scrollbar-bg: #111; /* scrollbar background */
+      --scrollbar-thumb: #000; /* scrollbar thumb (black) */
+      --scrollbar-thumb-hover: #333;
     }
 
     * {
@@ -45,11 +48,25 @@
       background: var(--bg-alt);
       border-right: 3px solid var(--border);
       padding: 15px 10px 15px 15px;
-      overflow-y: auto;
+      overflow-y: scroll; /* persistent scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
       transition: width var(--transition-speed);
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
+    }
+    #sidebar::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    #sidebar::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    #sidebar::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
     }
     #sidebar h2 {
       color: var(--green);
@@ -63,7 +80,21 @@
       padding: 0;
       margin: 0;
       flex-grow: 1;
-      overflow-y: auto;
+      overflow-y: scroll; /* persistent scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
+    }
+    #fileList::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    #fileList::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    #fileList::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
     }
     #fileList li {
       background: #21262d;
@@ -74,6 +105,8 @@
       transition: background var(--transition-speed), color var(--transition-speed);
       font-size: 0.9rem;
       user-select: none;
+      /* Always reserve scrollbar space */
+      overflow: hidden;
     }
     #fileList li.active {
       background: var(--green);
@@ -85,13 +118,31 @@
       color: white;
     }
 
+    /* Back button styling */
+    #fileList li.back-button {
+      font-weight: 700;
+      background-color: #0a4d1b;
+      color: #b2f2bb;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 0 6px 1px #238636aa;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    #fileList li.back-button:hover {
+      background-color: #169a2c;
+      color: white;
+      box-shadow: 0 0 12px 2px #2ea043cc;
+    }
+
     /* Main content */
     #main {
       flex: 1 1 auto;
       display: flex;
       flex-direction: column;
       padding: 15px 20px;
-      overflow: hidden; /* Changed to hidden to control overflow */
+      overflow: hidden; /* control overflow */
       min-width: 0; /* Important for flex shrink */
     }
 
@@ -109,10 +160,25 @@
       min-width: 300px;
       border: 3px solid var(--green);
       border-radius: 6px;
-      overflow: auto;
+      overflow: auto; /* persistent scrollbar */
       max-height: 500px;
       background: #0d1117;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
     }
+    #codeContainer::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    #codeContainer::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    #codeContainer::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
+    }
+
     pre {
       margin: 0;
       padding: 15px;
@@ -130,16 +196,30 @@
       gap: 12px;
       min-width: 250px;
       max-height: 500px;
-      overflow: hidden; /* changed from auto */
+      overflow: hidden; /* control overflow */
     }
 
     .io-box {
       display: flex;
       flex-direction: column;
-      /* make boxes scroll if too tall */
       max-height: 33vh;
-      overflow-y: auto;
+      overflow-y: scroll; /* persistent scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
     }
+    .io-box::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    .io-box::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    .io-box::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
+    }
+
     .io-box label {
       font-weight: bold;
       color: var(--green);
@@ -160,9 +240,23 @@
       font-size: 14px;
       min-height: 80px;
       max-height: 150px;
-      overflow-y: auto;
+      overflow-y: scroll; /* persistent scrollbar */
       transition: border-color var(--transition-speed);
       flex-grow: 1;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
+    }
+    textarea::-webkit-scrollbar, .readonly-box::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    textarea::-webkit-scrollbar-thumb, .readonly-box::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    textarea::-webkit-scrollbar-thumb:hover, .readonly-box::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
     }
     textarea:focus {
       outline: none;
@@ -178,8 +272,22 @@
     #descriptionBox {
       min-height: 120px;
       max-height: 250px;
-      overflow-y: auto;
+      overflow-y: scroll; /* persistent scrollbar */
       flex-grow: 1;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
+    }
+    #descriptionBox::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    #descriptionBox::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    #descriptionBox::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
     }
 
     #runBtn {
@@ -214,9 +322,24 @@
       line-height: 1.5;
       white-space: pre-wrap;
       max-height: 140px;
-      overflow-y: auto;
+      overflow-y: scroll; /* persistent scrollbar */
       flex-grow: 1;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
     }
+    #expectedOutput::-webkit-scrollbar {
+      width: 12px;
+      background-color: var(--scrollbar-bg);
+    }
+    #expectedOutput::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 6px;
+      border: 3px solid var(--scrollbar-bg);
+    }
+    #expectedOutput::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
+    }
+
     #uploadedDate {
       margin-top: 10px;
       font-size: 0.9em;
@@ -255,28 +378,6 @@
       overflow: hidden;
     }
 
-    /* Scrollbar styling for webkit */
-    #sidebar::-webkit-scrollbar,
-    #fileList::-webkit-scrollbar,
-    #main::-webkit-scrollbar,
-    #ioSide::-webkit-scrollbar,
-    #descriptionBox::-webkit-scrollbar,
-    #expectedOutput::-webkit-scrollbar,
-    textarea::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    #sidebar::-webkit-scrollbar-thumb,
-    #fileList::-webkit-scrollbar-thumb,
-    #main::-webkit-scrollbar-thumb,
-    #ioSide::-webkit-scrollbar-thumb,
-    #descriptionBox::-webkit-scrollbar-thumb,
-    #expectedOutput::-webkit-scrollbar-thumb,
-    textarea::-webkit-scrollbar-thumb {
-      background-color: var(--green);
-      border-radius: 4px;
-    }
-
     /* Responsive adjustments */
     @media (max-width: 1024px) {
       #codeContainer {
@@ -302,7 +403,7 @@
         border-bottom: 3px solid var(--border);
         padding: 10px 10px 10px 10px;
         max-height: 240px;
-        overflow-y: auto;
+        overflow-y: scroll; /* persistent scrollbar */
       }
       #sidebar h2 {
         font-size: 1.1rem;
@@ -344,7 +445,6 @@
       #uploadedDate {
         text-align: center;
       }
-      /* Increase description box height on mobile too */
       #descriptionBox {
         max-height: 300px;
         min-height: 150px;
@@ -411,7 +511,7 @@
           </div>
           <div class="io-box" style="flex-grow:1; display:flex; flex-direction:column;">
             <label>📝 Description <span id="fileNameLabel"></span></label>
-            <div id="descriptionBox" class="readonly-box" tabindex="0" aria-live="polite" style="flex-grow:1; overflow-y:auto;">No description available.</div>
+            <div id="descriptionBox" class="readonly-box" tabindex="0" aria-live="polite" style="flex-grow:1; overflow-y: scroll;">No description available.</div>
           </div>
         </div>
       </div>
@@ -477,12 +577,7 @@
       if (path !== folderPathRoot) {
         const backLi = document.createElement("li");
         backLi.textContent = "⬅️ Back";
-        backLi.style.fontWeight = "bold";
-        backLi.style.cursor = "pointer";
-        backLi.style.backgroundColor = "#444";
-        backLi.style.color = "#fff";
-        backLi.style.marginBottom = "12px";
-        backLi.style.borderRadius = "5px";
+        backLi.classList.add("back-button");
         backLi.addEventListener("click", () => {
           if (folderStack.length > 0) {
             currentPath = folderStack.pop();
