@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Farhans Practice Problems - Monaco Editor</title>
+  <title>Farhans Practice Problems with Monaco Editor</title>
 
+  <!-- Highlight.js styles for output/input boxes and consistent look -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark-reasonable.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
 
   <style>
+    /* === Your CSS from before with slight adjustments for monaco === */
+
     :root {
       --green: #238636;
       --green-light: #2ea043;
@@ -16,12 +19,13 @@
       --bg-alt: #161b22;
       --border: #30363d;
       --text: #c9d1d9;
-      --sidebar-width: 320px; /* Sidebar বড় */
+      --sidebar-width: 280px;
       --transition-speed: 0.3s;
       --scrollbar-bg: #1e1e1e;
       --scrollbar-thumb: #02ff00;
       --scrollbar-thumb-hover: #333;
     }
+
     * {
       box-sizing: border-box;
     }
@@ -42,11 +46,13 @@
       overflow: hidden;
       background: var(--bg);
     }
+
+    /* Sidebar */
     #sidebar {
       width: var(--sidebar-width);
       background: var(--bg-alt);
       border-right: 3px solid var(--border);
-      padding: 15px 15px 15px 20px;
+      padding: 15px 10px 15px 15px;
       scrollbar-width: thin;
       scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
       transition: width var(--transition-speed);
@@ -70,9 +76,8 @@
       color: var(--green);
       border-bottom: 2px solid var(--green);
       margin-bottom: 15px;
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       user-select: none;
-      font-weight: 700;
     }
     #fileList {
       list-style: none;
@@ -82,7 +87,6 @@
       overflow-y: scroll;
       scrollbar-width: thin;
       scrollbar-color: var(--scrollbar-thumb) #161b22;
-      font-size: 0.95rem;
     }
     #fileList::-webkit-scrollbar {
       width: 12px;
@@ -98,21 +102,20 @@
     }
     #fileList li {
       background: #21262d;
-      padding: 10px 15px;
-      margin-bottom: 7px;
-      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      border-radius: 5px;
       cursor: pointer;
       transition: background var(--transition-speed), color var(--transition-speed);
+      font-size: 0.9rem;
       user-select: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 500;
+      overflow: hidden;
+      outline: none;
     }
     #fileList li.active {
       background: var(--green);
       color: white;
-      font-weight: 700;
+      font-weight: 600;
     }
     #fileList li:hover:not(.active) {
       background: var(--green-light);
@@ -128,17 +131,14 @@
       box-shadow: 0 0 6px 1px #238636aa;
       user-select: none;
       transition: background-color 0.3s ease;
-      justify-content: center;
+    }
+    #fileList li.back-button:hover {
+      background-color: #169a2c;
+      color: white;
+      box-shadow: 0 0 12px 2px #2ea043cc;
     }
 
-    /* Icon styles */
-    .icon {
-      font-size: 1.3rem;
-      flex-shrink: 0;
-      width: 1.4em;
-      text-align: center;
-    }
-
+    /* Main content */
     #main {
       flex: 1 1 auto;
       display: flex;
@@ -147,6 +147,7 @@
       overflow: hidden;
       min-width: 0;
     }
+
     #codeSection {
       display: flex;
       flex-wrap: wrap;
@@ -155,15 +156,24 @@
       min-height: 600px;
       overflow: hidden;
     }
+
     #codeContainer {
       flex: 2 1 60%;
       min-width: 300px;
       border: 3px solid var(--green);
       border-radius: 6px;
-      overflow: hidden; 
+      overflow: hidden; /* Monaco has its own scroll */
       max-height: 600px;
       background: #282c34;
+      position: relative;
     }
+
+    /* Monaco editor container */
+    #monaco-editor {
+      width: 100%;
+      height: 600px;
+    }
+
     #ioSide {
       flex: 1 1 35%;
       display: flex;
@@ -173,6 +183,7 @@
       max-height: 600px;
       overflow: hidden;
     }
+
     .io-box {
       display: flex;
       flex-direction: column;
@@ -192,6 +203,7 @@
     .io-box::-webkit-scrollbar-thumb:hover {
       background-color: var(--scrollbar-thumb-hover);
     }
+
     .io-box label {
       font-weight: bold;
       color: var(--green);
@@ -239,6 +251,7 @@
       background-color: #1e1e1e;
       white-space: pre-wrap;
     }
+
     #descriptionBox {
       min-height: 190px;
       max-height: 250px;
@@ -259,6 +272,7 @@
     #descriptionBox::-webkit-scrollbar-thumb:hover {
       background-color: var(--scrollbar-thumb-hover);
     }
+
     #runBtn {
       margin-top: 15px;
       background: var(--green);
@@ -278,6 +292,7 @@
       background: var(--green-light);
       outline: none;
     }
+
     #statusMsg {
       margin-top: 10px;
       font-style: italic;
@@ -307,6 +322,7 @@
     #expectedOutput::-webkit-scrollbar-thumb:hover {
       background-color: var(--scrollbar-thumb-hover);
     }
+
     #uploadedDate {
       margin-top: 10px;
       font-size: 0.9em;
@@ -322,6 +338,8 @@
       margin-left: 8px;
       user-select: none;
     }
+
+    /* Typing animation footer */
     #typingContainer {
       height: 40px;
       background: var(--bg-alt);
@@ -342,6 +360,8 @@
       white-space: nowrap;
       overflow: hidden;
     }
+
+    /* Responsive adjustments */
     @media (max-width: 1024px) {
       #codeContainer {
         max-height: 400px;
@@ -350,6 +370,7 @@
         max-height: 400px;
       }
     }
+
     @media (max-width: 768px) {
       body {
         height: auto;
@@ -412,6 +433,7 @@
         min-height: 150px;
       }
     }
+
     @media (max-width: 480px) {
       #sidebar {
         max-height: 200px;
@@ -424,10 +446,8 @@
         font-size: 0.8rem;
         padding: 6px 8px;
       }
-      #codeContainer pre {
-        font-size: 13px;
-        padding: 12px;
-        min-height: 250px;
+      #codeContainer {
+        max-height: 300px;
       }
       textarea, .readonly-box {
         font-size: 13px;
@@ -444,18 +464,27 @@
         padding-left: 8px;
       }
     }
+
+    /* Monaco-specific line number padding fix */
+    .monaco-editor .margin {
+      background-color: #21262d !important;
+    }
+
   </style>
 </head>
 <body>
   <div id="container">
-    <nav id="sidebar" role="navigation" aria-label="File list">
+    <div id="sidebar" role="navigation" aria-label="File list">
       <h2>Farhans Practice Problems</h2>
       <ul id="fileList" tabindex="0"><li>Loading folders...</li></ul>
-    </nav>
-    <main id="main">
-      <section id="codeSection">
-        <div id="codeContainer" aria-label="Code display area"></div>
-        <aside id="ioSide">
+    </div>
+    <div id="main">
+      <div id="codeSection">
+        <div id="codeContainer" aria-label="Code display area">
+          <!-- Monaco editor container -->
+          <div id="monaco-editor" tabindex="0"></div>
+        </div>
+        <div id="ioSide">
           <div class="io-box">
             <label for="input">📥 Input</label>
             <textarea id="input" placeholder="Input will be loaded here or you can type" spellcheck="false" autocomplete="off"></textarea>
@@ -472,26 +501,36 @@
             <label>📝 Description <span id="fileNameLabel"></span></label>
             <div id="descriptionBox" class="readonly-box" tabindex="0" aria-live="polite" style="flex-grow:1; overflow-y: scroll;">No description available.</div>
           </div>
-        </aside>
-      </section>
+        </div>
+      </div>
       <button id="runBtn" aria-label="Run code">Run Code</button>
       <div id="statusMsg" role="status" aria-live="polite"></div>
       <div id="uploadedDate" aria-label="Last uploaded date"></div>
-    </main>
+    </div>
   </div>
   <div id="typingContainer" aria-live="polite" aria-atomic="true">
     <div id="typingText"></div>
   </div>
 
-  <!-- Monaco editor loader -->
-  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+  <!-- Monaco Editor loader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+  <script>
+    // Monaco editor loader configuration
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs' }});
+  </script>
+
+  <!-- Highlight.js scripts for output/input highlighting (optional but keep) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
 
   <script>
-    // Configuration
+    // Your GitHub repo info
     const repoOwner = "wahidfarhan";
     const repoName = "Lazy_Farhan";
-    const folderPathRoot = ""; // root folder path in repo
+    const folderPathRoot = "";
 
+    // Judge0 API details
     const rapidApiHost = "judge0-ce.p.rapidapi.com";
     const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02";
 
@@ -503,356 +542,359 @@
     const statusMsg = document.getElementById("statusMsg");
     const descriptionEl = document.getElementById("descriptionBox");
     const expectedOutputEl = document.getElementById("expectedOutput");
-    const uploadedDateEl = document.getElementById("uploadedDate");
     const fileNameLabel = document.getElementById("fileNameLabel");
-    const codeContainer = document.getElementById("codeContainer");
-    const typingTextEl = document.getElementById("typingText");
+    const uploadedDateEl = document.getElementById("uploadedDate");
 
-    // Variables
+    let currentFiles = [];
     let currentPath = folderPathRoot;
-    let files = [];
-    let monacoEditor = null;
-    let typingInterval = null;
+    let folderStack = [];
+    let currentFileIndex = -1;
 
-    // Utility: Map file extensions to icons (Unicode emoji)
-    function getIconForFile(fileName, isFolder = false) {
-      if (isFolder) return "📁";
-      const ext = fileName.split('.').pop().toLowerCase();
-      if (ext === "c") return "📄";
-      if (ext === "in") return "📝";
-      if (ext === "txt") return "📃";
-      if (ext === "md") return "📚";
-      return "📄";
-    }
+    // Monaco editor instance
+    let editor = null;
 
-    // Utility: fetch JSON with error handling
-    async function fetchJSON(url) {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status} - ${res.statusText}`);
-      return res.json();
-    }
-
-    // Fetch folder contents from GitHub repo
-    async function fetchFolder(path) {
-      const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
-      const data = await fetchJSON(url);
-      // Sort folders first, then files
-      data.sort((a,b) => {
-        if (a.type === b.type) return a.name.localeCompare(b.name);
-        return a.type === 'dir' ? -1 : 1;
+    // Initialize Monaco editor
+    function createMonacoEditor() {
+      require(['vs/editor/editor.main'], function() {
+        editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+          value: '',
+          language: 'c',
+          theme: 'vs-dark',
+          automaticLayout: true,
+          fontSize: 14,
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          wordWrap: 'on',
+          tabSize: 4,
+          lineNumbers: 'on',
+          renderLineHighlight: 'all',
+          cursorBlinking: 'smooth',
+        });
       });
-      return data;
     }
 
-    // Show folder contents in sidebar
-    function showFileList(items) {
-      fileListEl.innerHTML = "";
+    createMonacoEditor();
 
-      if(currentPath !== folderPathRoot) {
-        const backLi = document.createElement("li");
-        backLi.textContent = "⬅️ Back";
-        backLi.classList.add("back-button");
-        backLi.addEventListener("click", () => {
+    // Fetch folder content from GitHub API
+    async function fetchFolderContent(path) {
+      try {
+        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error("Failed to fetch folder contents");
+        const data = await res.json();
+        return data;
+      } catch (err) {
+        fileListEl.innerHTML = `<li style="color:red;">Error loading folder contents</li>`;
+        console.error(err);
+        return null;
+      }
+    }
+
+    // Load folder content and update sidebar list
+    async function loadFolder(path) {
+      fileListEl.innerHTML = "<li>Loading...</li>";
+      const data = await fetchFolderContent(path);
+      if (!data) return;
+
+      // Filter only directories and .c files
+      currentFiles = data.filter(item =>
+        item.type === "dir" || (item.type === "file" && item.name.endsWith(".c"))
+      );
+
+      currentPath = path;
+      renderFileList();
+      clearCodeDisplay();
+    }
+
+    // Render files and folders in sidebar with icons and click handlers
+    function renderFileList() {
+      fileListEl.innerHTML = '';
+      if (currentPath !== folderPathRoot) {
+        const backLi = document.createElement('li');
+        backLi.textContent = '⬅️ Back';
+        backLi.classList.add('back-button');
+        backLi.tabIndex = 0;
+        backLi.onclick = () => {
           const parts = currentPath.split('/');
           parts.pop();
-          currentPath = parts.join('/');
-          loadFolder(currentPath);
-        });
+          loadFolder(parts.join('/'));
+        };
+        backLi.onkeypress = (e) => { if (e.key === 'Enter') backLi.onclick(); };
         fileListEl.appendChild(backLi);
       }
 
-      items.forEach(item => {
-        const li = document.createElement("li");
+      currentFiles.forEach((file, i) => {
+        const li = document.createElement('li');
         li.tabIndex = 0;
-        li.setAttribute("role", "button");
+        li.style.userSelect = "none";
 
-        const iconSpan = document.createElement("span");
-        iconSpan.classList.add("icon");
-        iconSpan.textContent = getIconForFile(item.name, item.type === "dir");
-        li.appendChild(iconSpan);
+        if (file.type === 'dir') {
+          li.innerHTML = `📁 ${file.name}`;
+        } else {
+          li.innerHTML = `📄 ${file.name}`;
+        }
 
-        const nameSpan = document.createElement("span");
-        nameSpan.textContent = item.name;
-        li.appendChild(nameSpan);
+        if (i === currentFileIndex && file.type === 'file') {
+          li.classList.add('active');
+        }
 
-        li.addEventListener("click", () => {
-          if(item.type === "dir") {
-            currentPath = item.path;
-            loadFolder(item.path);
+        li.onclick = () => {
+          if (file.type === 'dir') {
+            folderStack.push(currentPath);
+            loadFolder(file.path);
           } else {
-            loadFile(item);
+            loadFile(i);
           }
-        });
-        li.addEventListener("keypress", e => {
-          if(e.key === "Enter" || e.key === " ") li.click();
-        });
+        };
+        li.onkeypress = (e) => { if (e.key === 'Enter') li.onclick(); };
 
         fileListEl.appendChild(li);
       });
     }
 
-    // Load a folder and update sidebar
-    async function loadFolder(path) {
+    // Clear code display and IO areas
+    function clearCodeDisplay() {
+      currentFileIndex = -1;
+      if (editor) editor.setValue('');
+      inputEl.value = '';
+      outputEl.value = '';
+      expectedOutputEl.textContent = 'Not loaded';
+      descriptionEl.textContent = 'No description available.';
+      fileNameLabel.textContent = '';
+      uploadedDateEl.textContent = '';
+      statusMsg.textContent = '';
+    }
+
+    // Get last commit date for a file
+    async function getFileLastCommitDate(filePath) {
       try {
-        fileListEl.innerHTML = "<li>Loading folder...</li>";
-        const items = await fetchFolder(path);
-        showFileList(items);
-      } catch(err) {
-        fileListEl.innerHTML = `<li style="color:red;">Error loading folder</li>`;
-        console.error(err);
-      }
-    }
-
-    // Load file content as text
-    async function fetchFileContent(file) {
-      // Use GitHub API content (base64 encoded)
-      const res = await fetch(file.download_url);
-      if (!res.ok) throw new Error(`Failed to load file ${file.name}`);
-      return res.text();
-    }
-
-    // Clear all input/output/description/expectedOutput areas
-    function clearIO() {
-      inputEl.value = "";
-      outputEl.value = "";
-      expectedOutputEl.textContent = "Not loaded";
-      descriptionEl.textContent = "No description available.";
-      uploadedDateEl.textContent = "";
-      fileNameLabel.textContent = "";
-    }
-
-    // Detect language for Monaco based on extension
-    function getLanguageByExtension(filename) {
-      const ext = filename.split('.').pop().toLowerCase();
-      switch(ext) {
-        case 'c': return 'c';
-        case 'cpp': return 'cpp';
-        case 'py': return 'python';
-        case 'js': return 'javascript';
-        case 'java': return 'java';
-        default: return 'plaintext';
-      }
-    }
-
-    // Load file in editor and input/output/desc
-    async function loadFile(file) {
-      clearIO();
-      fileNameLabel.textContent = file.name;
-      statusMsg.textContent = "";
-      outputEl.value = "";
-      typingTextEl.textContent = "";
-
-      try {
-        // Load code
-        const code = await fetchFileContent(file);
-        setEditorCode(code, getLanguageByExtension(file.name));
-
-        // Try to load related input, description, expected output files if exist
-        // File naming convention assumed:
-        // If file = something.c
-        // input files might be something.in or something.in.txt or something.input.txt
-        // description files might be something.desc or something.description.txt or something.md
-        // expected output might be something.out or something.expected.txt
-
-        const baseName = file.name.replace(/\.[^/.]+$/, "");
-        const dir = file.path.split('/').slice(0, -1).join('/');
-
-        // Helper to try multiple candidate filenames for input/desc/expected output
-        async function tryLoadAnyFile(candidates) {
-          for(const candidate of candidates) {
-            const candidatePath = dir ? `${dir}/${candidate}` : candidate;
-            try {
-              const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${candidatePath}`;
-              const res = await fetch(url);
-              if(res.ok) {
-                const json = await res.json();
-                if(json && json.download_url) {
-                  const txtRes = await fetch(json.download_url);
-                  if(txtRes.ok) {
-                    return await txtRes.text();
-                  }
-                }
-              }
-            } catch {}
-          }
-          return null;
+        const commitsApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/commits?path=${filePath}&page=1&per_page=1`;
+        const res = await fetch(commitsApiUrl);
+        if (!res.ok) throw new Error("Failed to fetch commits");
+        const commits = await res.json();
+        if (commits.length > 0 && commits[0].commit && commits[0].commit.author) {
+          return commits[0].commit.author.date;
         }
-
-        // Input file candidates
-        const inputCandidates = [
-          `${baseName}.in`,
-          `${baseName}.in.txt`,
-          `${baseName}.input.txt`
-        ];
-        const inputText = await tryLoadAnyFile(inputCandidates);
-        if(inputText) inputEl.value = inputText;
-
-        // Description file candidates
-        const descCandidates = [
-          `${baseName}.desc`,
-          `${baseName}.desc.txt`,
-          `${baseName}.description.txt`,
-          `${baseName}.md`
-        ];
-        const descText = await tryLoadAnyFile(descCandidates);
-        if(descText) descriptionEl.textContent = descText;
-
-        // Expected output candidates
-        const outputCandidates = [
-          `${baseName}.out`,
-          `${baseName}.out.txt`,
-          `${baseName}.expected.txt`
-        ];
-        const expectedOutputText = await tryLoadAnyFile(outputCandidates);
-        if(expectedOutputText) expectedOutputEl.textContent = expectedOutputText;
-
-        // Show uploaded date formatted nicely
-        const uploaded = new Date(file.git_url ? (await fetch(file.git_url).then(r => r.json())).committer.date : file.git_url);
-        if(!isNaN(uploaded.getTime()))
-          uploadedDateEl.textContent = `Last updated: ${uploaded.toLocaleDateString()} ${uploaded.toLocaleTimeString()}`;
-        else
-          uploadedDateEl.textContent = "";
-      } catch (err) {
-        statusMsg.textContent = "Error loading file: " + err.message;
-        console.error(err);
+        return null;
+      } catch {
+        return null;
       }
     }
 
-    // Initialize Monaco Editor
-    function setEditorCode(code, language) {
-      if(monacoEditor) {
-        monacoEditor.setValue(code);
-        monacoEditor.setModelLanguage(monacoEditor.getModel(), language);
-      } else {
-        require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' }});
-        require(['vs/editor/editor.main'], function() {
-          monacoEditor = monaco.editor.create(codeContainer, {
-            value: code,
-            language: language,
-            theme: "vs-dark",
-            automaticLayout: true,
-            fontSize: 15,
-            minimap: { enabled: false },
-            lineNumbers: "on",
-            scrollbar: {
-              verticalScrollbarSize: 10,
-              horizontalScrollbarSize: 10
-            }
-          });
-        });
+    // Parse input file text into input, description, output parts
+    async function parseInputFile(text) {
+      const lines = text.split(/\r?\n/);
+      let inputLines = [];
+      let descriptionLines = [];
+      let outputLines = [];
+
+      let section = "input";
+
+      for (let line of lines) {
+        const lower = line.trim().toLowerCase();
+        if (lower === "description") {
+          section = "description";
+          continue;
+        }
+        if (lower === "output") {
+          section = "output";
+          continue;
+        }
+        if (section === "input") inputLines.push(line);
+        else if (section === "description") descriptionLines.push(line);
+        else if (section === "output") outputLines.push(line);
       }
+
+      return {
+        input: inputLines.join("\n").trim(),
+        description: descriptionLines.join("\n").trim(),
+        output: outputLines.join("\n").trim(),
+      };
+    }
+
+    // Load a code file from sidebar selection
+    async function loadFile(index) {
+      clearCodeDisplay();
+      currentFileIndex = index;
+
+      const file = currentFiles[index];
+      if (!file) return;
+
+      // Load code
+      try {
+        const res = await fetch(file.download_url);
+        if (!res.ok) throw new Error("Failed to fetch code");
+        const codeText = await res.text();
+        if (editor) editor.setValue(codeText);
+      } catch (err) {
+        statusMsg.textContent = "Error loading code file.";
+        console.error(err);
+        return;
+      }
+
+      fileNameLabel.textContent = `(${file.name})`;
+
+      // Last commit date
+      const commitDate = await getFileLastCommitDate(file.path);
+      if (commitDate) {
+        const dateObj = new Date(commitDate);
+        const formattedDate = dateObj.getFullYear() + "-" +
+                              String(dateObj.getMonth() + 1).padStart(2, "0") + "-" +
+                              String(dateObj.getDate()).padStart(2, "0") + " " +
+                              String(dateObj.getHours()).padStart(2, "0") + ":" +
+                              String(dateObj.getMinutes()).padStart(2, "0");
+        uploadedDateEl.textContent = `uploaded on ${formattedDate}`;
+      } else {
+        uploadedDateEl.textContent = '';
+      }
+
+      // Load .in file matching code file
+      const baseName = file.name.replace(/\.c$/, "");
+      const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.in`);
+      try {
+        const inputRes = await fetch(inputUrl);
+        if (inputRes.ok) {
+          const inputText = await inputRes.text();
+          const parsed = await parseInputFile(inputText);
+          inputEl.value = parsed.input;
+          expectedOutputEl.textContent = parsed.output || "Not loaded";
+          descriptionEl.textContent = parsed.description || "No description available.";
+        } else {
+          inputEl.value = '';
+          expectedOutputEl.textContent = "Not loaded";
+          descriptionEl.textContent = "No description available.";
+        }
+      } catch {
+        inputEl.value = '';
+        expectedOutputEl.textContent = "Not loaded";
+        descriptionEl.textContent = "No description available.";
+      }
+
+      outputEl.value = '';
+      statusMsg.textContent = '';
+      renderFileList(); // update active file highlight
     }
 
     // Run code using Judge0 API
     async function runCode() {
-      if(!monacoEditor) {
-        statusMsg.textContent = "Editor not loaded yet";
+      if (!editor) return;
+      const currentCode = editor.getValue();
+      if (!currentCode.trim()) {
+        statusMsg.textContent = "No code loaded.";
         return;
       }
-      statusMsg.textContent = "Submitting...";
+      statusMsg.textContent = "Running...";
       outputEl.value = "";
-      runBtn.disabled = true;
 
-      const source_code = monacoEditor.getValue();
-      const language = getLanguageByExtension(fileNameLabel.textContent);
-      const input = inputEl.value;
-
-      // Judge0 language IDs example: C=50, CPP=54, Python=71, Java=62, JS=63
-      const languageMap = {
-        'c': 50,
-        'cpp': 54,
-        'python': 71,
-        'java': 62,
-        'javascript': 63,
-        'plaintext': 1
-      };
-      const language_id = languageMap[language] || 1;
+      const source_code = currentCode;
+      const stdin = inputEl.value;
 
       try {
-        const payload = {
-          source_code,
-          language_id,
-          stdin: input,
-        };
-
-        // Create submission
-        let res = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=false", {
+        const submissionRes = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=false", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-RapidAPI-Host": rapidApiHost,
-            "X-RapidAPI-Key": rapidApiKey
+            "X-RapidAPI-Key": rapidApiKey,
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            language_id: 50,
+            source_code,
+            stdin
+          }),
         });
-        if(!res.ok) throw new Error("Submission failed");
-        const json = await res.json();
-        const token = json.token;
+        if (!submissionRes.ok) throw new Error("Failed to create submission");
 
-        // Poll for result
-        let result;
-        while(true) {
-          const statusRes = await fetch(`https://judge0-ce.p.rapidapi.com/submissions/${token}?base64_encoded=false`, {
+        const submissionData = await submissionRes.json();
+        const token = submissionData.token;
+        if (!token) throw new Error("No submission token received");
+
+        let result = null;
+        while (true) {
+          await new Promise(r => setTimeout(r, 1500));
+          const resultRes = await fetch(`https://judge0-ce.p.rapidapi.com/submissions/${token}?base64_encoded=false`, {
             headers: {
               "X-RapidAPI-Host": rapidApiHost,
-              "X-RapidAPI-Key": rapidApiKey
-            }
+              "X-RapidAPI-Key": rapidApiKey,
+            },
           });
-          if(!statusRes.ok) throw new Error("Error getting result");
-          result = await statusRes.json();
-          if(result.status.id >= 3) break;
-          await new Promise(r => setTimeout(r, 1000));
+          if (!resultRes.ok) throw new Error("Failed to get result");
+          result = await resultRes.json();
+          if (result.status && result.status.id >= 3) break;
         }
 
-        if(result.stdout) {
+        if (result.stdout) {
           outputEl.value = result.stdout;
-          statusMsg.textContent = "Execution successful!";
-        } else if(result.compile_output) {
-          outputEl.value = "Compile Error:\n" + result.compile_output;
-          statusMsg.textContent = "Compile error";
-        } else if(result.stderr) {
-          outputEl.value = "Runtime Error:\n" + result.stderr;
-          statusMsg.textContent = "Runtime error";
+        } else if (result.compile_output) {
+          outputEl.value = "Compile error:\n" + result.compile_output;
+        } else if (result.stderr) {
+          outputEl.value = "Runtime error:\n" + result.stderr;
         } else {
-          outputEl.value = "Unknown error or empty output";
-          statusMsg.textContent = "Execution finished with unknown status";
+          outputEl.value = "Unknown error or empty output.";
         }
-      } catch(err) {
-        statusMsg.textContent = "Error running code: " + err.message;
-        outputEl.value = "";
+        statusMsg.textContent = `Status: ${result.status.description}`;
+      } catch (err) {
+        statusMsg.textContent = "Error running code.";
         console.error(err);
-      } finally {
-        runBtn.disabled = false;
       }
     }
-
-    // Typing animation in bottom bar
-    const typingTexts = [
-      "Welcome to Farhans Practice Problems!",
-      "Select a file to view and run code.",
-      "Input and expected output will load automatically.",
-      "Try changing the code and run it here.",
-      "Enjoy coding with Monaco editor."
-    ];
-    let typingIndex = 0, charIndex = 0;
-    function typingAnimation() {
-      if(charIndex <= typingTexts[typingIndex].length) {
-        typingTextEl.textContent = typingTexts[typingIndex].slice(0, charIndex);
-        charIndex++;
-      } else {
-        setTimeout(() => {
-          charIndex = 0;
-          typingIndex = (typingIndex + 1) % typingTexts.length;
-        }, 1500);
-      }
-    }
-    setInterval(typingAnimation, 100);
-
-    // Initial load
-    loadFolder(folderPathRoot);
 
     runBtn.addEventListener("click", runCode);
 
+    // Typing animation at bottom
+    const typingTexts = [
+      "যেকোনো ফোল্ডার থেকে .c ফাইল সিলেক্ট করো",
+      "ইনপুট এ তোমার টেস্টকেস বসাও",
+      "Run বোতামে ক্লিক করো",
+      "Judge0 API তে কোড রান হবে",
+      "আউটপুট নিচের আউটপুট বক্সে দেখাবে",
+    ];
+    let typingIndex = 0;
+    let charIndex = 0;
+    const typingTextEl = document.getElementById("typingText");
+    function typingAnimation() {
+      if (charIndex < typingTexts[typingIndex].length) {
+        typingTextEl.textContent += typingTexts[typingIndex].charAt(charIndex);
+        charIndex++;
+        setTimeout(typingAnimation, 80);
+      } else {
+        setTimeout(() => {
+          charIndex = 0;
+          typingTextEl.textContent = "";
+          typingIndex = (typingIndex + 1) % typingTexts.length;
+          setTimeout(typingAnimation, 600);
+        }, 2000);
+      }
+    }
+    typingAnimation();
+
+    // Zoom support for Monaco editor font size
+    let zoomLevel = 1; // default scale
+    window.addEventListener('wheel', (e) => {
+      if (e.ctrlKey && editor) {
+        e.preventDefault();
+        const delta = e.deltaY;
+        if (delta < 0) {
+          zoomLevel = Math.min(3, zoomLevel + 0.1);
+        } else {
+          zoomLevel = Math.max(0.5, zoomLevel - 0.1);
+        }
+        editor.updateOptions({ fontSize: 14 * zoomLevel });
+      }
+    }, { passive: false });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === '0' && editor) {
+        zoomLevel = 1;
+        editor.updateOptions({ fontSize: 14 });
+        e.preventDefault();
+      }
+    });
+
+    // Initialize with root folder content on page load
+    window.onload = () => {
+      loadFolder(folderPathRoot);
+    };
   </script>
 </body>
 </html>
