@@ -1,221 +1,438 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Farhans Practice Problems</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
+
+  <!-- Highlight.js Stylesheet -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css"
+  />
+
   <style>
-    :root {
-      --green: #238636;
-      --green-light: #2ea043;
-      --bg: #0d1117;
-      --bg-alt: #161b22;
-      --border: #30363d;
-      --text: #c9d1d9;
+    /* --- Reset & Basic Styles --- */
+    * {
+      box-sizing: border-box;
     }
-    * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      overflow-x: hidden;
-    }
-    #container {
-      display: flex;
-      flex-direction: row;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
       height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
+
+    #container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* Sidebar */
     #sidebar {
       width: 280px;
-      background: var(--bg-alt);
-      border-right: 3px solid var(--border);
+      background: #161b22;
+      border-right: 3px solid #30363d;
       padding: 15px;
       overflow-y: auto;
+      min-height: 0;
+      user-select: none;
     }
     #sidebar h2 {
-      color: var(--green);
-      border-bottom: 2px solid var(--green);
-      margin-bottom: 15px;
+      margin: 0 0 15px;
+      border-bottom: 2px solid #238636;
+      color: #238636;
+      font-weight: 700;
+      font-size: 1.2rem;
     }
-    #fileList { list-style: none; padding: 0; margin: 0; }
+    #fileList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
     #fileList li {
       background: #21262d;
-      padding: 8px;
+      padding: 8px 12px;
       margin-bottom: 6px;
       border-radius: 5px;
       cursor: pointer;
-      transition: 0.3s;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      font-size: 0.95rem;
+      line-height: 1.3;
     }
-    #fileList li.active { background: var(--green); color: white; }
-    #fileList li:hover:not(.active) { background: var(--green-light); color: white; }
+    #fileList li.active {
+      background: #238636;
+      color: white;
+      font-weight: 600;
+    }
+    #fileList li:hover:not(.active) {
+      background: #2ea043;
+      color: white;
+    }
+
+    #backBtn {
+      background: #238636;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 12px;
+      width: 100%;
+      user-select: none;
+      display: none;
+      text-align: center;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    #backBtn:hover {
+      background: #2ea043;
+    }
+
+    /* Main area */
     #main {
       flex: 1;
       display: flex;
       flex-direction: column;
       padding: 15px;
-      overflow-y: auto;
+      overflow: hidden;
+      min-height: 0;
+      position: relative;
     }
+
     #codeSection {
       display: flex;
-      flex-direction: row;
       gap: 20px;
       flex: 1;
-      flex-wrap: wrap;
+      overflow: hidden;
+      min-height: 0;
     }
+
     #codeContainer {
       flex: 2;
-      min-width: 300px;
-      border: 3px solid var(--green);
+      background: #0d1117;
+      border: 3px solid #238636;
       border-radius: 6px;
       overflow: auto;
-      max-height: 500px;
+      min-height: 0;
     }
-    pre { margin: 0; padding: 15px; font-size: 14px; }
+
+    pre {
+      margin: 0;
+      font-size: 14px;
+      padding: 15px;
+      min-height: 100%;
+      font-family: 'Courier New', Courier, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* line number padding */
+    .hljs td.hljs-ln-code {
+      padding-left: 12px;
+    }
+
     #ioSide {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      min-width: 250px;
+      overflow: hidden;
+      min-height: 0;
     }
+
     .io-box label {
-      font-weight: bold;
-      color: var(--green);
+      font-weight: 700;
+      color: #238636;
+      margin-bottom: 5px;
+      display: block;
+      font-size: 0.95rem;
+      user-select: none;
     }
-    textarea, .readonly-box {
+
+    textarea {
       width: 100%;
       background-color: #21262d;
-      color: var(--text);
-      border: 2px solid var(--green);
+      color: #c9d1d9;
+      border: 2px solid #238636;
       border-radius: 5px;
       padding: 10px;
       resize: vertical;
+      min-height: 80px;
       font-family: monospace;
       font-size: 14px;
+      overflow-y: auto;
+      transition: border-color 0.3s ease;
     }
+    textarea:focus {
+      outline: none;
+      border-color: #2ea043;
+      background-color: #1b2228;
+    }
+    textarea[readonly] {
+      background-color: #1e1e1e;
+      border-color: #444;
+      color: #56d364;
+    }
+
+    #output {
+      color: #56d364;
+    }
+
     .readonly-box {
       background-color: #1e1e1e;
-      max-height: 150px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-    }
-    #runBtn {
-      margin-top: 15px;
-      background: var(--green);
-      border: none;
-      padding: 12px 20px;
+      border: 2px solid #444;
       border-radius: 5px;
-      color: white;
-      font-weight: bold;
-      font-size: 16px;
-      cursor: pointer;
+      padding: 10px;
+      white-space: pre-wrap;
+      font-size: 14px;
+      min-height: 80px;
+      overflow-y: auto;
+      max-height: 150px;
+      color: #c9d1d9;
+      user-select: text;
     }
-    #runBtn:hover { background: var(--green-light); }
-    #statusMsg {
-      margin-top: 10px;
-      font-style: italic;
-      color: #999;
-    }
-    #descriptionBox, #expectedOutput {
+
+    #descriptionBox {
+      border-bottom: 2px solid #238636;
+      overflow-y: auto;
+      max-height: 160px;
+      padding: 12px 15px;
+      white-space: pre-wrap;
       font-size: 14px;
       line-height: 1.5;
+      background-color: #1e1e1e;
+      color: #c9d1d9;
+      border-radius: 5px;
+      user-select: text;
     }
-    #uploadedDate {
+
+    #runBtn {
       margin-top: 10px;
-      font-size: 0.9em;
-      color: #56d364;
-      text-align: right;
+      background: #238636;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      align-self: flex-start;
+      user-select: none;
+      transition: background-color 0.3s ease;
     }
+    #runBtn:hover {
+      background: #2ea043;
+    }
+
+    #statusMsg {
+      margin-top: 8px;
+      color: #999;
+      min-height: 20px;
+      font-style: italic;
+      user-select: none;
+      font-size: 0.9rem;
+    }
+
+    #uploadedDate {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: 0.9rem;
+      color: #56d364;
+      user-select: none;
+    }
+
+    /* Scrollbar styling */
+    #sidebar::-webkit-scrollbar,
+    #codeContainer::-webkit-scrollbar,
+    #ioSide::-webkit-scrollbar,
+    .readonly-box::-webkit-scrollbar,
+    #descriptionBox::-webkit-scrollbar,
+    textarea::-webkit-scrollbar {
+      width: 8px;
+    }
+    #sidebar::-webkit-scrollbar-thumb,
+    #codeContainer::-webkit-scrollbar-thumb,
+    #ioSide::-webkit-scrollbar-thumb,
+    .readonly-box::-webkit-scrollbar-thumb,
+    #descriptionBox::-webkit-scrollbar-thumb,
+    textarea::-webkit-scrollbar-thumb {
+      background-color: #000000;
+      border-radius: 4px;
+    }
+    #sidebar::-webkit-scrollbar-track,
+    #codeContainer::-webkit-scrollbar-track,
+    #ioSide::-webkit-scrollbar-track,
+    .readonly-box::-webkit-scrollbar-track,
+    #descriptionBox::-webkit-scrollbar-track,
+    textarea::-webkit-scrollbar-track {
+      background-color: #121212;
+    }
+    #sidebar, #codeContainer, #ioSide, .readonly-box, #descriptionBox, textarea {
+      scrollbar-width: thin;
+      scrollbar-color: #000000 #121212;
+    }
+
+    /* Typing animation bar */
     #typingContainer {
       height: 40px;
-      background: var(--bg-alt);
-      border-top: 3px solid var(--green);
-      color: var(--green);
+      background: #161b22;
+      border-top: 3px solid #238636;
+      color: #238636;
       font-family: 'Courier New', Courier, monospace;
-      font-weight: bold;
-      font-size: 18px;
+      font-weight: 700;
+      font-size: 20px;
       padding-left: 15px;
       display: flex;
       align-items: center;
+      user-select: none;
       overflow: hidden;
+      flex-shrink: 0;
     }
     #typingText {
-      border-right: 2px solid var(--green);
+      border-right: 2px solid #238636;
       white-space: nowrap;
       overflow: hidden;
     }
+
+    /* Responsive Styles */
     @media (max-width: 768px) {
-      #container { flex-direction: column; }
+      body {
+        flex-direction: column;
+      }
+      #container {
+        flex-direction: column;
+      }
       #sidebar {
         width: 100%;
-        height: auto;
+        height: 200px;
         border-right: none;
-        border-bottom: 3px solid var(--border);
+        border-bottom: 3px solid #30363d;
+        padding: 10px;
       }
-      #codeSection { flex-direction: column; }
-      #codeContainer { max-height: 300px; }
-      #runBtn { width: 100%; }
+      #main {
+        flex: 1;
+        padding: 10px;
+        overflow: visible;
+        min-height: auto;
+      }
+      #codeSection {
+        flex-direction: column;
+        gap: 10px;
+      }
+      #codeContainer {
+        flex: none;
+        height: 300px;
+        border-width: 2px;
+      }
+      #ioSide {
+        flex: none;
+        height: auto;
+        gap: 8px;
+      }
+      pre {
+        font-size: 12px;
+        padding: 10px;
+      }
+      textarea {
+        font-size: 13px;
+        min-height: 60px;
+      }
+      #runBtn {
+        width: 100%;
+        padding: 12px;
+        font-size: 18px;
+      }
+      #backBtn {
+        margin-bottom: 10px;
+        display: block;
+      }
       #typingContainer {
-        font-size: 16px;
+        font-size: 18px;
         height: 35px;
         padding-left: 10px;
       }
-      #uploadedDate { text-align: center; }
+      #uploadedDate {
+        position: static;
+        margin-top: 8px;
+        text-align: center;
+        color: #56d364;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="container">
-    <div id="sidebar">
-      <h2>Farhans Practice Problems</h2>
-      <ul id="fileList"><li>Loading folders...</li></ul>
-    </div>
-    <div id="main">
-      <div id="codeSection">
-        <div id="codeContainer">
-          <pre><code id="codeBlock" class="c hljs"></code></pre>
+
+<div id="container">
+  <div id="sidebar">
+    <h2>Farhans Practice Problems</h2>
+    <button id="backBtn">← Back</button>
+    <ul id="fileList"><li>Loading folders...</li></ul>
+  </div>
+
+  <div id="main">
+    <div id="codeSection">
+      <div id="codeContainer">
+        <pre><code id="codeBlock" class="c hljs"></code></pre>
+      </div>
+      <div id="ioSide">
+        <div class="io-box">
+          <label for="input">📥 Input</label>
+          <textarea id="input" placeholder="Input will be loaded here or you can type"></textarea>
         </div>
-        <div id="ioSide">
-          <div class="io-box">
-            <label for="input">📥 Input</label>
-            <textarea id="input" placeholder="Input will be loaded here or you can type"></textarea>
-          </div>
-          <div class="io-box">
-            <label for="output">📤 Output</label>
-            <textarea id="output" readonly placeholder="Program output will appear here"></textarea>
-          </div>
-          <div class="io-box">
-            <label>✅ Expected Output</label>
-            <div id="expectedOutput" class="readonly-box">Not loaded</div>
-          </div>
-          <div class="io-box">
-            <label>📝 Description <span id="fileNameLabel" style="color:#56d364; font-weight: normal; font-size: 0.9em; margin-left: 8px;"></span></label>
-            <div id="descriptionBox" class="readonly-box">No description available.</div>
-          </div>
+        <div class="io-box">
+          <label for="output">📤 Output</label>
+          <textarea id="output" readonly placeholder="Program output will appear here"></textarea>
+        </div>
+        <div class="io-box">
+          <label>✅ Expected Output</label>
+          <div id="expectedOutput" class="readonly-box">Not loaded</div>
+        </div>
+        <div class="io-box">
+          <label>📝 Description <span id="fileNameLabel" style="color:#56d364; font-weight: normal; font-size: 0.9em; margin-left: 8px;"></span></label>
+          <div id="descriptionBox">No description available.</div>
         </div>
       </div>
-      <button id="runBtn">Run Code</button>
-      <div id="statusMsg"></div>
-      <div id="uploadedDate"></div>
     </div>
+    <button id="runBtn">Run Code</button>
+    <div id="statusMsg"></div>
+    <div id="uploadedDate"></div>
   </div>
-  <div id="typingContainer">
-    <div id="typingText"></div>
-  </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
-  <script>
-      const repoOwner = "wahidfarhan";
-  const repoName = "Lazy_Farhan";
-  const folderPathRoot = ""; // root folder to list initially
+</div>
 
+<!-- Bottom typing animation -->
+<div id="typingContainer">
+  <div id="typingText"></div>
+</div>
+
+<!-- JS Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/c.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
+
+<script>
+  // Your GitHub repo details
+  const repoOwner = "wahidfarhan";
+  const repoName = "Lazy_Farhan";
+  const folderPathRoot = ""; // start from root folder
+
+  // Judge0 API details (replace with your own API key if you want)
   const rapidApiHost = "judge0-ce.p.rapidapi.com";
   const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02";
 
+  // DOM elements
   const fileListEl = document.getElementById("fileList");
   const codeBlockEl = document.getElementById("codeBlock");
   const inputEl = document.getElementById("input");
@@ -228,10 +445,12 @@
   const uploadedDateEl = document.getElementById("uploadedDate");
   const backBtn = document.getElementById("backBtn");
 
+  // State variables
   let currentCode = "";
-  let currentPath = ""; // current folder path, empty string means root
+  let currentPath = "";
   let folderStack = [];
 
+  // Fetch folder content from GitHub API
   async function fetchFolderContent(path) {
     try {
       const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
@@ -246,22 +465,18 @@
     }
   }
 
+  // Show folder contents (folders and .c files)
   async function showFolder(path) {
-    // Update back button visibility
     backBtn.style.display = folderStack.length > 0 ? "block" : "none";
-
-    // Update document title with folder name
     document.title = path ? `Farhans Practice Problems - ${path}` : "Farhans Practice Problems";
 
     fileListEl.innerHTML = "<li>Loading...</li>";
     const data = await fetchFolderContent(path);
     if (!data) return;
 
-    // Show only folders and .c files
     const folders = data.filter(item => item.type === "dir");
     const cFiles = data.filter(item => item.type === "file" && item.name.endsWith(".c"));
 
-    // Clear current list
     fileListEl.innerHTML = "";
 
     if (folders.length === 0 && cFiles.length === 0) {
@@ -269,7 +484,6 @@
       return;
     }
 
-    // Show folders first
     folders.forEach(folder => {
       const li = document.createElement("li");
       li.textContent = "📁 " + folder.name;
@@ -284,7 +498,6 @@
       fileListEl.appendChild(li);
     });
 
-    // Show .c files next
     cFiles.forEach(file => {
       const li = document.createElement("li");
       li.textContent = file.name;
@@ -296,6 +509,7 @@
     });
   }
 
+  // Clear code, input, output, description, etc.
   function clearCodeDisplay() {
     currentCode = "";
     codeBlockEl.textContent = "";
@@ -310,6 +524,7 @@
     statusMsg.textContent = "";
   }
 
+  // Get last commit date for a file
   async function getFileLastCommitDate(filePath) {
     try {
       const commitsApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/commits?path=${filePath}&page=1&per_page=1`;
@@ -325,6 +540,7 @@
     }
   }
 
+  // Parse input file content into sections: input, description, output
   async function parseInputFile(text) {
     const lines = text.split(/\r?\n/);
     let inputLines = [];
@@ -352,84 +568,85 @@
     return {
       input: inputLines.join("\n").trim(),
       description: descriptionLines.join("\n").trim(),
-      output: outputLines.join("\n").trim()
+      output: outputLines.join("\n").trim(),
     };
   }
 
+  // Load .c file and related input file
   async function loadCodeFile(file) {
     clearCodeDisplay();
 
+    // Fetch code file content
     try {
       const res = await fetch(file.download_url);
-      if (!res.ok) throw new Error("Failed to fetch code");
-      const codeText = await res.text();
-
-      currentCode = codeText;
-      codeBlockEl.textContent = currentCode;
-      hljs.highlightElement(codeBlockEl);
-      hljs.lineNumbersBlock(codeBlockEl);
+      if (!res.ok) throw new Error("Failed to load code file");
+      currentCode = await res.text();
     } catch (err) {
-      statusMsg.textContent = "Error loading code file.";
-      console.error(err);
+      alert("Failed to load code file.");
       return;
     }
 
-    fileNameLabel.textContent = `(${file.name})`;
+    // Show code with highlight.js
+    codeBlockEl.textContent = currentCode;
+    hljs.highlightElement(codeBlockEl);
+    hljs.lineNumbersBlock(codeBlockEl);
 
-    const commitDate = await getFileLastCommitDate(file.path);
-    if (commitDate) {
-      const dateObj = new Date(commitDate);
-      const formattedDate = dateObj.getFullYear() + "-" +
-                            String(dateObj.getMonth() + 1).padStart(2, "0") + "-" +
-                            String(dateObj.getDate()).padStart(2, "0") + " " +
-                            String(dateObj.getHours()).padStart(2, "0") + ":" +
-                            String(dateObj.getMinutes()).padStart(2, "0");
-      uploadedDateEl.textContent = `uploaded in ${formattedDate}`;
-    } else {
-      uploadedDateEl.textContent = "";
-    }
+    fileNameLabel.textContent = file.name;
 
-    // Input file URL (.in)
-    const baseName = file.name.replace(/\.c$/, "");
-    const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.in`);
+    // Find related input file (same name but .txt)
+    const baseName = file.name.replace(/\.c$/i, "");
+    let inputFileName = baseName + ".txt";
+    const inputFilePath = currentPath ? currentPath + "/" + inputFileName : inputFileName;
 
+    // Fetch input file from GitHub
     try {
-      const inputRes = await fetch(inputUrl);
-      if (inputRes.ok) {
-        const inputText = await inputRes.text();
-        const parsed = await parseInputFile(inputText);
-        inputEl.value = parsed.input;
-        expectedOutputEl.textContent = parsed.output || "Not loaded";
-        descriptionEl.textContent = parsed.description || "No description available.";
-      } else {
-        inputEl.value = "";
-        expectedOutputEl.textContent = "Not loaded";
-        descriptionEl.textContent = "No description available.";
-      }
+      const inputFileUrl = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${inputFilePath}`;
+      const res = await fetch(inputFileUrl);
+      if (!res.ok) throw new Error("No input file found");
+
+      const inputFileContent = await res.text();
+      const parsed = await parseInputFile(inputFileContent);
+
+      inputEl.value = parsed.input || "";
+      expectedOutputEl.textContent = parsed.output || "Not provided";
+      descriptionEl.textContent = parsed.description || "No description available.";
     } catch {
+      // No input file or failed to load
       inputEl.value = "";
       expectedOutputEl.textContent = "Not loaded";
       descriptionEl.textContent = "No description available.";
+    }
+
+    // Get last commit date and show it
+    const lastDate = await getFileLastCommitDate(file.path);
+    if (lastDate) {
+      const dateObj = new Date(lastDate);
+      uploadedDateEl.textContent = `Last updated: ${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString()}`;
+    } else {
+      uploadedDateEl.textContent = "";
     }
 
     outputEl.value = "";
     statusMsg.textContent = "";
   }
 
+  // Run code using Judge0 API
   async function runCode() {
     if (!currentCode) {
-      statusMsg.textContent = "No code loaded.";
+      alert("Please select a C code file first.");
       return;
     }
-    statusMsg.textContent = "Running...";
+
+    runBtn.disabled = true;
+    statusMsg.textContent = "Running code...";
     outputEl.value = "";
 
-    const source_code = currentCode;
-    const stdin = inputEl.value;
-
     try {
-      // Create submission
-      const submissionRes = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=false", {
+      const encodedSource = btoa(currentCode);
+      const encodedInput = btoa(inputEl.value);
+
+      // Submit code to Judge0 API
+      const submitResponse = await fetch(`https://${rapidApiHost}/submissions?base64_encoded=true&wait=false`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -437,49 +654,64 @@
           "X-RapidAPI-Key": rapidApiKey,
         },
         body: JSON.stringify({
-          language_id: 50, // C (gcc)
-          source_code,
-          stdin
+          language_id: 50, // C language in Judge0
+          source_code: encodedSource,
+          stdin: encodedInput,
         }),
       });
-      if (!submissionRes.ok) throw new Error("Failed to create submission");
 
-      const submissionData = await submissionRes.json();
-      const token = submissionData.token;
-      if (!token) throw new Error("No submission token received");
+      if (!submitResponse.ok) throw new Error("Failed to submit code");
+
+      const submitData = await submitResponse.json();
+      const token = submitData.token;
 
       // Poll for result
+      let status = "In Queue";
       let result = null;
-      while (true) {
-        await new Promise(r => setTimeout(r, 1500));
-        const resultRes = await fetch(`https://judge0-ce.p.rapidapi.com/submissions/${token}?base64_encoded=false`, {
+      for (let i = 0; i < 20; i++) {
+        const resultRes = await fetch(`https://${rapidApiHost}/submissions/${token}?base64_encoded=true`, {
+          method: "GET",
           headers: {
             "X-RapidAPI-Host": rapidApiHost,
             "X-RapidAPI-Key": rapidApiKey,
           },
         });
         if (!resultRes.ok) throw new Error("Failed to get result");
+
         result = await resultRes.json();
-        if (result.status && result.status.id >= 3) break;
+        status = result.status.description;
+
+        if (status !== "In Queue" && status !== "Processing") break;
+        await new Promise((r) => setTimeout(r, 1000));
       }
 
-      if (result.stdout) {
-        outputEl.value = result.stdout;
-      } else if (result.compile_output) {
-        outputEl.value = "Compile error:\n" + result.compile_output;
-      } else if (result.stderr) {
-        outputEl.value = "Runtime error:\n" + result.stderr;
+      if (result) {
+        if (result.stdout) {
+          outputEl.value = atob(result.stdout);
+          statusMsg.textContent = `Status: ${status}`;
+        } else if (result.compile_output) {
+          outputEl.value = "Compilation Error:\n" + atob(result.compile_output);
+          statusMsg.textContent = `Status: ${status}`;
+        } else if (result.stderr) {
+          outputEl.value = "Runtime Error:\n" + atob(result.stderr);
+          statusMsg.textContent = `Status: ${status}`;
+        } else {
+          outputEl.value = `No output. Status: ${status}`;
+          statusMsg.textContent = `Status: ${status}`;
+        }
       } else {
-        outputEl.value = "Unknown error or empty output.";
+        outputEl.value = "Failed to get result.";
+        statusMsg.textContent = "Error";
       }
-      statusMsg.textContent = `Status: ${result.status.description}`;
     } catch (err) {
-      statusMsg.textContent = "Error running code.";
-      console.error(err);
+      outputEl.value = "Error: " + err.message;
+      statusMsg.textContent = "Error";
+    } finally {
+      runBtn.disabled = false;
     }
   }
 
-  runBtn.addEventListener("click", runCode);
+  // Back button click
   backBtn.addEventListener("click", () => {
     if (folderStack.length > 0) {
       currentPath = folderStack.pop();
@@ -488,35 +720,52 @@
     }
   });
 
-  // Typing animation
-  const typingTexts = [
-    "যেকোনো ফোল্ডার থেকে .c ফাইল সিলেক্ট করো",
-    "ইনপুট এ তোমার টেস্টকেস বসাও",
-    "Run বোতামে ক্লিক করো",
-    "Judge0 API তে কোড রান হবে",
-    "আউটপুট নিচের আউটপুট বক্সে দেখাবে",
-  ];
-  let typingIndex = 0;
-  let charIndex = 0;
+  // Run button click
+  runBtn.addEventListener("click", runCode);
+
+  // Typing animation setup
   const typingTextEl = document.getElementById("typingText");
-  function typingAnimation() {
-    if (charIndex < typingTexts[typingIndex].length) {
-      typingTextEl.textContent += typingTexts[typingIndex].charAt(charIndex);
+  const phrases = [
+    "gcc hello_world.c -o hello_world && ./hello_world",
+    "printf(\"Hello, World!\\n\");",
+    "Farhan Wahid - C Programming",
+    "Write your code, run & learn",
+    "Practice makes perfect!",
+    "Enjoy coding in C",
+  ];
+
+  let phraseIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+
+  function typeAnimation() {
+    const currentPhrase = phrases[phraseIndex];
+    if (!isDeleting) {
+      typingTextEl.textContent = currentPhrase.substring(0, charIndex + 1);
       charIndex++;
-      setTimeout(typingAnimation, 80);
+      if (charIndex === currentPhrase.length) {
+        isDeleting = true;
+        setTimeout(typeAnimation, 1200);
+      } else {
+        setTimeout(typeAnimation, 120);
+      }
     } else {
-      setTimeout(() => {
-        charIndex = 0;
-        typingTextEl.textContent = "";
-        typingIndex = (typingIndex + 1) % typingTexts.length;
-        setTimeout(typingAnimation, 600);
-      }, 2000);
+      typingTextEl.textContent = currentPhrase.substring(0, charIndex - 1);
+      charIndex--;
+      if (charIndex === 0) {
+        isDeleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        setTimeout(typeAnimation, 400);
+      } else {
+        setTimeout(typeAnimation, 60);
+      }
     }
   }
-  typingAnimation();
+  typeAnimation();
 
-  // Init
-  showFolder(folderPathRoot);
-  </script>
+  // Initial load
+  showFolder("");
+  clearCodeDisplay();
+</script>
 </body>
 </html>
