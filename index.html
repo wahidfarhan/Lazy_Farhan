@@ -16,7 +16,7 @@
       --bg-alt: #161b22;
       --border: #30363d;
       --text: #c9d1d9;
-      --sidebar-width: 320px;
+      --sidebar-width: 320px; /* Sidebar বড় */
       --transition-speed: 0.3s;
       --scrollbar-bg: #1e1e1e;
       --scrollbar-thumb: #02ff00;
@@ -130,12 +130,15 @@
       transition: background-color 0.3s ease;
       justify-content: center;
     }
+
+    /* Icon styles */
     .icon {
       font-size: 1.3rem;
       flex-shrink: 0;
       width: 1.4em;
       text-align: center;
     }
+
     #main {
       flex: 1 1 auto;
       display: flex;
@@ -157,7 +160,7 @@
       min-width: 300px;
       border: 3px solid var(--green);
       border-radius: 6px;
-      overflow: hidden;
+      overflow: hidden; 
       max-height: 600px;
       background: #282c34;
     }
@@ -484,10 +487,10 @@
   <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
 
   <script>
-    // Config
+    // Configuration
     const repoOwner = "wahidfarhan";
     const repoName = "Lazy_Farhan";
-    const folderPathRoot = "";
+    const folderPathRoot = ""; // root folder path in repo
 
     const rapidApiHost = "judge0-ce.p.rapidapi.com";
     const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02";
@@ -507,80 +510,108 @@
 
     // Variables
     let currentPath = folderPathRoot;
+    let files = [];
     let monacoEditor = null;
+    let typingInterval = null;
 
-    // Icons for files/folders
+    // Utility: Map file extensions to icons (Unicode emoji)
     function getIconForFile(fileName, isFolder = false) {
       if (isFolder) return "📁";
       const ext = fileName.split('.').pop().toLowerCase();
       if (ext === "c") return "📄";
-      return "❓";
+      if (ext === "in") return "📝";
+      if (ext === "txt") return "📃";
+      if (ext === "md") return "📚";
+      return "📄";
     }
 
-    // Show only .c files in sidebar
+    // Utility: fetch JSON with error handling
+    async function fetchJSON(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+      return res.json();
+    }
+
+    // Fetch folder contents from GitHub repo
     async function fetchFolder(path) {
       const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Failed to fetch folder");
-      const data = await res.json();
-      // Filter only .c files, no folders or others
-      return data.filter(item => !item.type || item.type === "file" ? item.name.endsWith(".c") : false);
+      const data = await fetchJSON(url);
+      // Sort folders first, then files
+      data.sort((a,b) => {
+        if (a.type === b.type) return a.name.localeCompare(b.name);
+        return a.type === 'dir' ? -1 : 1;
+      });
+      return data;
     }
 
-    // Show folder contents in sidebar - only .c files
-    async function loadFolder(path) {
-      try {
-        fileListEl.innerHTML = "<li>Loading files...</li>";
-        const items = await fetchFolder(path);
-        showFileList(items);
-      } catch (err) {
-        fileListEl.innerHTML = `<li style="color:red;">Error loading files</li>`;
-        console.error(err);
-      }
-    }
-
-    // Show file list in sidebar
+    // Show folder contents in sidebar
     function showFileList(items) {
       fileListEl.innerHTML = "";
-      if (items.length === 0) {
-        fileListEl.innerHTML = "<li>No .c files found</li>";
-        return;
+
+      if(currentPath !== folderPathRoot) {
+        const backLi = document.createElement("li");
+        backLi.textContent = "⬅️ Back";
+        backLi.classList.add("back-button");
+        backLi.addEventListener("click", () => {
+          const parts = currentPath.split('/');
+          parts.pop();
+          currentPath = parts.join('/');
+          loadFolder(currentPath);
+        });
+        fileListEl.appendChild(backLi);
       }
+
       items.forEach(item => {
         const li = document.createElement("li");
         li.tabIndex = 0;
         li.setAttribute("role", "button");
-        li.textContent = item.name;
-        li.classList.add("file-item");
-        li.title = item.name;
+
+        const iconSpan = document.createElement("span");
+        iconSpan.classList.add("icon");
+        iconSpan.textContent = getIconForFile(item.name, item.type === "dir");
+        li.appendChild(iconSpan);
+
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = item.name;
+        li.appendChild(nameSpan);
 
         li.addEventListener("click", () => {
-          loadFile(item);
-          highlightActiveFile(li);
+          if(item.type === "dir") {
+            currentPath = item.path;
+            loadFolder(item.path);
+          } else {
+            loadFile(item);
+          }
         });
         li.addEventListener("keypress", e => {
-          if (e.key === "Enter" || e.key === " ") li.click();
+          if(e.key === "Enter" || e.key === " ") li.click();
         });
 
         fileListEl.appendChild(li);
       });
     }
 
-    // Highlight active file in sidebar
-    function highlightActiveFile(selectedLi) {
-      const lis = fileListEl.querySelectorAll("li");
-      lis.forEach(li => li.classList.remove("active"));
-      selectedLi.classList.add("active");
+    // Load a folder and update sidebar
+    async function loadFolder(path) {
+      try {
+        fileListEl.innerHTML = "<li>Loading folder...</li>";
+        const items = await fetchFolder(path);
+        showFileList(items);
+      } catch(err) {
+        fileListEl.innerHTML = `<li style="color:red;">Error loading folder</li>`;
+        console.error(err);
+      }
     }
 
-    // Fetch raw text content of a file from download_url
+    // Load file content as text
     async function fetchFileContent(file) {
+      // Use GitHub API content (base64 encoded)
       const res = await fetch(file.download_url);
       if (!res.ok) throw new Error(`Failed to load file ${file.name}`);
       return res.text();
     }
 
-    // Clear input/output/desc/expected output areas
+    // Clear all input/output/description/expectedOutput areas
     function clearIO() {
       inputEl.value = "";
       outputEl.value = "";
@@ -588,64 +619,12 @@
       descriptionEl.textContent = "No description available.";
       uploadedDateEl.textContent = "";
       fileNameLabel.textContent = "";
-      statusMsg.textContent = "";
-    }
-
-    // Parse .in file content to extract input, description and expected output
-    function parseInFile(text) {
-      /*
-        Format example:
-
-        [Input data here]
-        description
-        [Description of the problem]
-        output
-        [Expected output here]
-
-        parse into:
-          inputText, descriptionText, expectedOutputText
-      */
-      const parts = text.split(/\r?\n/);
-
-      // We will split on lines "description" and "output"
-      const descIdx = parts.findIndex(line => line.trim().toLowerCase() === "description");
-      const outIdx = parts.findIndex(line => line.trim().toLowerCase() === "output");
-
-      let inputLines = [];
-      let descriptionLines = [];
-      let outputLines = [];
-
-      if (descIdx === -1 && outIdx === -1) {
-        // no markers, treat entire text as input only
-        inputLines = parts;
-      } else if (descIdx !== -1 && outIdx !== -1) {
-        // input: from 0 to descIdx-1
-        inputLines = parts.slice(0, descIdx);
-        // description: descIdx+1 to outIdx-1
-        descriptionLines = parts.slice(descIdx + 1, outIdx);
-        // output: outIdx+1 to end
-        outputLines = parts.slice(outIdx + 1);
-      } else if (descIdx !== -1) {
-        // only description marker present
-        inputLines = parts.slice(0, descIdx);
-        descriptionLines = parts.slice(descIdx + 1);
-      } else if (outIdx !== -1) {
-        // only output marker present
-        inputLines = parts.slice(0, outIdx);
-        outputLines = parts.slice(outIdx + 1);
-      }
-
-      return {
-        inputText: inputLines.join("\n").trim(),
-        descriptionText: descriptionLines.join("\n").trim(),
-        expectedOutputText: outputLines.join("\n").trim()
-      };
     }
 
     // Detect language for Monaco based on extension
     function getLanguageByExtension(filename) {
       const ext = filename.split('.').pop().toLowerCase();
-      switch (ext) {
+      switch(ext) {
         case 'c': return 'c';
         case 'cpp': return 'cpp';
         case 'py': return 'python';
@@ -655,7 +634,7 @@
       }
     }
 
-    // Load file: load .c code, and parse matching .in file for input/desc/expected output
+    // Load file in editor and input/output/desc
     async function loadFile(file) {
       clearIO();
       fileNameLabel.textContent = file.name;
@@ -664,92 +643,97 @@
       typingTextEl.textContent = "";
 
       try {
-        // Load .c code
+        // Load code
         const code = await fetchFileContent(file);
         setEditorCode(code, getLanguageByExtension(file.name));
 
-        // Compose .in filename
+        // Try to load related input, description, expected output files if exist
+        // File naming convention assumed:
+        // If file = something.c
+        // input files might be something.in or something.in.txt or something.input.txt
+        // description files might be something.desc or something.description.txt or something.md
+        // expected output might be something.out or something.expected.txt
+
         const baseName = file.name.replace(/\.[^/.]+$/, "");
         const dir = file.path.split('/').slice(0, -1).join('/');
 
-        // Compose .in file path
-        const inFileNameCandidates = [
+        // Helper to try multiple candidate filenames for input/desc/expected output
+        async function tryLoadAnyFile(candidates) {
+          for(const candidate of candidates) {
+            const candidatePath = dir ? `${dir}/${candidate}` : candidate;
+            try {
+              const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${candidatePath}`;
+              const res = await fetch(url);
+              if(res.ok) {
+                const json = await res.json();
+                if(json && json.download_url) {
+                  const txtRes = await fetch(json.download_url);
+                  if(txtRes.ok) {
+                    return await txtRes.text();
+                  }
+                }
+              }
+            } catch {}
+          }
+          return null;
+        }
+
+        // Input file candidates
+        const inputCandidates = [
           `${baseName}.in`,
           `${baseName}.in.txt`,
           `${baseName}.input.txt`
         ];
+        const inputText = await tryLoadAnyFile(inputCandidates);
+        if(inputText) inputEl.value = inputText;
 
-        let inFileText = null;
-        for (const candidate of inFileNameCandidates) {
-          const inPath = dir ? `${dir}/${candidate}` : candidate;
-          try {
-            const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${inPath}`;
-            const res = await fetch(url);
-            if (res.ok) {
-              const json = await res.json();
-              if (json && json.download_url) {
-                const rawRes = await fetch(json.download_url);
-                if (rawRes.ok) {
-                  inFileText = await rawRes.text();
-                  break;
-                }
-              }
-            }
-          } catch {
-            // ignore errors and continue
-          }
-        }
+        // Description file candidates
+        const descCandidates = [
+          `${baseName}.desc`,
+          `${baseName}.desc.txt`,
+          `${baseName}.description.txt`,
+          `${baseName}.md`
+        ];
+        const descText = await tryLoadAnyFile(descCandidates);
+        if(descText) descriptionEl.textContent = descText;
 
-        if (inFileText) {
-          const parsed = parseInFile(inFileText);
-          inputEl.value = parsed.inputText || "";
-          descriptionEl.textContent = parsed.descriptionText || "No description available.";
-          expectedOutputEl.textContent = parsed.expectedOutputText || "Not loaded";
-        } else {
-          inputEl.value = "";
-          descriptionEl.textContent = "No description available.";
-          expectedOutputEl.textContent = "Not loaded";
-        }
+        // Expected output candidates
+        const outputCandidates = [
+          `${baseName}.out`,
+          `${baseName}.out.txt`,
+          `${baseName}.expected.txt`
+        ];
+        const expectedOutputText = await tryLoadAnyFile(outputCandidates);
+        if(expectedOutputText) expectedOutputEl.textContent = expectedOutputText;
 
-        // Show last updated date from git commit API for the code file
-        try {
-          const commitsUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/commits?path=${file.path}&per_page=1`;
-          const commitsRes = await fetch(commitsUrl);
-          if (commitsRes.ok) {
-            const commitsJson = await commitsRes.json();
-            if (commitsJson.length > 0) {
-              const dateStr = commitsJson[0].commit.committer.date;
-              const dt = new Date(dateStr);
-              uploadedDateEl.textContent = `Last updated: ${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}`;
-            } else {
-              uploadedDateEl.textContent = "";
-            }
-          }
-        } catch {
+        // Show uploaded date formatted nicely
+        const uploaded = new Date(file.git_url ? (await fetch(file.git_url).then(r => r.json())).committer.date : file.git_url);
+        if(!isNaN(uploaded.getTime()))
+          uploadedDateEl.textContent = `Last updated: ${uploaded.toLocaleDateString()} ${uploaded.toLocaleTimeString()}`;
+        else
           uploadedDateEl.textContent = "";
-        }
       } catch (err) {
         statusMsg.textContent = "Error loading file: " + err.message;
         console.error(err);
       }
     }
 
-    // Monaco Editor setup and reuse
+    // Initialize Monaco Editor
     function setEditorCode(code, language) {
-      if (monacoEditor) {
+      if(monacoEditor) {
         monacoEditor.setValue(code);
-        monacoEditor.getModel().setLanguage(language);
+        monacoEditor.setModelLanguage(monacoEditor.getModel(), language);
       } else {
         require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' }});
-        require(['vs/editor/editor.main'], function () {
+        require(['vs/editor/editor.main'], function() {
           monacoEditor = monaco.editor.create(codeContainer, {
             value: code,
             language: language,
-            theme: 'vs-dark',
+            theme: "vs-dark",
             automaticLayout: true,
             fontSize: 15,
             minimap: { enabled: false },
-            lineNumbers: 'on',
+            lineNumbers: "on",
             scrollbar: {
               verticalScrollbarSize: 10,
               horizontalScrollbarSize: 10
@@ -759,9 +743,9 @@
       }
     }
 
-    // Run code with Judge0 API
+    // Run code using Judge0 API
     async function runCode() {
-      if (!monacoEditor) {
+      if(!monacoEditor) {
         statusMsg.textContent = "Editor not loaded yet";
         return;
       }
@@ -773,6 +757,7 @@
       const language = getLanguageByExtension(fileNameLabel.textContent);
       const input = inputEl.value;
 
+      // Judge0 language IDs example: C=50, CPP=54, Python=71, Java=62, JS=63
       const languageMap = {
         'c': 50,
         'cpp': 54,
@@ -790,7 +775,8 @@
           stdin: input,
         };
 
-        const res = await fetch(`https://${rapidApiHost}/submissions?base64_encoded=false&wait=false`, {
+        // Create submission
+        let res = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=false", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -799,39 +785,39 @@
           },
           body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error("Submission failed");
+        if(!res.ok) throw new Error("Submission failed");
         const json = await res.json();
         const token = json.token;
 
         // Poll for result
         let result;
-        while (true) {
-          const statusRes = await fetch(`https://${rapidApiHost}/submissions/${token}?base64_encoded=false`, {
+        while(true) {
+          const statusRes = await fetch(`https://judge0-ce.p.rapidapi.com/submissions/${token}?base64_encoded=false`, {
             headers: {
               "X-RapidAPI-Host": rapidApiHost,
               "X-RapidAPI-Key": rapidApiKey
             }
           });
-          if (!statusRes.ok) throw new Error("Error getting result");
+          if(!statusRes.ok) throw new Error("Error getting result");
           result = await statusRes.json();
-          if (result.status.id >= 3) break;
+          if(result.status.id >= 3) break;
           await new Promise(r => setTimeout(r, 1000));
         }
 
-        if (result.stdout) {
+        if(result.stdout) {
           outputEl.value = result.stdout;
           statusMsg.textContent = "Execution successful!";
-        } else if (result.compile_output) {
+        } else if(result.compile_output) {
           outputEl.value = "Compile Error:\n" + result.compile_output;
           statusMsg.textContent = "Compile error";
-        } else if (result.stderr) {
+        } else if(result.stderr) {
           outputEl.value = "Runtime Error:\n" + result.stderr;
           statusMsg.textContent = "Runtime error";
         } else {
           outputEl.value = "Unknown error or empty output";
           statusMsg.textContent = "Execution finished with unknown status";
         }
-      } catch (err) {
+      } catch(err) {
         statusMsg.textContent = "Error running code: " + err.message;
         outputEl.value = "";
         console.error(err);
@@ -840,17 +826,17 @@
       }
     }
 
-    // Typing animation text array
+    // Typing animation in bottom bar
     const typingTexts = [
       "Welcome to Farhans Practice Problems!",
-      "Select a .c file to view and run code.",
-      "Input and expected output will load from .in file.",
+      "Select a file to view and run code.",
+      "Input and expected output will load automatically.",
       "Try changing the code and run it here.",
       "Enjoy coding with Monaco editor."
     ];
     let typingIndex = 0, charIndex = 0;
     function typingAnimation() {
-      if (charIndex <= typingTexts[typingIndex].length) {
+      if(charIndex <= typingTexts[typingIndex].length) {
         typingTextEl.textContent = typingTexts[typingIndex].slice(0, charIndex);
         charIndex++;
       } else {
@@ -862,11 +848,11 @@
     }
     setInterval(typingAnimation, 100);
 
-    // Initial load of folder (.c files only)
+    // Initial load
     loadFolder(folderPathRoot);
 
-    // Run button event
     runBtn.addEventListener("click", runCode);
+
   </script>
 </body>
 </html>
