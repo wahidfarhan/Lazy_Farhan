@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Farhans Practice Problems with Monaco Editor</title>
+  <title>Farhans Practice Problems - Monaco Editor</title>
 
-  <!-- Monaco Editor loader -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.42.0/min/vs/loader.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark-reasonable.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wcoder/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.css" />
 
   <style>
     :root {
@@ -18,11 +18,10 @@
       --text: #c9d1d9;
       --sidebar-width: 280px;
       --transition-speed: 0.3s;
-      --scrollbar-bg: #1e1e1e;
-      --scrollbar-thumb: #02ff00;
+      --scrollbar-bg: #1e1e1e; /* scrollbar background */
+      --scrollbar-thumb: #02ff00; /* scrollbar thumb */
       --scrollbar-thumb-hover: #333;
     }
-
     * {
       box-sizing: border-box;
     }
@@ -43,8 +42,6 @@
       overflow: hidden;
       background: var(--bg);
     }
-
-    /* Sidebar */
     #sidebar {
       width: var(--sidebar-width);
       background: var(--bg-alt);
@@ -117,8 +114,6 @@
       background: var(--green-light);
       color: white;
     }
-
-    /* Back button */
     #fileList li.back-button {
       font-weight: 700;
       background-color: #0a4d1b;
@@ -136,7 +131,6 @@
       box-shadow: 0 0 12px 2px #2ea043cc;
     }
 
-    /* Main content */
     #main {
       flex: 1 1 auto;
       display: flex;
@@ -145,7 +139,6 @@
       overflow: hidden;
       min-width: 0;
     }
-
     #codeSection {
       display: flex;
       flex-wrap: wrap;
@@ -154,19 +147,15 @@
       min-height: 600px;
       overflow: hidden;
     }
-
-    #editorContainer {
+    #codeContainer {
       flex: 2 1 60%;
       min-width: 300px;
       border: 3px solid var(--green);
       border-radius: 6px;
+      overflow: hidden; 
       max-height: 600px;
       background: #282c34;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
     }
-
     #ioSide {
       flex: 1 1 35%;
       display: flex;
@@ -176,7 +165,6 @@
       max-height: 600px;
       overflow: hidden;
     }
-
     .io-box {
       display: flex;
       flex-direction: column;
@@ -196,7 +184,6 @@
     .io-box::-webkit-scrollbar-thumb:hover {
       background-color: var(--scrollbar-thumb-hover);
     }
-
     .io-box label {
       font-weight: bold;
       color: var(--green);
@@ -244,7 +231,6 @@
       background-color: #1e1e1e;
       white-space: pre-wrap;
     }
-
     #descriptionBox {
       min-height: 190px;
       max-height: 250px;
@@ -265,7 +251,6 @@
     #descriptionBox::-webkit-scrollbar-thumb:hover {
       background-color: var(--scrollbar-thumb-hover);
     }
-
     #runBtn {
       margin-top: 15px;
       background: var(--green);
@@ -285,7 +270,6 @@
       background: var(--green-light);
       outline: none;
     }
-
     #statusMsg {
       margin-top: 10px;
       font-style: italic;
@@ -315,7 +299,6 @@
     #expectedOutput::-webkit-scrollbar-thumb:hover {
       background-color: var(--scrollbar-thumb-hover);
     }
-
     #uploadedDate {
       margin-top: 10px;
       font-size: 0.9em;
@@ -331,8 +314,6 @@
       margin-left: 8px;
       user-select: none;
     }
-
-    /* Typing animation footer */
     #typingContainer {
       height: 40px;
       background: var(--bg-alt);
@@ -353,17 +334,14 @@
       white-space: nowrap;
       overflow: hidden;
     }
-
-    /* Responsive adjustments */
     @media (max-width: 1024px) {
-      #editorContainer {
+      #codeContainer {
         max-height: 400px;
       }
       #ioSide {
         max-height: 400px;
       }
     }
-
     @media (max-width: 768px) {
       body {
         height: auto;
@@ -395,7 +373,7 @@
         flex-direction: column;
         gap: 15px;
       }
-      #editorContainer {
+      #codeContainer {
         flex: none;
         min-width: 100%;
         max-height: 350px;
@@ -426,7 +404,6 @@
         min-height: 150px;
       }
     }
-
     @media (max-width: 480px) {
       #sidebar {
         max-height: 200px;
@@ -438,6 +415,11 @@
       #fileList li {
         font-size: 0.8rem;
         padding: 6px 8px;
+      }
+      #codeContainer pre {
+        font-size: 13px;
+        padding: 12px;
+        min-height: 250px;
       }
       textarea, .readonly-box {
         font-size: 13px;
@@ -464,9 +446,7 @@
     </div>
     <div id="main">
       <div id="codeSection">
-        <div id="editorContainer" aria-label="Code editor container">
-          <div id="editor" style="width: 100%; height: 600px;"></div>
-        </div>
+        <div id="codeContainer" aria-label="Code display area"></div>
         <div id="ioSide">
           <div class="io-box">
             <label for="input">📥 Input</label>
@@ -495,30 +475,18 @@
     <div id="typingText"></div>
   </div>
 
+  <!-- Monaco editor loader -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+
   <script>
-    // Monaco loader config
-    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.42.0/min/vs' }});
-
-    let editor;
-    require(["vs/editor/editor.main"], function () {
-      editor = monaco.editor.create(document.getElementById('editor'), {
-        value: '',
-        language: 'c',
-        theme: 'vs-dark',
-        automaticLayout: true,
-        fontSize: 14,
-        minimap: { enabled: false },
-        scrollBeyondLastLine: false,
-      });
-    });
-
-    // Your repo and API config
     const repoOwner = "wahidfarhan";
     const repoName = "Lazy_Farhan";
     const folderPathRoot = "";
 
     const rapidApiHost = "judge0-ce.p.rapidapi.com";
     const rapidApiKey = "2ffb7c9968msh2aaee0147c376edp10350djsne858c3d03a02";
+
+    const proxyUrl = "https://corsproxy.io/?";
 
     const fileListEl = document.getElementById("fileList");
     const inputEl = document.getElementById("input");
@@ -529,15 +497,34 @@
     const expectedOutputEl = document.getElementById("expectedOutput");
     const fileNameLabel = document.getElementById("fileNameLabel");
     const uploadedDateEl = document.getElementById("uploadedDate");
+    const codeContainer = document.getElementById("codeContainer");
 
     let currentCode = "";
     let currentPath = "";
     let folderStack = [];
 
+    let editor = null; // monaco editor instance
+
+    // Load Monaco Editor
+    require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' }});
+    require(['vs/editor/editor.main'], function () {
+      editor = monaco.editor.create(codeContainer, {
+        value: "",
+        language: "c",
+        theme: "vs-dark",
+        automaticLayout: true,
+        fontSize: 14,
+        minimap: { enabled: false },
+        lineNumbers: "on",
+        scrollBeyondLastLine: false,
+      });
+    });
+
+    // Fetch folder contents from GitHub API with proxy
     async function fetchFolderContent(path) {
       try {
         const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
-        const res = await fetch(apiUrl);
+        const res = await fetch(proxyUrl + apiUrl);
         if (!res.ok) throw new Error("Failed to fetch folder contents");
         const data = await res.json();
         return data;
@@ -548,276 +535,281 @@
       }
     }
 
+    // Fetch last commit date for file
+    async function getFileLastCommitDate(filePath) {
+      try {
+        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/commits?path=${filePath}&page=1&per_page=1`;
+        const res = await fetch(proxyUrl + apiUrl);
+        if (!res.ok) throw new Error("Failed to fetch last commit");
+        const data = await res.json();
+        if (data && data.length > 0) {
+          return new Date(data[0].commit.committer.date);
+        }
+        return null;
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+    }
+
+    // Show folder contents in sidebar
     async function showFolder(path) {
-      fileListEl.innerHTML = "<li>Loading...</li>";
+      fileListEl.innerHTML = `<li>Loading...</li>`;
       const data = await fetchFolderContent(path);
       if (!data) return;
 
-      const folders = data.filter(item => item.type === "dir");
-      const cFiles = data.filter(item => item.type === "file" && item.name.endsWith(".c"));
-
-      fileListEl.innerHTML = "";
-
-      if (path !== folderPathRoot) {
-        const backLi = document.createElement("li");
-        backLi.textContent = "⬅️ Back";
-        backLi.classList.add("back-button");
-        backLi.addEventListener("click", () => {
-          if (folderStack.length > 0) {
-            currentPath = folderStack.pop();
-            showFolder(currentPath);
-            clearCodeDisplay();
-          }
-        });
-        fileListEl.appendChild(backLi);
-      }
-
-      if (folders.length === 0 && cFiles.length === 0) {
-        fileListEl.innerHTML += "<li>No folders or C files found.</li>";
-        return;
-      }
-
-      folders.forEach(folder => {
-        const li = document.createElement("li");
-        li.textContent = "📁 " + folder.name;
-        li.style.fontWeight = "bold";
-        li.style.cursor = "pointer";
-        li.addEventListener("click", () => {
-          folderStack.push(currentPath);
-          currentPath = folder.path;
-          showFolder(currentPath);
-          clearCodeDisplay();
-        });
-        fileListEl.appendChild(li);
+      // Sort: folders first, then files
+      data.sort((a, b) => {
+        if (a.type === b.type) return a.name.localeCompare(b.name);
+        return a.type === "dir" ? -1 : 1;
       });
 
-      cFiles.forEach(file => {
-        const li = document.createElement("li");
-        li.textContent = file.name;
-        li.style.cursor = "pointer";
-        li.addEventListener("click", () => {
-          loadCodeFile(file);
-        });
-        fileListEl.appendChild(li);
-      });
+      // Push current folder to stack (for back navigation)
+      if (!folderStack.length || folderStack[folderStack.length -1] !== path) {
+        folderStack.push(path);
+      }
+      currentPath = path;
+
+      let listItems = [];
+
+      // Add back button if not root
+      if (folderStack.length > 1) {
+        listItems.push(`<li class="back-button" tabindex="0" role="button" aria-label="Go back to previous folder">⬅ Back</li>`);
+      }
+
+      for (const item of data) {
+        if (item.type === "dir") {
+          listItems.push(`<li class="folder-item" tabindex="0" role="button" aria-label="Open folder ${item.name}" data-path="${item.path}">📁 ${item.name}</li>`);
+        } else if (item.type === "file" && item.name.endsWith(".c")) {
+          listItems.push(`<li class="file-item" tabindex="0" role="button" aria-label="Open file ${item.name}" data-path="${item.path}">📄 ${item.name}</li>`);
+        }
+      }
+      fileListEl.innerHTML = listItems.join("");
     }
 
-    function clearCodeDisplay() {
-      currentCode = "";
-      if (editor) editor.setValue('');
-      inputEl.value = "";
-      outputEl.value = "";
-      expectedOutputEl.textContent = "Not loaded";
-      descriptionEl.textContent = "No description available.";
-      fileNameLabel.textContent = "";
-      uploadedDateEl.textContent = "";
-      statusMsg.textContent = "";
-    }
-
-    async function getFileLastCommitDate(filePath) {
+    // Load code file content from GitHub API with proxy
+    async function loadCodeFile(path) {
       try {
-        const commitsApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/commits?path=${filePath}&page=1&per_page=1`;
-        const res = await fetch(commitsApiUrl);
-        if (!res.ok) throw new Error("Failed to fetch commits");
-        const commits = await res.json();
-        if (commits.length > 0 && commits[0].commit && commits[0].commit.author) {
-          return commits[0].commit.author.date;
-        }
-        return null;
-      } catch {
-        return null;
-      }
-    }
-
-    async function parseInputFile(text) {
-      const lines = text.split(/\r?\n/);
-      let inputLines = [];
-      let descriptionLines = [];
-      let outputLines = [];
-
-      let section = "input";
-
-      for (let line of lines) {
-        const lower = line.trim().toLowerCase();
-        if (lower === "description") {
-          section = "description";
-          continue;
-        }
-        if (lower === "output") {
-          section = "output";
-          continue;
-        }
-        if (section === "input") inputLines.push(line);
-        else if (section === "description") descriptionLines.push(line);
-        else if (section === "output") outputLines.push(line);
-      }
-
-      return {
-        input: inputLines.join("\n"),
-        description: descriptionLines.join("\n"),
-        output: outputLines.join("\n"),
-      };
-    }
-
-    async function loadCodeFile(file) {
-      clearCodeDisplay();
-
-      try {
-        const res = await fetch(file.download_url);
-        if (!res.ok) throw new Error("Failed to fetch code");
-        const codeText = await res.text();
-
-        currentCode = codeText;
-        if (editor) editor.setValue(currentCode);
-      } catch (err) {
-        statusMsg.textContent = "Error loading code file.";
-        console.error(err);
-        return;
-      }
-
-      fileNameLabel.textContent = `(${file.name})`;
-
-      const commitDate = await getFileLastCommitDate(file.path);
-      if (commitDate) {
-        const dateObj = new Date(commitDate);
-        const formattedDate = dateObj.getFullYear() + "-" +
-                              String(dateObj.getMonth() + 1).padStart(2, "0") + "-" +
-                              String(dateObj.getDate()).padStart(2, "0") + " " +
-                              String(dateObj.getHours()).padStart(2, "0") + ":" +
-                              String(dateObj.getMinutes()).padStart(2, "0");
-        uploadedDateEl.textContent = `uploaded in ${formattedDate}`;
-      } else {
+        // Reset UI
+        statusMsg.textContent = "Loading file...";
+        outputEl.value = "";
+        inputEl.value = "";
+        expectedOutputEl.textContent = "Not loaded";
+        descriptionEl.textContent = "Loading description...";
         uploadedDateEl.textContent = "";
+        fileNameLabel.textContent = `(${path.split('/').pop()})`;
+
+        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
+        const res = await fetch(proxyUrl + apiUrl);
+        if (!res.ok) throw new Error("Failed to fetch code file");
+        const data = await res.json();
+
+        if (data.encoding !== "base64") throw new Error("Unsupported encoding");
+
+        // Decode base64 content
+        const content = atob(data.content.replace(/\n/g, ''));
+        currentCode = content;
+
+        // Set code in monaco editor
+        if (editor) {
+          editor.setValue(content);
+          // Set language based on file extension
+          const ext = path.split('.').pop().toLowerCase();
+          if (ext === "c") monaco.editor.setModelLanguage(editor.getModel(), "c");
+          else monaco.editor.setModelLanguage(editor.getModel(), "plaintext");
+        }
+
+        statusMsg.textContent = "File loaded.";
+        
+        // Load input.txt, output.txt, description.txt if exist in same folder
+        const folder = path.substring(0, path.lastIndexOf("/"));
+        await loadAdditionalFiles(folder);
+
+        // Load last commit date for file
+        const date = await getFileLastCommitDate(path);
+        if (date) {
+          uploadedDateEl.textContent = `Last updated: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+        } else {
+          uploadedDateEl.textContent = "";
+        }
+      } catch (err) {
+        statusMsg.textContent = "Error loading file.";
+        descriptionEl.textContent = "";
+        expectedOutputEl.textContent = "Not loaded";
+        console.error(err);
       }
+    }
 
-      // Try to load input file with same basename + ".in"
-      const baseName = file.name.replace(/\.c$/, "");
-      const inputUrl = file.download_url.replace(/\/[^\/]+$/, `/${baseName}.in`);
-
+    // Load input.txt, output.txt, description.txt files for a folder (optional)
+    async function loadAdditionalFiles(folder) {
       try {
-        const inputRes = await fetch(inputUrl);
+        // input.txt
+        const inputUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folder}/input.txt`;
+        const inputRes = await fetch(proxyUrl + inputUrl);
         if (inputRes.ok) {
-          const inputText = await inputRes.text();
-          const parsed = await parseInputFile(inputText);
-          inputEl.value = parsed.input;
-          expectedOutputEl.textContent = parsed.output || "Not loaded";
-          descriptionEl.textContent = parsed.description || "No description available.";
+          const inputData = await inputRes.json();
+          if (inputData.encoding === "base64") {
+            inputEl.value = atob(inputData.content.replace(/\n/g, ''));
+          }
         } else {
           inputEl.value = "";
-          expectedOutputEl.textContent = "Not loaded";
-          descriptionEl.textContent = "No description available.";
         }
       } catch {
         inputEl.value = "";
+      }
+
+      try {
+        // output.txt
+        const outputUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folder}/output.txt`;
+        const outputRes = await fetch(proxyUrl + outputUrl);
+        if (outputRes.ok) {
+          const outputData = await outputRes.json();
+          if (outputData.encoding === "base64") {
+            expectedOutputEl.textContent = atob(outputData.content.replace(/\n/g, ''));
+          }
+        } else {
+          expectedOutputEl.textContent = "Not loaded";
+        }
+      } catch {
         expectedOutputEl.textContent = "Not loaded";
+      }
+
+      try {
+        // description.txt
+        const descUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folder}/description.txt`;
+        const descRes = await fetch(proxyUrl + descUrl);
+        if (descRes.ok) {
+          const descData = await descRes.json();
+          if (descData.encoding === "base64") {
+            descriptionEl.textContent = atob(descData.content.replace(/\n/g, ''));
+          }
+        } else {
+          descriptionEl.textContent = "No description available.";
+        }
+      } catch {
         descriptionEl.textContent = "No description available.";
       }
     }
 
-    // Judge0 API integration
+    // Run code via Judge0 API
     async function runCode() {
-      if (!editor) return;
-      const sourceCode = editor.getValue();
-      const input = inputEl.value;
+      if (!currentCode.trim()) {
+        statusMsg.textContent = "No code to run.";
+        return;
+      }
 
       statusMsg.textContent = "Running code...";
       outputEl.value = "";
 
-      const postData = {
-        language_id: 50, // C (gcc 9.2.0) in Judge0
-        source_code: sourceCode,
-        stdin: input,
+      const encodedSourceCode = btoa(unescape(encodeURIComponent(editor.getValue())));
+      const encodedInput = btoa(unescape(encodeURIComponent(inputEl.value)));
+
+      const language_id = 50; // C language id for Judge0
+
+      const payload = {
+        language_id: language_id,
+        source_code: encodedSourceCode,
+        stdin: encodedInput,
+        // Expected output is not sent to Judge0, but can be used locally if needed
       };
 
       try {
-        const response = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
+        const response = await fetch(`https://${rapidApiHost}/submissions?base64_encoded=true&wait=true`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-RapidAPI-Key": rapidApiKey,
             "X-RapidAPI-Host": rapidApiHost,
+            "X-RapidAPI-Key": rapidApiKey,
           },
-          body: JSON.stringify(postData),
+          body: JSON.stringify(payload),
         });
 
-        if (!response.ok) throw new Error("Failed to run code");
+        if (!response.ok) throw new Error("Error from Judge0 API");
 
         const result = await response.json();
 
+        let outputText = "";
+
         if (result.stdout) {
-          outputEl.value = result.stdout;
-          statusMsg.textContent = "Execution finished.";
-        } else if (result.compile_output) {
-          outputEl.value = result.compile_output;
-          statusMsg.textContent = "Compilation error.";
+          outputText = decodeURIComponent(escape(atob(result.stdout)));
         } else if (result.stderr) {
-          outputEl.value = result.stderr;
-          statusMsg.textContent = "Runtime error.";
+          outputText = "Error:\n" + decodeURIComponent(escape(atob(result.stderr)));
+        } else if (result.compile_output) {
+          outputText = "Compile Error:\n" + decodeURIComponent(escape(atob(result.compile_output)));
         } else {
-          outputEl.value = "";
-          statusMsg.textContent = "Unknown error.";
+          outputText = "No output returned.";
         }
+
+        outputEl.value = outputText;
+        statusMsg.textContent = "Execution finished.";
       } catch (err) {
+        outputEl.value = "";
         statusMsg.textContent = "Error running code.";
         console.error(err);
       }
     }
 
-    runBtn.addEventListener("click", runCode);
-
-    // Init: show root folder files
-    currentPath = folderPathRoot;
-    showFolder(currentPath);
-
-    // Typing animation (optional)
+    // Typing animation for "Farhan Wahid" at bottom bar
     const typingTextEl = document.getElementById("typingText");
-    const typingPhrases = [
-      "Welcome to Farhan's C Code Practice!",
-      "Select a file from left to load code.",
-      "Edit code and run it with Judge0 API.",
-      "Responsive & Modern Monaco Editor integrated.",
-      "Enjoy coding!"
-    ];
+    const typingStr = "Farhan Wahid";
     let typingIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-
-    function type() {
-      const current = typingPhrases[typingIndex];
-      if (!isDeleting) {
-        typingTextEl.textContent = current.slice(0, charIndex + 1);
-        charIndex++;
-        if (charIndex === current.length) {
-          isDeleting = true;
-          setTimeout(type, 2000);
+    let typingForward = true;
+    function typingAnimation() {
+      if (typingForward) {
+        typingIndex++;
+        if (typingIndex >= typingStr.length) {
+          typingForward = false;
+          setTimeout(typingAnimation, 1000);
           return;
         }
       } else {
-        typingTextEl.textContent = current.slice(0, charIndex - 1);
-        charIndex--;
-        if (charIndex === 0) {
-          isDeleting = false;
-          typingIndex = (typingIndex + 1) % typingPhrases.length;
+        typingIndex--;
+        if (typingIndex <= 0) {
+          typingForward = true;
+          setTimeout(typingAnimation, 500);
+          return;
         }
       }
-      setTimeout(type, isDeleting ? 80 : 120);
+      typingTextEl.textContent = typingStr.slice(0, typingIndex);
+      setTimeout(typingAnimation, typingForward ? 200 : 120);
     }
-    type();
+    typingAnimation();
 
-    // Optional: Zoom editor font size with Ctrl+wheel
-    window.addEventListener('wheel', e => {
-      if (e.ctrlKey) {
-        e.preventDefault();
-        if (!editor) return;
-        let currentFont = editor.getOption(monaco.editor.EditorOption.fontSize);
-        if (e.deltaY < 0) {
-          currentFont = Math.min(currentFont + 1, 30);
-        } else {
-          currentFont = Math.max(currentFont - 1, 8);
+    // Event delegation for file/folder clicks
+    fileListEl.addEventListener("click", (e) => {
+      const li = e.target.closest("li");
+      if (!li) return;
+
+      if (li.classList.contains("back-button")) {
+        // Go back folder
+        if (folderStack.length > 1) {
+          folderStack.pop();
+          const prevFolder = folderStack[folderStack.length - 1];
+          showFolder(prevFolder);
         }
-        editor.updateOptions({ fontSize: currentFont });
+      } else if (li.classList.contains("folder-item")) {
+        const path = li.dataset.path;
+        showFolder(path);
+      } else if (li.classList.contains("file-item")) {
+        const path = li.dataset.path;
+        loadCodeFile(path);
       }
-    }, { passive: false });
+    });
+
+    // Keyboard accessibility for file/folder list (Enter/Space)
+    fileListEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        e.target.click();
+      }
+    });
+
+    // Run button
+    runBtn.addEventListener("click", runCode);
+
+    // Load initial folder (root)
+    showFolder(folderPathRoot);
+
   </script>
 </body>
 </html>
