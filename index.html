@@ -829,6 +829,35 @@
 
     // Initialize file list from root
     showFolder(folderPathRoot);
+     let zoomLevel = 1; // Default scale
+  const codeZoomTarget = document.getElementById("codeContainer");
+  const codeBlock = document.getElementById("codeBlock");
+
+  codeZoomTarget.addEventListener("wheel", (e) => {
+    if (e.ctrlKey) {
+      e.preventDefault(); // Prevent default browser zoom
+      const delta = e.deltaY;
+
+      if (delta < 0) {
+        zoomLevel += 0.1;
+      } else {
+        zoomLevel = Math.max(0.5, zoomLevel - 0.1); // Minimum zoom limit
+      }
+
+      codeBlock.style.fontSize = `${14 * zoomLevel}px`;
+    }
+  }, { passive: false });
+
+  // Optional: Ctrl + 0 to reset zoom
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key === "0") {
+      zoomLevel = 1;
+      codeBlock.style.fontSize = `14px`;
+      e.preventDefault();
+    }
+  });
+
+ 
   </script>
 </body>
 </html>
