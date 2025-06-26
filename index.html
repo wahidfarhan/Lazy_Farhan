@@ -91,7 +91,7 @@
       display: flex;
       flex-direction: column;
       padding: 15px 20px;
-      overflow-y: auto;
+      overflow: hidden; /* Changed to hidden to control overflow */
       min-width: 0; /* Important for flex shrink */
     }
 
@@ -130,12 +130,15 @@
       gap: 12px;
       min-width: 250px;
       max-height: 500px;
-      overflow-y: auto;
+      overflow: hidden; /* changed from auto */
     }
 
     .io-box {
       display: flex;
       flex-direction: column;
+      /* make boxes scroll if too tall */
+      max-height: 33vh;
+      overflow-y: auto;
     }
     .io-box label {
       font-weight: bold;
@@ -143,6 +146,7 @@
       margin-bottom: 5px;
       font-size: 0.95rem;
       user-select: none;
+      flex-shrink: 0;
     }
     textarea, .readonly-box {
       width: 100%;
@@ -158,6 +162,7 @@
       max-height: 150px;
       overflow-y: auto;
       transition: border-color var(--transition-speed);
+      flex-grow: 1;
     }
     textarea:focus {
       outline: none;
@@ -169,10 +174,12 @@
       white-space: pre-wrap;
     }
 
-    /* Boro kora holo description box */
+    /* Description box bigger but scrollable and flex-grow to not overflow */
     #descriptionBox {
-      max-height: 250px; /* 140px theke boro kora holo */
       min-height: 120px;
+      max-height: 250px;
+      overflow-y: auto;
+      flex-grow: 1;
     }
 
     #runBtn {
@@ -208,6 +215,7 @@
       white-space: pre-wrap;
       max-height: 140px;
       overflow-y: auto;
+      flex-grow: 1;
     }
     #uploadedDate {
       margin-top: 10px;
@@ -215,6 +223,7 @@
       color: #56d364;
       text-align: right;
       user-select: none;
+      flex-shrink: 0;
     }
     #fileNameLabel {
       color: #56d364;
@@ -400,9 +409,9 @@
             <label>✅ Expected Output</label>
             <div id="expectedOutput" class="readonly-box" tabindex="0" aria-live="polite">Not loaded</div>
           </div>
-          <div class="io-box">
+          <div class="io-box" style="flex-grow:1; display:flex; flex-direction:column;">
             <label>📝 Description <span id="fileNameLabel"></span></label>
-            <div id="descriptionBox" class="readonly-box" tabindex="0" aria-live="polite">No description available.</div>
+            <div id="descriptionBox" class="readonly-box" tabindex="0" aria-live="polite" style="flex-grow:1; overflow-y:auto;">No description available.</div>
           </div>
         </div>
       </div>
@@ -465,8 +474,27 @@
 
       fileListEl.innerHTML = "";
 
+      if (path !== folderPathRoot) {
+        const backLi = document.createElement("li");
+        backLi.textContent = "⬅️ Back";
+        backLi.style.fontWeight = "bold";
+        backLi.style.cursor = "pointer";
+        backLi.style.backgroundColor = "#444";
+        backLi.style.color = "#fff";
+        backLi.style.marginBottom = "12px";
+        backLi.style.borderRadius = "5px";
+        backLi.addEventListener("click", () => {
+          if (folderStack.length > 0) {
+            currentPath = folderStack.pop();
+            showFolder(currentPath);
+            clearCodeDisplay();
+          }
+        });
+        fileListEl.appendChild(backLi);
+      }
+
       if (folders.length === 0 && cFiles.length === 0) {
-        fileListEl.innerHTML = "<li>No folders or C files found.</li>";
+        fileListEl.innerHTML += "<li>No folders or C files found.</li>";
         return;
       }
 
@@ -555,7 +583,6 @@
     }
 
     async function loadCodeFile(file) {
-      // Clear previous
       clearCodeDisplay();
 
       try {
