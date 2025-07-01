@@ -620,6 +620,15 @@
     // Render files and folders in sidebar with icons and click handlers
     function renderFileList() {
       fileListEl.innerHTML = '';
+      // Add file count heading
+const countHeading = document.createElement('li');
+countHeading.textContent = `📁 ${currentFiles.length} items`;
+countHeading.style.fontWeight = "bold";
+countHeading.style.fontSize = "0.95rem";
+countHeading.style.marginBottom = "8px";
+countHeading.style.color = "#56d364";
+fileListEl.appendChild(countHeading);
+
       if (currentPath !== folderPathRoot) {
         const backLi = document.createElement('li');
         backLi.textContent = '⬅️ Back';
