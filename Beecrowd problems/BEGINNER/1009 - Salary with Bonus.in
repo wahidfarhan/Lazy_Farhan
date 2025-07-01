@@ -12,7 +12,6 @@ Considering that this seller receives 15% over all products sold, write the fina
 Input
 The input file contains a text (employee's first name), and two double precision values, that are the seller's salary and the total value sold by him/her.
 
-Output
 Print the seller's total salary, according to the given example.
 output
 TOTAL = R$ 684.54
